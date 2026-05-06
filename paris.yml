@@ -1,0 +1,442 @@
+app:
+  description: ''
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  icon_type: emoji
+  mode: workflow
+  name: paris
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/gemini:0.7.20@de0063a630a6d1b2c025fb84f3462ba5151fb60618309cd595c3f4711b1df847
+    version: null
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/openai:0.3.6@4875322dafae33f1125b31c0fbf66cdb089f09f2dbbcda65d4e605ee7043bb23
+    version: null
+kind: app
+version: 0.6.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        attachment_image_file_size_limit: 2
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        file_upload_limit: 50
+        image_file_batch_limit: 10
+        image_file_size_limit: 10
+        single_chunk_attachment_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInLoop: false
+        sourceType: start
+        targetType: llm
+      id: 1776885893947-source-1776927927576-target
+      selected: false
+      source: '1776885893947'
+      sourceHandle: source
+      target: '1776927927576'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: llm
+        targetType: knowledge-retrieval
+      id: 1776927927576-source-1776886106415-target
+      selected: false
+      source: '1776927927576'
+      sourceHandle: source
+      target: '1776886106415'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: knowledge-retrieval
+        targetType: iteration
+      id: 1776886106415-source-1776930523021-target
+      selected: false
+      source: '1776886106415'
+      sourceHandle: source
+      target: '1776930523021'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: true
+        isInLoop: false
+        iteration_id: '1776930523021'
+        sourceType: iteration-start
+        targetType: llm
+      id: 1776930523021start-source-1776930732596-target
+      source: 1776930523021start
+      sourceHandle: source
+      target: '1776930732596'
+      targetHandle: target
+      type: custom
+      zIndex: 1002
+    - data:
+        isInLoop: false
+        sourceType: iteration
+        targetType: end
+      id: 1776930523021-source-1776927902182-target
+      source: '1776930523021'
+      sourceHandle: source
+      target: '1776927902182'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        selected: false
+        title: User Input
+        type: start
+        variables:
+        - default: ''
+          hint: ''
+          label: 展品名
+          options: []
+          placeholder: ''
+          required: true
+          type: text-input
+          variable: name
+        - default: ''
+          hint: ''
+          label: 上下文
+          options: []
+          placeholder: ''
+          required: false
+          type: text-input
+          variable: context
+        - default: ''
+          hint: ''
+          label: 别名
+          options: []
+          placeholder: ''
+          required: false
+          type: text-input
+          variable: alias
+      height: 161
+      id: '1776885893947'
+      position:
+        x: -11.755711969560366
+        y: 180.99543042435175
+      positionAbsolute:
+        x: -11.755711969560366
+        y: 180.99543042435175
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        dataset_ids:
+        - fShQ6cINi1XJaOYfGL4rJRzXZqW6nkKGljzWYGrNqUlf4+Bq+vw/0erTvhXFrv5S
+        multiple_retrieval_config:
+          reranking_enable: false
+          reranking_mode: weighted_score
+          score_threshold: null
+          top_k: 6
+          weights:
+            keyword_setting:
+              keyword_weight: 0.2
+            vector_setting:
+              embedding_model_name: text-embedding-3-large
+              embedding_provider_name: langgenius/openai/openai
+              vector_weight: 0.8
+            weight_type: customized
+        query_attachment_selector: []
+        query_variable_selector:
+        - '1776885893947'
+        - name
+        retrieval_mode: multiple
+        selected: true
+        title: find top k text segment
+        type: knowledge-retrieval
+      height: 52
+      id: '1776886106415'
+      position:
+        x: 581.0740903323247
+        y: 283.21855402107565
+      positionAbsolute:
+        x: 581.0740903323247
+        y: 283.21855402107565
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        outputs:
+        - value_selector:
+          - '1776930523021'
+          - output
+          value_type: array[string]
+          variable: result
+        selected: false
+        title: Output
+        type: end
+      height: 88
+      id: '1776927902182'
+      position:
+        x: 1416.3850076529266
+        y: 47.482979612114235
+      positionAbsolute:
+        x: 1416.3850076529266
+        y: 47.482979612114235
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: gemini-3.1-flash-lite-preview
+          provider: langgenius/gemini/google
+        prompt_template:
+        - id: 3743c73c-efb3-4d8a-b88d-61912fc2c88b
+          role: system
+          text: "You are an information retrieval expert.\n\nTask:\nGenerate a search\
+            \ query for retrieving relevant passages from historical texts, based\
+            \ on exhibit metadata.\n\nCore Principle:\nDo NOT copy the catalog-style\
+            \ exhibit name. Instead, convert it into expressions that are more likely\
+            \ to appear in natural text.\n\n---\n\nInput:\nName: {{{#1776885893947.name#}}}}\n\
+            Context: {{{#1776885893947.context#}}}}\n\n---\n\nGeneration Rules:\n\n\
+            1. Use natural descriptive expressions instead of catalog titles\n   -\
+            \ Avoid directly using names like “Canon Krupp, Section Prussienne”\n\
+            \   - Convert to natural phrasing (e.g., “Prussian guns”)\n\n2. Convert\
+            \ country names into adjectival forms\n   - Prussia → Prussian\n   - France\
+            \ → French\n   - Germany → German\n\n3. Make category terms more concrete\n\
+            \   - Weaponry → guns / artillery / weapons\n   - Industry → manufacture\
+            \ / industrial\n\n4. Remove irrelevant elements\n   - Exclude numbers\
+            \ (e.g., N215, 1073)\n   - Exclude words like Section, Catalogue, Entry\n\
+            \n5. Keep core semantic elements\n   - country\n   - object type (e.g.,\
+            \ gun, sculpture, painting)\n   - domain (e.g., industrial, military)\n\
+            \n6. Omit company names or proper nouns if they are unlikely to appear\
+            \ in text\n   - For example, “Krupp” can be omitted if not commonly mentioned\n\
+            \n7. Keep the query concise (5–12 words)\n\n---\n\nOutput Requirements:\n\
+            \n- Output ONE line of English query\n- Do NOT explain\n- Do NOT output\
+            \ JSON\n\n---\n\nExample (for understanding only, do NOT copy):\n\nInput:\n\
+            Canon Krupp, Section Prussienne\n\nOutput:\nPrussian guns artillery weapon\
+            \ industry exhibition"
+        selected: false
+        title: generate query
+        type: llm
+        vision:
+          enabled: false
+      height: 88
+      id: '1776927927576'
+      position:
+        x: 269.92884184702035
+        y: 201.99543042435175
+      positionAbsolute:
+        x: 269.92884184702035
+        y: 201.99543042435175
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        error_handle_mode: remove-abnormal-output
+        flatten_output: true
+        height: 176
+        is_parallel: false
+        iterator_input_type: array[object]
+        iterator_selector:
+        - '1776886106415'
+        - result
+        output_selector:
+        - '1776930732596'
+        - text
+        output_type: array[string]
+        parallel_nums: 10
+        selected: false
+        start_node_id: 1776930523021start
+        title: Iteration
+        type: iteration
+        width: 386
+      height: 176
+      id: '1776930523021'
+      position:
+        x: 886.37855754764
+        y: -30.626123696960885
+      positionAbsolute:
+        x: 886.37855754764
+        y: -30.626123696960885
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 386
+      zIndex: 1
+    - data:
+        desc: ''
+        isInIteration: true
+        selected: false
+        title: ''
+        type: iteration-start
+      draggable: false
+      height: 48
+      id: 1776930523021start
+      parentId: '1776930523021'
+      position:
+        x: 24
+        y: 68
+      positionAbsolute:
+        x: 910.37855754764
+        y: 37.37387630303911
+      selectable: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom-iteration-start
+      width: 44
+      zIndex: 1002
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1776930523021'
+          - item
+        isInIteration: true
+        isInLoop: false
+        iteration_id: '1776930523021'
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: gemini-3.1-flash-lite-preview
+          provider: langgenius/gemini/google
+        prompt_template:
+        - id: 1fe3f747-e62e-403e-ac76-4aa60da5814b
+          role: system
+          text: "You will see:\n\n[Exhibit Information]\nName: {{{{#1776885893947.name#}}}}\n\
+            Context: {{{{#1776885893947.context#}}}}\n\n[Current Text Chunk]\n{{{{#1776930523021.item#}}}}\n\
+            \nTask:\nDetermine the relationship between the current text chunk and\
+            \ the exhibit, and extract relevant information only when supported by\
+            \ evidence.\n\n---\n\nMatch Levels:\n\n- exact: The text clearly refers\
+            \ to this specific exhibit (explicit name or uniquely identifiable reference)\n\
+            - related: The text does not explicitly name the exhibit but clearly belongs\
+            \ to the same country, section, category, manufacturing system, or object\
+            \ group, and can serve as contextual/background information\n- none: The\
+            \ text has no clear relation to the exhibit\n\n---\n\nField Types:\n\n\
+            [Objective Information]\n- Manufacturing Process: how something is made\
+            \ or produced\n- Structural Feature: physical structure or composition\n\
+            - Category Context: industry or category it belongs to\n\n[Exhibition\
+            \ Context]\n- Exhibition Context: information about country, section,\
+            \ or exhibition setting\n\n[Subjective Perception]\n- Audience Impression:\
+            \ expressed feelings or impressions (e.g., ingenious, curious)\n- Evaluation:\
+            \ explicit judgment (e.g., beautiful, poor quality)\n- Popularity: level\
+            \ of attention, interest, or public engagement\n\n---\n\nOutput Requirements:\n\
+            \nOnly output valid JSON:\n\n{\n  \"match_level\": \"exact | related |\
+            \ none\",\n  \"fields\": [\n    {\n      \"field\": \"...\",\n      \"\
+            value\": \"...\",\n      \"evidence\": \"...\",\n      \"confidence\"\
+            : 0.0\n    }\n  ]\n}\n\n---\n\nStrict Rules:\n\n[Judgment]\n- Only use\
+            \ the current text chunk; do NOT use information from other chunks\n-\
+            \ If the text only describes general industry, manufacturing, or national\
+            \ background → usually \"related\"\n- If no clear relation → return \"\
+            none\" with empty fields\n\n[Value Writing — Critical]\n- Write the extracted\
+            \ information directly (NOT meta descriptions)\n- DO NOT write phrases\
+            \ like:\n  \"the text describes...\", \"the passage mentions...\", \"\
+            this section talks about...\"\n- Use ONE concise sentence (preferably\
+            \ 8–25 words)\n- Preferred structure:\n  object + feature/action\n- Must\
+            \ contain concrete information (object / process / feature)\n- Avoid vague\
+            \ wording (e.g., \"some information\", \"general content\")\n\n[Granularity]\n\
+            - If multiple clear information points exist, output multiple fields\n\
+            - Each field should contain only ONE distinct information point\n\n[Subjective\
+            \ Information]\n- Only extract if explicit evaluative or emotional language\
+            \ appears in the text\n- Evidence MUST include the actual evaluative words\
+            \ (e.g., \"ingenious\", \"beautiful\", \"curious\")\n- Do NOT infer or\
+            \ assume sentiment\n\n[Evidence]\n- Must be copied verbatim from the current\
+            \ text chunk\n- Keep it short and focused (key phrase only)\n\n[Confidence]\n\
+            - 0–1 scale\n- Direct and explicit evidence: 0.8–1.0\n- Reasonable inference:\
+            \ 0.5–0.8\n- Weak relation: 0.3–0.5\n\n[Forbidden]\n- Do NOT fabricate\
+            \ information\n- Do NOT add anything not present in the text\n- Do NOT\
+            \ output explanations\n- Output JSON only\n\n---\n\nStyle Example (for\
+            \ reference only, do NOT copy):\n\n{\n  \"match_level\": \"related\",\n\
+            \  \"fields\": [\n    {\n      \"field\": \"Manufacturing Process\",\n\
+            \      \"value\": \"Needle-gun components require precise tube fitting\
+            \ and are formed through cutting and rolling\",\n      \"evidence\": \"\
+            requiring short tubes with indentations of great exactness ... roll it\
+            \ up\",\n      \"confidence\": 0.9\n    },\n    {\n      \"field\": \"\
+            Audience Impression\",\n      \"value\": \"Manufacturing machines are\
+            \ described as highly ingenious and costly\",\n      \"evidence\": \"\
+            very ingenious and expensive machines\",\n      \"confidence\": 0.88\n\
+            \    }\n  ]\n}"
+        selected: false
+        structured_output_enabled: false
+        title: info extraction
+        type: llm
+        vision:
+          enabled: false
+      height: 88
+      id: '1776930732596'
+      parentId: '1776930523021'
+      position:
+        x: 128
+        y: 66.6804920892271
+      positionAbsolute:
+        x: 1014.37855754764
+        y: 36.05436839226621
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+      zIndex: 1002
+    viewport:
+      x: 152.8138717368804
+      y: 247.40717146495354
+      zoom: 0.3789291416276005
+  rag_pipeline_variables: []

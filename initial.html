@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paris Exposition Worlds</title>
+<link rel="stylesheet" href="./assets/css/initial.css">
+</head>
+<body>
+  <div id="renderer-host"></div>
+  <div id="point-layer"></div>
+  <canvas id="connector-canvas"></canvas>
+  <div id="label-root"></div>
+
+  <div id="expo-ornament">
+    <div class="orn-year">1867</div>
+    <div class="orn-line"></div>
+    <div class="orn-small">Paris Universal Exposition</div>
+    <div class="orn-small">Three worlds of seeing</div>
+    <div class="orn-arc"></div>
+  </div>
+
+  <div id="expo-ribbon">Official World / Staged World / Lived World</div>
+
+  <section id="intro">
+    <div class="intro-gate">
+      <div class="gate-eye">Paris, 1867</div>
+      <h1 class="gate-title">Three worlds gather around the same exhibits.</h1>
+      <div class="gate-note">Choose a world to enter the constellation.</div>
+      <div class="view-grid">
+        <div class="ve" data-world="official" style="color:var(--c-official)">
+          <div class="ve-ring"><div class="ve-dot"></div></div>
+          <span class="ve-lbl">The Official World</span>
+          <div class="ve-copy">Declared order.</div>
+          <div class="ve-note">catalogue / report / nation</div>
+          <div class="ve-doc">formal reports and official state description</div>
+        </div>
+        <div class="ve" data-world="staged" style="color:var(--c-staged)">
+          <div class="ve-ring"><div class="ve-dot"></div></div>
+          <span class="ve-lbl">The Staged World</span>
+          <div class="ve-copy">Arranged meaning.</div>
+          <div class="ve-note">display / expertise / institution</div>
+          <div class="ve-doc">scientific, expert, and institutional commentary</div>
+        </div>
+        <div class="ve" data-world="lived" style="color:var(--c-lived)">
+          <div class="ve-ring"><div class="ve-dot"></div></div>
+          <span class="ve-lbl">The Lived World</span>
+          <div class="ve-copy">Felt experience.</div>
+          <div class="ve-note">wonder / fatigue / witness</div>
+          <div class="ve-doc">private sensation and personal response</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="world-bar">
+    <button class="wb" data-world="official" aria-pressed="false">Official World</button>
+    <button class="wb" data-world="staged" aria-pressed="false">Staged World</button>
+    <button class="wb" data-world="lived" aria-pressed="false">Lived World</button>
+  </div>
+
+  <nav id="view-bar" aria-label="View switcher">
+    <button class="vb active" data-view="overall" aria-pressed="true">Overall</button>
+    <button class="vb" data-view="technical" aria-pressed="false">Technical</button>
+    <button class="vb" data-view="category" aria-pressed="false">Category</button>
+    <button class="vb" data-view="exhibition" aria-pressed="false">Exhibition</button>
+    <button class="vb" data-view="perception" aria-pressed="false">Perception</button>
+  </nav>
+
+  <div id="deselect-hint" role="status">Esc · click space to deselect</div>
+  <div id="tip" aria-hidden="true">
+    <div class="tip-name" id="tip-name"></div>
+    <div class="tip-sub">click to explore</div>
+  </div>
+
+  <aside id="image-panel" aria-hidden="true">
+    <div class="image-panel-kicker">Stereo View</div>
+    <div class="image-frame">
+      <img id="image-panel-img" alt="Selected exhibit image">
+    </div>
+    <div id="image-panel-caption"></div>
+  </aside>
+
+  <article id="object-panel" aria-hidden="true">
+    <div class="panel-kicker" id="panel-kicker"></div>
+    <h2 class="panel-title" id="panel-title"></h2>
+    <div class="panel-sub" id="panel-sub"></div>
+    <div class="panel-essay" id="panel-essay"></div>
+    <div class="panel-prompt" id="panel-prompt"></div>
+  </article>
+
+  <script src="./vendor/three.min.js"></script>
+  <script src="./initial.data.js"></script>
+  <script src="./initial.embeddings.js"></script>
+  <script src="./assets/js/initial-local.js"></script>
+</body>
+</html>

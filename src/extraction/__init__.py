@@ -1,0 +1,1 @@
+"""Chunk-level semantic extraction."""

@@ -1,0 +1,2 @@
+[console_scripts]
+museum-pipeline = src.cli.main:app
