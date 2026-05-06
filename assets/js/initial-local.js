@@ -84,7 +84,9 @@
     camTargetTheta:  0,
     camTargetPhi:    Math.PI * 0.44,
     camRadius:       13.5,
-    camTargetRadius: 13.5
+    camTargetRadius: 13.5,
+    camFov:          60,
+    camTargetFov:    60
   };
 
   // ─── 工具函数 ──────────────────────────────────────────────────────────────
@@ -194,18 +196,24 @@
     let z = (p?.[2] ?? 0) * cfg.scale[2];
 
     // 黄金角抖动，均匀分布，不重叠
-    const jx = Math.sin(i * 2.399) * 0.28;
-    const jy = Math.cos(i * 1.618) * 0.28;
-    const jz = Math.sin(i * 3.141) * 0.28;
+    const jx = Math.sin(i * 2.399) * 0.38;
+    const jy = Math.cos(i * 1.618) * 0.30;
+    const jz = Math.sin(i * 3.141) * 0.38;
 
     x += jx + (world === "lived"    ? Math.cos(i * 1.7)  * 0.10 : 0);
     y += jy + (world === "staged"   ? Math.sin(i * 1.13) * 0.10 : 0);
     z += jz + (world === "official" ? Math.sin(i * 0.58) * 0.10 : 0);
 
+    const rotatedX = x * c - z * s;
+    const rotatedZ = x * s + z * c;
+    const len = Math.max(Math.hypot(rotatedX, y, rotatedZ), 1e-6);
+    const semanticRadius = clamp(len, 0.0, 5.6);
+    const shellRadius = 8.4 + semanticRadius * 1.45 + (i % 9) * 0.08;
+
     return [
-      x * c - z * s + cfg.offset[0],
-      y + cfg.offset[1],
-      x * s + z * c + cfg.offset[2]
+      (rotatedX / len) * shellRadius,
+      (y / len) * shellRadius,
+      (rotatedZ / len) * shellRadius
     ];
   }
 
@@ -979,7 +987,7 @@
     });
     renderer.domElement.addEventListener("wheel", ev => {
       ev.preventDefault();
-      state.camTargetRadius = clamp(state.camTargetRadius + ev.deltaY * 0.008, 7.0, 30.0);
+      state.camTargetFov = clamp(state.camTargetFov + ev.deltaY * 0.025, 38.0, 82.0);
     }, { passive: false });
     document.addEventListener("keydown", ev => { if (ev.key === "Escape") deselectExhibit(); });
     window.addEventListener("resize", () => {
@@ -1000,14 +1008,16 @@
     state.camTheta  += (state.camTargetTheta - state.camTheta)  * 0.038;
     state.camPhi    += (state.camTargetPhi   - state.camPhi)    * 0.038;
     state.camRadius += (state.camTargetRadius - state.camRadius) * 0.080;
+    state.camFov    += (state.camTargetFov    - state.camFov)    * 0.080;
 
-    const r = state.camRadius;
-    camera.position.set(
-      r * Math.sin(state.camPhi) * Math.sin(state.camTheta),
-      r * Math.cos(state.camPhi),
-      r * Math.sin(state.camPhi) * Math.cos(state.camTheta)
+    camera.fov = state.camFov;
+    camera.updateProjectionMatrix();
+    camera.position.set(0, 0, 0);
+    camera.lookAt(
+      Math.sin(state.camPhi) * Math.sin(state.camTheta),
+      Math.cos(state.camPhi),
+      Math.sin(state.camPhi) * Math.cos(state.camTheta)
     );
-    camera.lookAt(0, 0, 0);
 
     stars.rotation.y = t * 0.009;
     stars.rotation.x = Math.sin(t * 0.07) * 0.028;
@@ -1051,3 +1061,12 @@
 
   animate();
 })();
+
+
+
+
+
+
+
+
+

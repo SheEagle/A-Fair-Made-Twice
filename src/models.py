@@ -210,6 +210,7 @@ class UmapCoordinate(BaseModel):
     view: Literal["technical", "category", "exhibition", "perception", "overall"]
     x: float
     y: float
+    z: float = 0.0
     title: str | None = None
     metadata: dict[str, str | None] = Field(default_factory=dict)
     extracted_fields: list[dict[str, Any]] = Field(default_factory=list)

@@ -90,24 +90,28 @@ def safe_float(value: Any, default: float = 0.0) -> float:
         return default
 
 
-def normalize_xy(coords: dict[tuple[str, str], tuple[float, float]]) -> dict[tuple[str, str], tuple[float, float]]:
+def normalize_xyz(coords: dict[tuple[str, str], tuple[float, float, float]]) -> dict[tuple[str, str], tuple[float, float, float]]:
     if not coords:
         return {}
 
-    xs = [xy[0] for xy in coords.values()]
-    ys = [xy[1] for xy in coords.values()]
+    xs = [xyz[0] for xyz in coords.values()]
+    ys = [xyz[1] for xyz in coords.values()]
+    zs = [xyz[2] for xyz in coords.values()]
     min_x, max_x = min(xs), max(xs)
     min_y, max_y = min(ys), max(ys)
+    min_z, max_z = min(zs), max(zs)
     span_x = max(max_x - min_x, 1e-9)
     span_y = max(max_y - min_y, 1e-9)
+    span_z = max(max_z - min_z, 1e-9)
     center_x = (min_x + max_x) / 2.0
     center_y = (min_y + max_y) / 2.0
-    scale = max(span_x, span_y) / 5.2
+    center_z = (min_z + max_z) / 2.0
+    scale = max(span_x, span_y, span_z) / 5.2
     scale = scale or 1.0
 
-    normalized: dict[tuple[str, str], tuple[float, float]] = {}
-    for key, (x, y) in coords.items():
-        normalized[key] = ((x - center_x) / scale, (y - center_y) / scale)
+    normalized: dict[tuple[str, str], tuple[float, float, float]] = {}
+    for key, (x, y, z) in coords.items():
+        normalized[key] = ((x - center_x) / scale, (y - center_y) / scale, (z - center_z) / scale)
     return normalized
 
 
@@ -187,7 +191,7 @@ def main() -> None:
     exhibits: list[dict[str, Any]] = []
     raw_embedding_payload: dict[str, Any] = {}
 
-    coords_by_world_view: dict[tuple[str, str], dict[tuple[str, str], tuple[float, float]]] = {}
+    coords_by_world_view: dict[tuple[str, str], dict[tuple[str, str], tuple[float, float, float]]] = {}
     for row in umap_rows:
         world = DISCOURSE_TO_WORLD.get(row["discourse"])
         view = row["view"]
@@ -196,10 +200,11 @@ def main() -> None:
         coords_by_world_view.setdefault((world, view), {})[(str(row["exhibit_id"]), view)] = (
             safe_float(row["x"]),
             safe_float(row["y"]),
+            safe_float(row.get("z")),
         )
 
     normalized_coords = {
-        key: normalize_xy(value)
+        key: normalize_xyz(value)
         for key, value in coords_by_world_view.items()
     }
 
@@ -275,8 +280,8 @@ def main() -> None:
                 fallback = normalized_coords.get((world, "overall"), {}).get((exhibit_id, "overall"))
                 official_specific = normalized_coords.get(("official", view), {}).get((exhibit_id, view))
                 official_overall = normalized_coords.get(("official", "overall"), {}).get((exhibit_id, "overall"))
-                x, y = specific or fallback or official_specific or official_overall or (0.0, 0.0)
-                z = divergence_by_world_view.get((world, field_key), {}).get(exhibit_id, 0.0)
+                x, y, z = specific or fallback or official_specific or official_overall or (0.0, 0.0, 0.0)
+                z += divergence_by_world_view.get((world, field_key), {}).get(exhibit_id, 0.0) * 0.25
                 exhibit_record["pos"][world][field_key] = [round(x, 6), round(y, 6), round(z, 6)]
 
             overall_specific = normalized_coords.get((world, "overall"), {}).get((exhibit_id, "overall"))
@@ -295,10 +300,15 @@ def main() -> None:
                     overall_xy = (
                         sum(position[0] for position in sub_positions) / len(sub_positions),
                         sum(position[1] for position in sub_positions) / len(sub_positions),
+                        sum(position[2] for position in sub_positions) / len(sub_positions),
                     )
                 else:
-                    overall_xy = (0.0, 0.0)
-            exhibit_record["pos"][world]["overall"] = [round(overall_xy[0], 6), round(overall_xy[1], 6), 0.0]
+                    overall_xy = (0.0, 0.0, 0.0)
+            exhibit_record["pos"][world]["overall"] = [
+                round(overall_xy[0], 6),
+                round(overall_xy[1], 6),
+                round(overall_xy[2], 6),
+            ]
 
         exhibits.append(exhibit_record)
         raw_embedding_payload[exhibit_id] = {

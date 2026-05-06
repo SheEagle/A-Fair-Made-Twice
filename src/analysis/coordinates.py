@@ -8,11 +8,11 @@ from src.models import VIEW_NAMES, EmbeddingRecord, ExhibitProfile, UmapCoordina
 
 def _project(vectors: list[list[float]]) -> np.ndarray:
     if len(vectors) == 1:
-        return np.array([[0.0, 0.0]])
+        return np.array([[0.0, 0.0, 0.0]])
     if len(vectors) == 2:
-        return np.array([[-1.0, 0.0], [1.0, 0.0]])
+        return np.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
     reducer = umap.UMAP(
-        n_components=2,
+        n_components=3,
         metric="cosine",
         n_neighbors=max(2, min(10, len(vectors) - 1)),
         min_dist=0.15,
@@ -46,6 +46,7 @@ def compute_umap_coordinates(
                         view=view,
                         x=float(point[0]),
                         y=float(point[1]),
+                        z=float(point[2]),
                         title=record.english_metadata.get("title"),
                         metadata=record.english_metadata,
                         extracted_fields=[
