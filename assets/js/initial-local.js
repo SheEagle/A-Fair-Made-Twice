@@ -976,7 +976,6 @@
       const dy = ev.clientY - state.dragStart.y;
       if (Math.abs(dx) > 3 || Math.abs(dy) > 3) state.dragMoved = true;
       state.camTargetTheta = wrap360(state.camTargetTheta - dx * 0.004);
-      state.camTargetPhi   = clamp(state.camTargetPhi - dy * 0.004, 0.3, Math.PI - 0.3);
       state.dragStart = { x: ev.clientX, y: ev.clientY };
     });
     renderer.domElement.addEventListener("pointerup", ev => {
@@ -1061,7 +1060,6 @@
 
   animate();
 })();
-
 
 
 
