@@ -1,4 +1,4 @@
-(function () {
+﻿(function () {
   const THREE = window.THREE;
   const EXHIBITS = Array.isArray(window.REAL_EXHIBITS) ? window.REAL_EXHIBITS : [];
 
@@ -653,47 +653,85 @@
 
   // ─── 核心：精确无重叠布局 ─────────────────────────────────────────────────
   //
-  //  气泡列（左侧）：固定宽度220px，垂直间距72px居中
-  //  相似卡（右侧）：固定宽度220px，垂直间距90px居中
-  //  所有位置以屏幕中心为锚，不依赖动态origin
+  //  详情布局：
+  //  - 中央固定为展品图像
+  //  - similar exhibit 独占右侧专栏
+  //  - 信息泡泡围绕中央图像，但避开右侧专栏
+  //  这样保留“围绕展品”的感觉，同时避免泡泡和 similar 卡片互相压住。
 
   const BUBBLE_W    = 222;
   const BUBBLE_H    = 72;    // 最小气泡高度
-  const BUBBLE_GAP  = 8;
+  const BUBBLE_GAP  = 18;
   const CARD_W      = 222;
   const CARD_H      = 80;
-  const CARD_GAP    = 10;
-  const PANEL_RIGHT = 320;   // 距右边留白
+  const CARD_GAP    = 24;
 
-  function placeBubbles(bubbleEls, originX, originY) {
+  function detailLayoutMetrics() {
+    const centerX = innerWidth / 2;
+    const centerY = innerHeight / 2;
+    const imageW = clamp(innerWidth * 0.32, 380, 560);
+    const imageH = clamp(innerHeight * 0.50, 330, 520);
+    const simX = clamp(
+      innerWidth - CARD_W / 2 - 84,
+      centerX + imageW / 2 + CARD_W / 2 + 150,
+      innerWidth - CARD_W / 2 - 42
+    );
+    const simLeft = simX - CARD_W / 2;
+    return { centerX, centerY, imageW, imageH, simX, simLeft };
+  }
+
+  function applyElementCenter(el, cx, cy, w, h) {
+    el.style.left = `${clamp(cx, w / 2 + 18, innerWidth - w / 2 - 18)}px`;
+    el.style.top  = `${clamp(cy, h / 2 + 18, innerHeight - h / 2 - 18)}px`;
+  }
+
+  function placeBubbles(bubbleEls) {
     const n = bubbleEls.length;
     if (!n) return;
 
-    // 气泡在origin左侧；上下居中对齐origin
-    const totalH = n * BUBBLE_H + (n - 1) * BUBBLE_GAP;
-    const startY  = originY - totalH / 2;
-    // X：让气泡右边缘在origin左侧约 40px，配合连线
-    const cx = clamp(originX - BUBBLE_W / 2 - 44, BUBBLE_W / 2 + 6, innerWidth - BUBBLE_W / 2 - 6);
+    const m = detailLayoutMetrics();
+    const leftX = clamp(
+      m.centerX - m.imageW / 2 - BUBBLE_W / 2 - 88,
+      BUBBLE_W / 2 + 58,
+      m.simLeft - BUBBLE_W / 2 - 56
+    );
+    const topY = m.centerY - m.imageH / 2 - BUBBLE_H / 2 - 42;
+    const bottomY = m.centerY + m.imageH / 2 + BUBBLE_H / 2 + 42;
+    const topX = clamp(m.centerX + 92, BUBBLE_W / 2 + 22, m.simLeft - BUBBLE_W / 2 - 70);
+    const bottomX = clamp(m.centerX + 40, BUBBLE_W / 2 + 22, m.simLeft - BUBBLE_W / 2 - 90);
+
+    const leftCount = Math.max(0, n - 2);
+    const leftTotalH = leftCount * BUBBLE_H + Math.max(0, leftCount - 1) * BUBBLE_GAP;
+    const leftStartY = m.centerY - leftTotalH / 2 + BUBBLE_H / 2;
+
+    const slots = [];
+    if (n === 1) {
+      slots.push([leftX, m.centerY]);
+    } else {
+      for (let i = 0; i < leftCount; i++) {
+        slots.push([leftX, leftStartY + i * (BUBBLE_H + BUBBLE_GAP)]);
+      }
+      slots.push([topX, topY]);
+      slots.push([bottomX, bottomY]);
+    }
 
     bubbleEls.forEach((el, i) => {
-      const cy = startY + i * (BUBBLE_H + BUBBLE_GAP) + BUBBLE_H / 2;
-      el.style.left = `${cx}px`;
-      el.style.top  = `${clamp(cy, BUBBLE_H/2 + 6, innerHeight - BUBBLE_H/2 - 6)}px`;
+      const [cx, cy] = slots[i] || [leftX, m.centerY];
+      applyElementCenter(el, cx, cy, BUBBLE_W, BUBBLE_H);
     });
   }
 
-  function placeCards(cardEls, originX, originY) {
+  function placeCards(cardEls) {
     const n = cardEls.length;
     if (!n) return;
 
+    const m = detailLayoutMetrics();
     const totalH = n * CARD_H + (n - 1) * CARD_GAP;
-    const startY  = originY - totalH / 2;
-    const cx = clamp(originX + CARD_W / 2 + 44, CARD_W / 2 + 6, innerWidth - CARD_W / 2 - 6);
+    const startY = m.centerY - totalH / 2;
 
     cardEls.forEach((el, i) => {
       const cy = startY + i * (CARD_H + CARD_GAP) + CARD_H / 2;
-      el.style.left = `${cx}px`;
-      el.style.top  = `${clamp(cy, CARD_H/2 + 6, innerHeight - CARD_H/2 - 6)}px`;
+      applyElementCenter(el, m.simX, cy, CARD_W, CARD_H);
     });
   }
 
@@ -822,12 +860,20 @@
   }
 
   function setWorld(world) {
+    const keepSelectedIndex = state.selectedIndex;
     state.currentWorld = world;
     clearLabels();
-    state.selectedIndex = state.hoveredIndex = -1;
+    state.hoveredIndex = keepSelectedIndex;
     els.tip.style.opacity = "0";
-    els.deselectHint.classList.remove("on");
     applyLayout();
+
+    if (keepSelectedIndex >= 0) {
+      selectExhibit(keepSelectedIndex);
+    } else {
+      state.selectedIndex = -1;
+      state.hoveredIndex = -1;
+      els.deselectHint.classList.remove("on");
+    }
   }
 
   function setView(view) {
@@ -890,7 +936,7 @@
     ctx.clearRect(0, 0, innerWidth, innerHeight);
     if (state.selectedIndex < 0) return;
 
-    const origin    = project(state.meshes[state.selectedIndex].position, camera);
+    const origin    = { x: innerWidth / 2, y: innerHeight / 2 };
     const color     = activeColor();
     const bubbleEls = state.labels.filter(el => el.dataset.kind === "bubble");
     const simEls    = state.labels.filter(el => el.dataset.kind === "similar");
@@ -1060,6 +1106,7 @@
 
   animate();
 })();
+
 
 
 

@@ -1935,20 +1935,21 @@ body[data-world="lived"] .ve[data-world="lived"] {
 
 #image-panel {
   position: fixed;
-  left: 32px;
-  top: 150px;
-  width: min(420px, calc(100vw - 56px));
-  z-index: 28;
-  padding: 18px 18px 16px;
-  border-radius: 18px;
-  background: linear-gradient(162deg, rgba(10, 10, 26, 0.90), rgba(4, 4, 16, 0.78));
-  border: 1px solid rgba(255, 232, 190, 0.14);
+  left: 50%;
+  top: 50%;
+  width: min(360px, 28vw);
+  z-index: 15;
+  padding: 14px 14px 13px;
+  border-radius: 16px;
+  background: linear-gradient(162deg, rgba(10, 10, 26, 0.74), rgba(4, 4, 16, 0.62));
+  border: 1px solid rgba(255, 232, 190, 0.18);
   box-shadow:
-    0 28px 68px rgba(0, 0, 0, 0.34),
+    0 30px 86px rgba(0, 0, 0, 0.42),
+    0 0 70px var(--world-glow, rgba(255,232,190,0.12)),
     0 0 0 1px rgba(255,255,255,0.04) inset;
   backdrop-filter: blur(18px);
   opacity: 0;
-  transform: translateY(12px);
+  transform: translate(-50%, -50%) scale(0.92);
   pointer-events: none;
   transition:
     opacity 0.42s var(--ease-world),
@@ -1958,7 +1959,7 @@ body[data-world="lived"] .ve[data-world="lived"] {
 
 #image-panel.on {
   opacity: 1;
-  transform: translateY(0);
+  transform: translate(-50%, -50%) scale(1);
 }
 
 body[data-world="official"] #image-panel { border-color: rgba(143, 183, 255, 0.18); }
@@ -1972,6 +1973,7 @@ body[data-world="lived"]    #image-panel { border-color: rgba(255, 142, 168, 0.1
   color: rgba(255, 232, 190, 0.72);
   margin-bottom: 12px;
   font-family: var(--mono);
+  text-align: center;
 }
 
 body[data-world="official"] .image-panel-kicker { color: rgba(143, 183, 255, 0.72); }
@@ -1980,7 +1982,7 @@ body[data-world="lived"]    .image-panel-kicker { color: rgba(255, 142, 168, 0.7
 
 .image-frame {
   width: 100%;
-  aspect-ratio: 1.35 / 1;
+  aspect-ratio: 1.28 / 1;
   overflow: hidden;
   border-radius: 14px;
   border: 1px solid rgba(255,255,255,0.08);
@@ -2003,6 +2005,7 @@ body[data-world="lived"]    .image-panel-kicker { color: rgba(255, 142, 168, 0.7
   font-size: var(--fs-small);
   line-height: 1.6;
   letter-spacing: 0.04em;
+  text-align: center;
 }
 
 #object-panel {
@@ -2135,10 +2138,10 @@ body[data-world="lived"]    .panel-kicker { color: rgba(255, 142, 168, 0.72); }
   .panel-title { font-size: 24px; }
   .panel-essay { font-size: 17px; }
   #image-panel {
-    left: 14px;
-    right: 14px;
-    top: 110px;
-    width: auto;
+    left: 50%;
+    right: auto;
+    top: 50%;
+    width: min(320px, calc(100vw - 40px));
   }
   #object-panel {
     left: 14px;
