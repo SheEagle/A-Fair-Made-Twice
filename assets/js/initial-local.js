@@ -63,6 +63,7 @@
     tipThumb:     document.getElementById("tip-thumb"),
     connector:    document.getElementById("connector-canvas"),
     imagePanel:        document.getElementById("image-panel"),
+    bubbleLayer:       document.getElementById("bubble-layer"),
     imagePanelImg:     document.getElementById("image-panel-img"),
     imagePanelTitle:   document.getElementById("image-panel-title"),
     imagePanelCaption: document.getElementById("image-panel-caption"),
@@ -285,8 +286,54 @@
     return `./Restored/${archiveId.padStart(4, "0")}_c_l.png`;
   }
 
+  /* ── 气泡粒子 ──────────────────────────────────────────────────────────── */
+  let _bubbleTimer = null;
+
+  function _spawnBubble() {
+    if (!els.imagePanel || !els.imagePanel.classList.contains("on")) return;
+    if (!els.bubbleLayer) return;
+    const r   = els.imagePanel.getBoundingClientRect();
+    const bub = document.createElement("div");
+    bub.className = "panel-bubble";
+
+    // Pick a random point on the panel perimeter
+    const perim = 2 * (r.width + r.height);
+    const pos   = Math.random() * perim;
+    let bx, by;
+    if      (pos < r.width)                        { bx = r.left + pos;                          by = r.top;    }
+    else if (pos < r.width + r.height)             { bx = r.right;                               by = r.top  + (pos - r.width); }
+    else if (pos < 2 * r.width + r.height)         { bx = r.right - (pos - r.width - r.height); by = r.bottom; }
+    else                                           { bx = r.left;  by = r.bottom - (pos - 2 * r.width - r.height); }
+
+    const size  = 3 + Math.random() * 7;
+    const dur   = 3 + Math.random() * 3.5;
+    // drift outward from panel centre with a gentle upward bias
+    const cx    = r.left + r.width  / 2;
+    const cy    = r.top  + r.height / 2;
+    const ang   = Math.atan2(by - cy, bx - cx);
+    const dist  = 32 + Math.random() * 48;
+    const dx    = Math.cos(ang) * dist;
+    const dy    = Math.sin(ang) * dist - 8;
+
+    bub.style.cssText = `left:${(bx - size / 2).toFixed(1)}px;top:${(by - size / 2).toFixed(1)}px;width:${size.toFixed(1)}px;height:${size.toFixed(1)}px;--dx:${dx.toFixed(1)}px;--dy:${dy.toFixed(1)}px;--dur:${dur.toFixed(2)}s;`;
+    els.bubbleLayer.appendChild(bub);
+    setTimeout(() => { if (bub.parentNode) bub.parentNode.removeChild(bub); }, dur * 1000 + 120);
+  }
+
+  function startBubbles() {
+    stopBubbles();
+    _spawnBubble();
+    _bubbleTimer = setInterval(_spawnBubble, 480);
+  }
+
+  function stopBubbles() {
+    if (_bubbleTimer) { clearInterval(_bubbleTimer); _bubbleTimer = null; }
+    if (els.bubbleLayer) els.bubbleLayer.innerHTML = "";
+  }
+
   function hideImagePanel() {
     if (!els.imagePanel) return;
+    stopBubbles();
     els.imagePanel.classList.remove("on");
     els.imagePanel.setAttribute("aria-hidden", "true");
 
@@ -332,6 +379,7 @@
     els.imagePanelImg.onload = () => {
       els.imagePanel.classList.add("on");
       els.imagePanel.setAttribute("aria-hidden", "false");
+      startBubbles();
     };
     els.imagePanelImg.src = src;
   }
