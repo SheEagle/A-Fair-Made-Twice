@@ -1835,15 +1835,15 @@ body[data-world="lived"] #expo-ribbon {
   font-size: 10px;
   line-height: 1.9;
   letter-spacing: 0.14em;
-  color: rgba(255, 232, 190, 0.42);
+  color: rgba(255, 232, 190, 0.65);
   text-transform: uppercase;
   margin-bottom: 12px;
   transition: color 0.3s ease;
 }
 
-.ve[data-world="official"] .ve-note { color: rgba(143, 183, 255, 0.48); }
-.ve[data-world="staged"]   .ve-note { color: rgba(215, 168, 110, 0.48); }
-.ve[data-world="lived"]    .ve-note { color: rgba(255, 142, 168, 0.48); }
+.ve[data-world="official"] .ve-note { color: rgba(143, 183, 255, 0.72); }
+.ve[data-world="staged"]   .ve-note { color: rgba(215, 168, 110, 0.72); }
+.ve[data-world="lived"]    .ve-note { color: rgba(255, 142, 168, 0.72); }
 
 .ve:hover .ve-note { filter: brightness(1.5); }
 
@@ -1851,7 +1851,7 @@ body[data-world="lived"] #expo-ribbon {
   font-size: 10px;
   line-height: 1.75;
   letter-spacing: 0.04em;
-  color: rgba(255, 255, 255, 0.30);
+  color: rgba(255, 255, 255, 0.55);
   text-transform: none;
 }
 
@@ -1980,7 +1980,7 @@ body[data-world="lived"] #expo-ribbon {
   font-size: 8px;
   letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.20);
+  color: rgba(255, 255, 255, 0.42);
   cursor: pointer;
   white-space: nowrap;
   transition:
@@ -1990,7 +1990,7 @@ body[data-world="lived"] #expo-ribbon {
     letter-spacing 0.50s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
-.wb:hover { color: rgba(255, 255, 255, 0.55); }
+.wb:hover { color: rgba(255, 255, 255, 0.72); }
 
 /* 活跃世界：大 fell 斜体，色彩鲜明 — 压场标题 */
 .wb.active {
@@ -2045,14 +2045,14 @@ body[data-world="lived"] #expo-ribbon {
   font-size: 8.5px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.28);
+  color: rgba(255, 255, 255, 0.50);
   cursor: pointer;
   white-space: nowrap;
   border-bottom: 1px solid transparent;
   transition: color 0.30s ease, border-color 0.30s ease;
 }
 
-.vb:hover { color: rgba(255, 255, 255, 0.70); }
+.vb:hover { color: rgba(255, 255, 255, 0.85); }
 
 .vb.active {
   color: rgba(255, 255, 255, 0.92);
@@ -2284,7 +2284,7 @@ body[data-world="lived"] .point-thumb.loaded {
   font-size: 8px;
   letter-spacing: 0.26em;
   text-transform: uppercase;
-  opacity: 0.38;
+  opacity: 0.65;
   margin-bottom: 8px;
   color: inherit;
   font-family: var(--mono);
@@ -2359,7 +2359,7 @@ body[data-world="lived"] .point-thumb.loaded {
 .sim-card-reason {
   font-size: 9px;
   letter-spacing: 0.08em;
-  color: rgba(255, 255, 255, 0.30);
+  color: rgba(255, 255, 255, 0.58);
   margin-top: 9px;
   line-height: 1.58;
   font-family: var(--mono);
