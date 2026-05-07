@@ -1912,7 +1912,7 @@ body[data-world="lived"] #expo-ribbon {
 
 /* ── Lived：宽柔底部暖晕 · 圆环脉冲（不旋转，像心跳） · 玫瑰漫射字光 ── */
 .ve[data-world="lived"]::before {
-  left: 50%; bottom: 0;
+  top: auto; left: 50%; bottom: 0;
   width: 4px; height: 0;
   transform: translateX(-50%);
   background: linear-gradient(to top, currentColor 0%, rgba(255,255,255,0.7) 18%, currentColor 40%, transparent 85%);
