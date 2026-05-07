@@ -1832,9 +1832,9 @@ body[data-world="lived"] #expo-ribbon {
 }
 
 .ve-note {
-  font-size: 10px;
+  font-size: 13px;
   line-height: 1.9;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   color: rgba(255, 232, 190, 0.65);
   text-transform: uppercase;
   margin-bottom: 12px;
@@ -1848,9 +1848,9 @@ body[data-world="lived"] #expo-ribbon {
 .ve:hover .ve-note { filter: brightness(1.5); }
 
 .ve-doc {
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.75;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   color: rgba(255, 255, 255, 0.55);
   text-transform: none;
 }
