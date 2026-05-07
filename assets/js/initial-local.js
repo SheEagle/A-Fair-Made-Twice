@@ -59,10 +59,16 @@
     deselectHint: document.getElementById("deselect-hint"),
     tip:          document.getElementById("tip"),
     tipName:      document.getElementById("tip-name"),
+    tipThumbWrap: document.getElementById("tip-thumb-wrap"),
+    tipThumb:     document.getElementById("tip-thumb"),
     connector:    document.getElementById("connector-canvas"),
-    imagePanel:   document.getElementById("image-panel"),
-    imagePanelImg: document.getElementById("image-panel-img"),
-    imagePanelCaption: document.getElementById("image-panel-caption")
+    imagePanel:        document.getElementById("image-panel"),
+    imagePanelImg:     document.getElementById("image-panel-img"),
+    imagePanelTitle:   document.getElementById("image-panel-title"),
+    imagePanelCaption: document.getElementById("image-panel-caption"),
+    imagePanelEssay:   document.getElementById("image-panel-essay"),
+    modeToggle:        document.getElementById("mode-toggle"),
+    worldGhost:        document.getElementById("world-ghost")
   };
 
   const ctx = els.connector.getContext("2d");
@@ -72,9 +78,11 @@
     currentView:     "overall",
     selectedIndex:   -1,
     hoveredIndex:    -1,
+    pointMode:       "dots",
     meshes:          [],
     targets:         [],
     pointEls:        [],
+    nameLabelEls:    [],
     labels:          [],
     dragging:        false,
     dragMoved:       false,
@@ -288,13 +296,12 @@
       els.imagePanelImg.onerror = null;
       els.imagePanelImg.onload = null;
     }
-
-    if (els.imagePanelCaption) {
-      els.imagePanelCaption.textContent = "";
-    }
+    if (els.imagePanelTitle)   els.imagePanelTitle.textContent   = "";
+    if (els.imagePanelCaption) els.imagePanelCaption.textContent = "";
+    if (els.imagePanelEssay)   els.imagePanelEssay.textContent   = "";
   }
 
-  function updateImagePanel(exhibit) {
+  function updateImagePanel(exhibit, world, vk) {
     if (!els.imagePanel || !els.imagePanelImg || !els.imagePanelCaption) return;
 
     const archiveId = getArchiveId(exhibit);
@@ -304,7 +311,22 @@
       return;
     }
 
-    els.imagePanelCaption.textContent = `${exhibit.name} · archive ${archiveId.padStart(4, "0")}`;
+    // 展品名称
+    if (els.imagePanelTitle) els.imagePanelTitle.textContent = exhibit.name;
+
+    // 档案标注（微型 mono）
+    els.imagePanelCaption.textContent =
+      `archive ${archiveId.padStart(4, "0")}  ·  ${(exhibit.country || exhibit.location || "").toUpperCase()}`;
+
+    // 策展文字：从叙述中取 1–2 个最具代表性的 val 拼成短文
+    if (els.imagePanelEssay) {
+      const w = world || state.currentWorld || "official";
+      const k = vk    || currentViewKey()   || "overall";
+      const narrs = getNarratives(exhibit, w, k);
+      const essayParts = narrs.slice(0, 3).map(n => n.val || n.value || "").filter(Boolean);
+      els.imagePanelEssay.textContent = essayParts.join("  ·  ");
+    }
+
     els.imagePanelImg.alt = `${exhibit.name} stereo view`;
     els.imagePanelImg.onerror = () => hideImagePanel();
     els.imagePanelImg.onload = () => {
@@ -600,8 +622,12 @@
       pt.type = "button";
       pt.className = "exhibit-point hidden";
       pt.setAttribute("aria-label", ex.name);
-      // SVG 将在 applyLayout 后首次 updatePointLayer 时注入
+      // SVG 将在 applyLayout 后首次 updatePointLayer 时注入；图像覆盖在 SVG 之上
       pt.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="-22 -22 44 44"></svg>`;
+      const thumb = document.createElement("img");
+      thumb.className = "point-thumb";
+      thumb.alt = ex.name;
+      pt.appendChild(thumb);
 
       pt.addEventListener("mouseenter", () => {
         if (!state.currentWorld) return;
@@ -617,9 +643,21 @@
         if (!state.currentWorld) return;
         state.hoveredIndex = i;
         els.tipName.textContent = EXHIBITS[i].name;
-        els.tip.style.left  = `${ev.clientX + 14}px`;
+        els.tip.style.left  = `${ev.clientX + 16}px`;
         els.tip.style.top   = `${ev.clientY - 8}px`;
         els.tip.style.opacity = "1";
+        // Load thumbnail once per exhibit
+        if (els.tipThumb && els.tipThumbWrap) {
+          const src = getRestoredImagePath(EXHIBITS[i]);
+          if (src && els.tipThumb.dataset.src !== src) {
+            els.tipThumb.dataset.src = src;
+            els.tipThumb.classList.remove("loaded");
+            els.tipThumbWrap.style.display = "";
+            els.tipThumb.onerror = () => { els.tipThumbWrap.style.display = "none"; };
+            els.tipThumb.onload  = () => { els.tipThumb.classList.add("loaded"); };
+            els.tipThumb.src = src;
+          }
+        }
       });
       pt.addEventListener("click", ev => {
         ev.preventDefault(); ev.stopPropagation();
@@ -632,15 +670,18 @@
     });
   }
 
-  // 当世界或视角变化时，重新注入 SVG（形态会变）
+  // 当世界或视角变化时，重新注入 SVG（形态会变）——保留 .point-thumb
   function rebuildPointSVGs() {
     if (!state.currentWorld) return;
     EXHIBITS.forEach((ex, i) => {
+      const pt      = state.pointEls[i];
       const mesh    = state.meshes[i];
       const density = mesh.userData.density ?? getDensity(ex, state.currentWorld, currentViewKey());
       const color   = colorToHex(mesh.material.color);
-      state.pointEls[i].innerHTML = buildPointSVG(state.currentWorld, i, density, color);
-      state.pointEls[i].dataset.density = density < 0.35 ? "0" : density < 0.60 ? "1" : density < 0.82 ? "2" : "3";
+      const thumb   = pt.querySelector(".point-thumb"); // 保存缩略图
+      pt.innerHTML  = buildPointSVG(state.currentWorld, i, density, color);
+      if (thumb) pt.appendChild(thumb);                // 还原缩略图
+      pt.dataset.density = density < 0.35 ? "0" : density < 0.60 ? "1" : density < 0.82 ? "2" : "3";
     });
   }
 
@@ -659,12 +700,12 @@
   //  - 信息泡泡围绕中央图像，但避开右侧专栏
   //  这样保留“围绕展品”的感觉，同时避免泡泡和 similar 卡片互相压住。
 
-  const BUBBLE_W    = 222;
-  const BUBBLE_H    = 72;    // 最小气泡高度
-  const BUBBLE_GAP  = 18;
-  const CARD_W      = 222;
-  const CARD_H      = 80;
-  const CARD_GAP    = 24;
+  const BUBBLE_W    = 238;
+  const BUBBLE_H    = 82;    // 注释标签高度（含更多内边距）
+  const BUBBLE_GAP  = 22;
+  const CARD_W      = 234;
+  const CARD_H      = 92;
+  const CARD_GAP    = 28;
 
   function detailLayoutMetrics() {
     const centerX = innerWidth / 2;
@@ -681,8 +722,10 @@
   }
 
   function applyElementCenter(el, cx, cy, w, h) {
+    // 上方留出双层导航栏（world-bar 18px + view-bar 60px + 间距 ≈ 100px）
+    // 下方留出 ribbon / view 切换栏（≈ 88px）
     el.style.left = `${clamp(cx, w / 2 + 18, innerWidth - w / 2 - 18)}px`;
-    el.style.top  = `${clamp(cy, h / 2 + 18, innerHeight - h / 2 - 18)}px`;
+    el.style.top  = `${clamp(cy, h / 2 + 100, innerHeight - h / 2 - 88)}px`;
   }
 
   function placeBubbles(bubbleEls) {
@@ -742,9 +785,9 @@
     clearLabels();
 
     const ex      = EXHIBITS[index];
-    updateImagePanel(ex);
     const world   = state.currentWorld;
     const vk      = currentViewKey();
+    updateImagePanel(ex, world, vk);
     const narratives = getNarratives(ex, world, vk).slice(0, 6);
     const items   = narratives.length ? narratives : [{ key: state.currentView, val: "No extracted text in this dimension." }];
 
@@ -773,7 +816,7 @@
       card.dataset.index       = String(i);
       card.dataset.targetIndex = String(ti);
       card.innerHTML = `
-        <div class="sim-card-label">Similar exhibit</div>
+        <div class="sim-card-label">Adjacent work</div>
         <div class="sim-card-name">${escapeHtml(tgt.name)}</div>
         <div class="sim-card-reason">${escapeHtml(getSimilarReason(ex, ti))}</div>
       `;
@@ -849,11 +892,19 @@
     document.querySelectorAll(".wb").forEach(b => b.classList.toggle("active", b.dataset.world === state.currentWorld));
     document.querySelectorAll(".vb").forEach(b => b.classList.toggle("active", b.dataset.view  === state.currentView));
     const ribbon = document.getElementById("expo-ribbon");
-    if (ribbon) ribbon.textContent = `${WORLD_CONFIG[state.currentWorld].label} · ${state.currentView}`;
+    const viewLabel = state.currentView.charAt(0).toUpperCase() + state.currentView.slice(1);
+    if (ribbon) ribbon.textContent = `${WORLD_CONFIG[state.currentWorld].label}  ·  ${viewLabel}`;
+
+    // 幽灵背景文字（世界名第一个词，作为大气水印）
+    if (els.worldGhost) {
+      const ghostWords = { official: "Official", staged: "Staged", lived: "Lived" };
+      els.worldGhost.textContent = ghostWords[state.currentWorld] || "";
+    }
 
     els.intro.classList.add("hidden");
     els.worldBar.classList.add("on");
     els.viewBar.classList.add("on");
+    if (els.modeToggle) els.modeToggle.classList.add("on");
     rebuildWorldBridge();
     // 重建点形态 SVG（世界/视角变化时形态随之改变）
     rebuildPointSVGs();
@@ -878,12 +929,18 @@
 
   function setView(view) {
     state.currentView = view;
+    document.querySelectorAll(".vb").forEach(b => b.classList.toggle("active", b.dataset.view === view));
+    const ribbon = document.getElementById("expo-ribbon");
+    if (ribbon && state.currentWorld) {
+      const vl = view.charAt(0).toUpperCase() + view.slice(1);
+      ribbon.textContent = `${WORLD_CONFIG[state.currentWorld].label}  ·  ${vl}`;
+    }
     clearLabels();
     applyLayout();
     if (state.selectedIndex >= 0) selectExhibit(state.selectedIndex);
   }
 
-  // ─── 点位层更新（SVG形态 + 状态类驱动动画） ──────────────────────────────
+  // ─── 点位层更新（缩略图 + 密度尺寸 + SVG 状态驱动） ─────────────────────
   function updatePointLayer() {
     const hasWorld = !!state.currentWorld;
     EXHIBITS.forEach((ex, i) => {
@@ -900,34 +957,45 @@
       const isSim  = state.selectedIndex >= 0 && getSimilarIds(EXHIBITS[state.selectedIndex]).includes(i);
       const density = mesh.userData.density ?? getDensity(ex, state.currentWorld, currentViewKey());
 
-      // 整体透明度（非选中状态下根据密度微调）
-      const baseOpacity = 0.65 + density * 0.28;
+      // 密度决定基础尺寸：24px（稀疏）→ 78px（核心）
+      const baseSize = Math.round(24 + density * 54);
+      const hitSize  = isSel ? Math.min(Math.round(baseSize * 1.30), 108)
+                     : isHov ? Math.round(baseSize * 1.16)
+                     : baseSize;
+
+      // 整体透明度
+      const baseOpacity = 0.55 + density * 0.36;
       const opacity = state.selectedIndex < 0
         ? baseOpacity
         : isSel ? 1.0
-        : isSim ? 0.88
-        : 0.20;
-
-      // hit-area 尺寸：给点一个宽裕的点击区
-      const hitSize = isSel ? 56 : isHov ? 48 : 40;
+        : isSim ? 0.90
+        : 0.12;
 
       pt.classList.remove("hidden");
-      pt.style.left   = `${proj.x}px`;
-      pt.style.top    = `${proj.y}px`;
-      pt.style.width  = `${hitSize}px`;
-      pt.style.height = `${hitSize}px`;
+      pt.style.left    = `${proj.x}px`;
+      pt.style.top     = `${proj.y}px`;
+      pt.style.width   = `${hitSize}px`;
+      pt.style.height  = `${hitSize}px`;
       pt.style.opacity = String(opacity);
+      pt.style.transform = "translate(-50%,-50%)";
 
-      // 状态类（驱动 CSS 动画）
       pt.classList.toggle("selected", isSel);
       pt.classList.toggle("hovered",  isHov && !isSel);
       pt.classList.toggle("similar",  isSim && !isSel);
 
-      // 整体缩放：selected 时稍微放大 hit-area，但 SVG 内部 transform 处理细节
-      pt.style.transform = isSel
-        ? "translate(-50%,-50%) scale(1.25)"
-        : isHov ? "translate(-50%,-50%) scale(1.10)"
-        : "translate(-50%,-50%) scale(1)";
+      // ── 点位图像懒加载（图像模式且高密度展品才加载） ────────────────────────
+      const thumbEl = pt.querySelector(".point-thumb");
+      if (thumbEl && !thumbEl.dataset.attempted && state.pointMode === "images" && density >= 0.46) {
+        thumbEl.dataset.attempted = "1";
+        const src = getRestoredImagePath(ex);
+        if (src) {
+          thumbEl.onload  = () => { thumbEl.classList.add("loaded"); pt.classList.add("img-loaded"); };
+          thumbEl.onerror = () => { thumbEl.style.display = "none"; };
+          thumbEl.src = src;
+        } else {
+          thumbEl.style.display = "none";
+        }
+      }
     });
   }
 
@@ -1008,6 +1076,19 @@
       btn.addEventListener("click", ev => { ev.stopPropagation(); setView(btn.dataset.view); });
     });
     els.deselectHint.addEventListener("click", ev => { ev.stopPropagation(); deselectExhibit(); });
+
+    // ── 显示模式切换 ────────────────────────────────────────────────────────
+    document.querySelectorAll(".mt").forEach(btn => {
+      btn.addEventListener("click", ev => {
+        ev.stopPropagation();
+        const mode = btn.dataset.mode;
+        if (state.pointMode === mode) return;
+        state.pointMode = mode;
+        document.querySelectorAll(".mt").forEach(b => b.classList.toggle("active", b.dataset.mode === mode));
+        document.body.classList.toggle("point-mode-dots",   mode === "dots");
+        document.body.classList.toggle("point-mode-images", mode === "images");
+      });
+    });
 
     renderer.domElement.addEventListener("pointerdown", ev => {
       state.dragging = true;
@@ -1090,9 +1171,15 @@
     renderer.render(scene, camera);
   }
 
+  // 初始化显示模式
+  document.body.classList.add("point-mode-dots");
+
   bindEvents();
   makeMeshes();
   makePointLayer();
+
+  // 点位图像替代环境标签层——不再使用独立的 ambient DOM 层
+  state.nameLabelEls = new Array(EXHIBITS.length).fill(null);
 
   const params = new URLSearchParams(window.location.search);
   const reqView  = params.get("view");
