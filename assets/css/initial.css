@@ -1658,16 +1658,35 @@ body[data-world="lived"] #expo-ribbon {
   cursor: pointer;
   gap: 0;
   transition: background 0.6s ease;
-  /* 错落入场 */
-  animation: veRise 1.4s var(--ease-out-expo) both;
 }
-.ve:nth-child(1) { animation-delay: 0.30s; }
-.ve:nth-child(2) { animation-delay: 0.48s; }
-.ve:nth-child(3) { animation-delay: 0.66s; }
 
-@keyframes veRise {
-  from { opacity: 0; transform: translateY(32px); }
-  to   { opacity: 1; transform: translateY(0); }
+/* Official World — 从左侧平移入场，精准利落 */
+.ve:nth-child(1) {
+  animation: veOfficial 1.3s var(--ease-out-expo) 0.28s both;
+}
+/* Staged World — 从上方落入，带轻微过冲 */
+.ve:nth-child(2) {
+  animation: veStaged 1.5s var(--ease-out-expo) 0.44s both;
+}
+/* Lived World — 从右侧飘入，带细微旋转 */
+.ve:nth-child(3) {
+  animation: veLived 1.4s var(--ease-out-expo) 0.60s both;
+}
+
+@keyframes veOfficial {
+  from { opacity: 0; transform: translateX(-38px) scaleX(0.96); }
+  to   { opacity: 1; transform: translateX(0)     scaleX(1); }
+}
+
+@keyframes veStaged {
+  0%   { opacity: 0; transform: translateY(-44px) scale(0.95); }
+  68%  { opacity: 1; transform: translateY(7px)   scale(1.01); }
+  100% { opacity: 1; transform: translateY(0)     scale(1); }
+}
+
+@keyframes veLived {
+  from { opacity: 0; transform: translateX(36px) rotate(1.6deg); }
+  to   { opacity: 1; transform: translateX(0)    rotate(0deg); }
 }
 
 /* 悬停：世界色光柱从底部冲起 */
