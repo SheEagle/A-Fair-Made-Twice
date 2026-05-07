@@ -1855,6 +1855,99 @@ body[data-world="lived"] #expo-ribbon {
   text-transform: none;
 }
 
+/* ─── 各世界 hover 差异化效果 ────────────────────────────────────────────── */
+
+/* ── Official：横向光梁从左扫入 · 圆环减速（秩序感） · 蓝色焦聚字光 ── */
+.ve[data-world="official"]::before {
+  top: 50%; left: 0; bottom: auto;
+  width: 0; height: 2px;
+  transform: translateY(-50%);
+  background: linear-gradient(to right, currentColor 0%, rgba(255,255,255,0.78) 22%, currentColor 48%, transparent 88%);
+  transition: width 0.80s var(--ease-out-expo), opacity 0.35s ease;
+}
+.ve[data-world="official"]:hover::before {
+  width: 62%; height: 2px; opacity: 0.52;
+}
+.ve[data-world="official"]:hover {
+  background: linear-gradient(90deg, rgba(106,170,240,0.09) 0%, transparent 52%);
+}
+.ve[data-world="official"]:hover .ve-copy {
+  text-shadow: 0 0 26px rgba(106,170,240,0.82);
+}
+.ve[data-world="official"]:hover .ve-ring {
+  animation-duration: 9s;
+  box-shadow: 0 0 14px 4px rgba(106,170,240,0.52);
+}
+.ve[data-world="official"]:hover .ve-ring::after {
+  animation-duration: 9s;
+}
+
+/* ── Staged：聚光从顶部垂落 · 圆环急速旋转（戏剧张力） · 宽幅金色光晕 ── */
+.ve[data-world="staged"]::before {
+  top: 0; left: 50%; bottom: auto;
+  width: 2px; height: 0;
+  transform: translateX(-50%);
+  background: linear-gradient(to bottom, currentColor 0%, rgba(255,255,255,0.78) 22%, currentColor 48%, transparent 88%);
+  filter: blur(3px);
+  box-shadow: 0 0 22px 8px currentColor, 0 0 60px 18px currentColor;
+  opacity: 0;
+  transition: height 0.75s var(--ease-out-expo), opacity 0.35s ease;
+}
+.ve[data-world="staged"]:hover::before {
+  height: 70%; opacity: 0.52;
+}
+.ve[data-world="staged"]:hover {
+  background: linear-gradient(180deg, rgba(240,168,48,0.11) 0%, transparent 50%);
+}
+.ve[data-world="staged"]:hover .ve-copy {
+  text-shadow: 0 0 80px rgba(240,168,48,0.82), 0 0 26px rgba(240,168,48,0.55);
+}
+.ve[data-world="staged"]:hover .ve-ring {
+  animation-duration: 1.0s;
+  box-shadow: 0 0 32px 12px rgba(240,168,48,0.40);
+}
+.ve[data-world="staged"]:hover .ve-ring::after {
+  animation-duration: 1.0s;
+}
+
+/* ── Lived：宽柔底部暖晕 · 圆环脉冲（不旋转，像心跳） · 玫瑰漫射字光 ── */
+.ve[data-world="lived"]::before {
+  left: 50%; bottom: 0;
+  width: 4px; height: 0;
+  transform: translateX(-50%);
+  background: linear-gradient(to top, currentColor 0%, rgba(255,255,255,0.7) 18%, currentColor 40%, transparent 85%);
+  filter: blur(6px);
+  box-shadow: 0 0 30px 14px currentColor, 0 0 72px 26px currentColor;
+  opacity: 0;
+  transition: height 0.75s var(--ease-out-expo), opacity 0.35s ease;
+}
+.ve[data-world="lived"]:hover::before {
+  height: 66%; opacity: 0.46;
+}
+.ve[data-world="lived"]:hover {
+  background: radial-gradient(ellipse 68% 52% at 44% 58%, rgba(240,80,128,0.10) 0%, transparent 68%);
+}
+.ve[data-world="lived"]:hover .ve-copy {
+  text-shadow: 0 0 64px rgba(240,80,128,0.75);
+}
+.ve[data-world="lived"]:hover .ve-ring {
+  animation: ring-lived-pulse 1.4s ease-in-out infinite;
+  box-shadow: 0 0 26px 8px rgba(240,80,128,0.42);
+}
+.ve[data-world="lived"]:hover .ve-ring::after {
+  opacity: 0.55;
+  animation: ring-lived-pulse-arc 1.4s ease-in-out infinite;
+}
+
+@keyframes ring-lived-pulse {
+  0%, 100% { transform: scale(1.08); opacity: 0.65; }
+  50%       { transform: scale(1.28); opacity: 0.92; }
+}
+@keyframes ring-lived-pulse-arc {
+  0%, 100% { opacity: 0.30; transform: scale(0.94); }
+  50%       { opacity: 0.64; transform: scale(1.06); }
+}
+
 /* ─── 导航栏 ──────────────────────────────────────────────────────────────── */
 
 /* ─── 世界选择条（顶部居中，大小对比排版） ─────────────────────────────────── */
