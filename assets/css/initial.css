@@ -1568,10 +1568,10 @@ body[data-world="lived"] #expo-ribbon {
 /* ─── 入场幕顶部标题区 ────────────────────────────────────────────────────── */
 
 .gate-eye {
-  font-size: 10px;
-  letter-spacing: 0.32em;
+  font-size: 13px;
+  letter-spacing: 0.30em;
   text-transform: uppercase;
-  color: rgba(255, 232, 190, 0.50);
+  color: rgba(255, 232, 190, 0.82);
   animation: fadeUp 1.2s var(--ease-out-expo) both;
   margin-bottom: 0;
 }
@@ -1591,10 +1591,10 @@ body[data-world="lived"] #expo-ribbon {
 }
 
 .gate-note {
-  font-size: 10px;
-  letter-spacing: 0.20em;
+  font-size: 13px;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(255, 232, 190, 0.35);
+  color: rgba(255, 232, 190, 0.70);
   animation: fadeUp 1.2s var(--ease-out-expo) 0.2s both;
   margin-top: 14px;
   margin-bottom: 0;
@@ -1804,15 +1804,15 @@ body[data-world="lived"] #expo-ribbon {
 }
 
 .ve-lbl {
-  font-size: 10px;
-  letter-spacing: 0.20em;
+  font-size: 12px;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.50);
+  color: rgba(255, 255, 255, 0.72);
   margin-bottom: 16px;
   transition: color 0.3s ease;
 }
 
-.ve:hover .ve-lbl { color: rgba(255, 255, 255, 0.88); }
+.ve:hover .ve-lbl { color: rgba(255, 255, 255, 0.96); }
 
 .ve-copy {
   font-family: var(--fell);
