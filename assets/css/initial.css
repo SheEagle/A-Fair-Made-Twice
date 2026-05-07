@@ -1134,11 +1134,12 @@ body {
     color 0.6s var(--ease-world);
 }
 
-/* 星空动画 canvas */
+/* 星空动画 canvas — z-index 41 浮在所有层之上（含 intro:40），
+   canvas 本身透明，只绘制星点，不遮挡下方内容 */
 #star-canvas {
   position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: 41;
   pointer-events: none;
 }
 
@@ -1622,7 +1623,7 @@ body[data-world="lived"] #expo-ribbon {
   gap: 0;
   margin-top: 36px;
   flex-shrink: 0;
-  animation: fadeUp 1.2s var(--ease-out-expo) 0.30s both;
+  /* 不整组动画，改为各列错落 */
 }
 
 /* 世界入口列 — 无边框、无圆角、固定高度大气柱 */
@@ -1644,6 +1645,38 @@ body[data-world="lived"] #expo-ribbon {
   cursor: pointer;
   gap: 0;
   transition: background 0.6s ease;
+  /* 错落入场 */
+  animation: veRise 1.4s var(--ease-out-expo) both;
+}
+.ve:nth-child(1) { animation-delay: 0.30s; }
+.ve:nth-child(2) { animation-delay: 0.48s; }
+.ve:nth-child(3) { animation-delay: 0.66s; }
+
+@keyframes veRise {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* 悬停扫光 shimmer */
+.ve::before {
+  content: "";
+  position: absolute;
+  top: -80%;
+  left: -60%;
+  width: 40%;
+  height: 260%;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.04) 50%,
+    transparent 70%
+  );
+  transform: skewX(-12deg);
+  transition: left 0.9s cubic-bezier(0.19, 1, 0.22, 1);
+  pointer-events: none;
+}
+.ve:hover::before {
+  left: 130%;
 }
 
 /* 竖分隔线（相邻列之间） */
@@ -1669,11 +1702,11 @@ body[data-world="lived"] #expo-ribbon {
   pointer-events: none;
 }
 
-.ve:hover::after { opacity: 0.085; }
+.ve:hover::after { opacity: 0.092; }
 
 /* 悬停：底部轻微光带 */
 .ve:hover {
-  background: linear-gradient(180deg, transparent 40%, rgba(255,255,255,0.016) 100%);
+  background: linear-gradient(180deg, transparent 40%, rgba(255,255,255,0.018) 100%);
 }
 
 .ve-ring {
@@ -2179,51 +2212,62 @@ body[data-world="lived"] .point-thumb.loaded {
   left: 50%;
   top: 50%;
   width: min(400px, 28vw);
-  z-index: 15;
+  z-index: 42;           /* 星星之上，确保面板可见 */
   padding: 0;
-  border-radius: 2px;
-  background: rgba(6, 6, 18, 0.93);
+  border-radius: 3px;
+  background: rgba(5, 5, 16, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.10);
   box-shadow:
-    0 40px 100px rgba(0, 0, 0, 0.52),
-    0 0 80px var(--world-glow, rgba(255, 232, 190, 0.08)),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(22px);
+    0 48px 120px rgba(0, 0, 0, 0.62),
+    0 0 100px var(--world-glow, rgba(255, 232, 190, 0.10)),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(28px);
   opacity: 0;
-  transform: translate(-50%, -50%) scale(0.94);
+  transform: translate(-50%, -50%) scale(0.91) translateY(12px);
   pointer-events: none;
   transition:
-    opacity 0.52s var(--ease-world),
-    transform 0.52s var(--ease-world),
-    box-shadow 0.60s var(--ease-world),
-    border-color 0.52s var(--ease-world);
+    opacity 0.58s var(--ease-world),
+    transform 0.58s var(--ease-world),
+    box-shadow 0.70s var(--ease-world),
+    border-color 0.58s var(--ease-world);
 }
 
 #image-panel.on {
   opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
+  transform: translate(-50%, -50%) scale(1) translateY(0);
+  animation: panel-border-pulse 3.8s ease-in-out 0.6s 1 forwards;
+}
+
+/* 面板开启时边框脉冲一次 */
+@keyframes panel-border-pulse {
+  0%   { box-shadow: 0 48px 120px rgba(0,0,0,0.62), 0 0 100px var(--world-glow, rgba(255,232,190,0.10)), inset 0 1px 0 rgba(255,255,255,0.07); }
+  30%  { box-shadow: 0 48px 120px rgba(0,0,0,0.62), 0 0 180px var(--world-glow, rgba(255,232,190,0.22)), inset 0 1px 0 rgba(255,255,255,0.10); }
+  100% { box-shadow: 0 48px 120px rgba(0,0,0,0.62), 0 0 100px var(--world-glow, rgba(255,232,190,0.10)), inset 0 1px 0 rgba(255,255,255,0.07); }
 }
 
 body[data-world="official"] #image-panel {
-  border-color: rgba(106, 170, 240, 0.20);
+  border-color: rgba(106, 170, 240, 0.24);
   box-shadow:
-    0 40px 100px rgba(0, 0, 0, 0.52),
-    0 0 80px rgba(74, 144, 232, 0.16),
-    inset 0 1px 0 rgba(106, 170, 240, 0.08);
+    0 48px 120px rgba(0, 0, 0, 0.62),
+    0 0 100px rgba(74, 144, 232, 0.20),
+    inset 0 1px 0 rgba(106, 170, 240, 0.10);
+  --world-glow: rgba(74, 144, 232, 0.22);
 }
 body[data-world="staged"] #image-panel {
-  border-color: rgba(240, 168, 48, 0.22);
+  border-color: rgba(240, 168, 48, 0.26);
   box-shadow:
-    0 40px 100px rgba(0, 0, 0, 0.52),
-    0 0 80px rgba(232, 146, 10, 0.16),
-    inset 0 1px 0 rgba(240, 168, 48, 0.08);
+    0 48px 120px rgba(0, 0, 0, 0.62),
+    0 0 100px rgba(232, 146, 10, 0.20),
+    inset 0 1px 0 rgba(240, 168, 48, 0.10);
+  --world-glow: rgba(232, 146, 10, 0.22);
 }
 body[data-world="lived"] #image-panel {
-  border-color: rgba(240, 80, 128, 0.20);
+  border-color: rgba(240, 80, 128, 0.24);
   box-shadow:
-    0 40px 100px rgba(0, 0, 0, 0.52),
-    0 0 80px rgba(232, 48, 106, 0.16),
-    inset 0 1px 0 rgba(240, 80, 128, 0.08);
+    0 48px 120px rgba(0, 0, 0, 0.62),
+    0 0 100px rgba(232, 48, 106, 0.20),
+    inset 0 1px 0 rgba(240, 80, 128, 0.10);
+  --world-glow: rgba(232, 48, 106, 0.22);
 }
 
 /* 顶部信息区 */
@@ -2279,12 +2323,14 @@ body[data-world="lived"]    .image-panel-kicker { color: rgba(240, 80,  128, 0.5
   height: 100%;
   object-fit: cover;
   display: block;
-  filter: saturate(0.88) contrast(1.06) brightness(0.92);
-  transition: filter 0.6s ease;
+  filter: saturate(0.80) contrast(1.08) brightness(0.85);
+  transform: scale(1.06);
+  transition: filter 0.9s ease, transform 0.9s var(--ease-out-expo);
 }
 
 #image-panel.on #image-panel-img {
-  filter: saturate(0.94) contrast(1.04) brightness(0.97);
+  filter: saturate(0.94) contrast(1.04) brightness(0.98);
+  transform: scale(1.0);
 }
 
 /* 底部信息区 */
