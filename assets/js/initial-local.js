@@ -1206,32 +1206,40 @@
     resize();
     window.addEventListener("resize", resize);
 
-    // 280 颗背景星，随机位置、亮度、闪烁频率
-    const STAR_COUNT = 280;
-    const stars = Array.from({ length: STAR_COUNT }, () => ({
-      x:     Math.random(),
-      y:     Math.random(),
-      r:     Math.random() * 0.85 + 0.15,           // 0.15–1px
-      base:  0.06 + Math.random() * 0.42,            // 基础不透明度
-      phase: Math.random() * Math.PI * 2,
-      freq:  0.00015 + Math.random() * 0.00055       // 闪烁速度（慢→快）
-    }));
+    // 500 颗背景星 — 3 层：密集小星 / 中型闪烁 / 偶尔明亮
+    const STAR_COUNT = 500;
+    const stars = Array.from({ length: STAR_COUNT }, () => {
+      const tier = Math.random();
+      return {
+        x:     Math.random(),
+        y:     Math.random(),
+        r:     tier < 0.65 ? Math.random() * 0.6 + 0.12           // 小星
+              : tier < 0.92 ? Math.random() * 1.0 + 0.55          // 中型
+              : Math.random() * 1.6 + 1.2,                         // 明亮
+        base:  tier < 0.65 ? 0.08 + Math.random() * 0.28
+              : tier < 0.92 ? 0.20 + Math.random() * 0.45
+              : 0.55 + Math.random() * 0.38,
+        phase: Math.random() * Math.PI * 2,
+        freq:  0.00010 + Math.random() * 0.00070
+      };
+    });
 
-    // 流星队列
+    // 流星队列 — 更频繁、更亮、更长
     const shoots = [];
-    let nextShootAt = performance.now() + 2500 + Math.random() * 4000;
+    let nextShootAt = performance.now() + 1200 + Math.random() * 2500;
 
     function spawnShoot(now) {
       shoots.push({
-        x:        Math.random() * 0.8 + 0.05,        // 起点 x（5%–85% 宽度）
-        y:        Math.random() * 0.45,               // 起点 y（上半屏）
-        len:      0.055 + Math.random() * 0.09,       // 拖尾长度（占宽比）
-        spd:      0.00022 + Math.random() * 0.00028,  // 进度速度 / ms
-        angle:    Math.PI / 5.5 + Math.random() * Math.PI / 9,
+        x:        Math.random() * 0.82 + 0.04,
+        y:        Math.random() * 0.42,
+        len:      0.10 + Math.random() * 0.16,        // 更长拖尾
+        spd:      0.00028 + Math.random() * 0.00032,
+        angle:    Math.PI / 5 + Math.random() * Math.PI / 7,
         progress: 0,
-        alpha:    0.55 + Math.random() * 0.35
+        alpha:    0.75 + Math.random() * 0.24,
+        width:    1.0 + Math.random() * 1.2           // 粗细随机
       });
-      nextShootAt = now + 4500 + Math.random() * 9000;
+      nextShootAt = now + 2800 + Math.random() * 5500; // 更频繁
     }
 
     function draw(now) {
@@ -1270,8 +1278,12 @@
         ctx.moveTo(tailX, tailY);
         ctx.lineTo(headX, headY);
         ctx.strokeStyle = g;
-        ctx.lineWidth = 1.1;
+        ctx.lineWidth = s.width;
+        // 流星光晕
+        ctx.shadowBlur = 6;
+        ctx.shadowColor = `rgba(255,255,255,${(s.alpha * fade * 0.6).toFixed(3)})`;
         ctx.stroke();
+        ctx.shadowBlur = 0;
 
         if (s.progress >= 1) shoots.splice(i, 1);
       }
