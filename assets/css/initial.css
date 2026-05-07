@@ -1523,8 +1523,8 @@ body[data-world="lived"] #expo-ribbon {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  padding: 0;
+  justify-content: center;
+  padding: 0 0 40px;
   gap: 0;
 }
 
@@ -1539,18 +1539,17 @@ body[data-world="lived"] #expo-ribbon {
 /* ─── 入场幕顶部标题区 ────────────────────────────────────────────────────── */
 
 .gate-eye {
-  font-size: 8px;
-  letter-spacing: 0.36em;
+  font-size: 10px;
+  letter-spacing: 0.32em;
   text-transform: uppercase;
-  color: rgba(255, 232, 190, 0.45);
+  color: rgba(255, 232, 190, 0.50);
   animation: fadeUp 1.2s var(--ease-out-expo) both;
-  margin-top: 36px;
   margin-bottom: 0;
 }
 
 .gate-title {
-  font-size: clamp(28px, 3.4vw, 50px);
-  line-height: 1.06;
+  font-size: clamp(32px, 3.6vw, 56px);
+  line-height: 1.08;
   color: rgba(255, 251, 245, 0.97);
   font-weight: 300;
   font-family: var(--fell);
@@ -1558,17 +1557,17 @@ body[data-world="lived"] #expo-ribbon {
   text-align: center;
   letter-spacing: 0.04em;
   animation: fadeUp 1.2s var(--ease-out-expo) 0.1s both;
-  text-shadow: 0 0 80px rgba(255, 232, 190, 0.13);
-  margin: 14px 40px 0;
+  text-shadow: 0 0 80px rgba(255, 232, 190, 0.14);
+  margin: 16px 48px 0;
 }
 
 .gate-note {
-  font-size: 8px;
-  letter-spacing: 0.22em;
+  font-size: 10px;
+  letter-spacing: 0.20em;
   text-transform: uppercase;
-  color: rgba(255, 232, 190, 0.32);
+  color: rgba(255, 232, 190, 0.35);
   animation: fadeUp 1.2s var(--ease-out-expo) 0.2s both;
-  margin-top: 12px;
+  margin-top: 14px;
   margin-bottom: 0;
 }
 
@@ -1602,23 +1601,24 @@ body[data-world="lived"] #expo-ribbon {
 /* ─── 三幅并立：世界入口三联画 ────────────────────────────────────────────── */
 
 .view-grid {
-  flex: 1;
   width: 100%;
-  max-width: none;
+  height: clamp(300px, 44vh, 460px);
   display: flex;
   gap: 0;
-  margin-top: 28px;
+  margin-top: 36px;
+  flex-shrink: 0;
   animation: fadeUp 1.2s var(--ease-out-expo) 0.30s both;
 }
 
-/* 世界入口列 — 无边框、无圆角、全高大气柱 */
+/* 世界入口列 — 无边框、无圆角、固定高度大气柱 */
 .ve {
   flex: 1;
+  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  padding: 100px 6% 60px;
+  padding: 56px 7% 40px;
   border: none;
   border-radius: 0;
   background: transparent;
@@ -1663,22 +1663,22 @@ body[data-world="lived"] #expo-ribbon {
 
 .ve-ring {
   position: absolute;
-  top: 44px;
-  left: 6%;
-  width: 44px;
-  height: 44px;
+  top: 32px;
+  left: 7%;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   border: 1px solid currentColor;
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0.20;
+  opacity: 0.28;
   transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 .ve:hover .ve-ring {
-  opacity: 0.55;
-  transform: scale(1.12);
+  opacity: 0.62;
+  transform: scale(1.10);
 }
 
 .ve-dot {
@@ -1689,54 +1689,54 @@ body[data-world="lived"] #expo-ribbon {
 }
 
 .ve-lbl {
-  font-size: 7.5px;
-  letter-spacing: 0.24em;
+  font-size: 10px;
+  letter-spacing: 0.20em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.42);
-  margin-bottom: 14px;
+  color: rgba(255, 255, 255, 0.50);
+  margin-bottom: 16px;
   transition: color 0.3s ease;
 }
 
-.ve:hover .ve-lbl { color: rgba(255, 255, 255, 0.80); }
+.ve:hover .ve-lbl { color: rgba(255, 255, 255, 0.88); }
 
 .ve-copy {
   font-family: var(--fell);
   font-style: italic;
-  font-size: clamp(36px, 4vw, 58px);
-  line-height: 1.08;
-  color: rgba(255, 251, 245, 0.92);
+  font-size: clamp(34px, 3.8vw, 56px);
+  line-height: 1.10;
+  color: rgba(255, 251, 245, 0.94);
   font-weight: 400;
   letter-spacing: 0.02em;
-  margin-bottom: 22px;
+  margin-bottom: 24px;
   transition: color 0.3s ease, text-shadow 0.4s ease;
 }
 
 .ve:hover .ve-copy {
   color: rgba(255, 251, 245, 1.0);
-  text-shadow: 0 0 48px currentColor;
+  text-shadow: 0 0 52px currentColor;
 }
 
 .ve-note {
-  font-size: 7.5px;
-  line-height: 2.1;
-  letter-spacing: 0.15em;
-  color: rgba(255, 232, 190, 0.35);
+  font-size: 10px;
+  line-height: 1.9;
+  letter-spacing: 0.14em;
+  color: rgba(255, 232, 190, 0.42);
   text-transform: uppercase;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   transition: color 0.3s ease;
 }
 
-.ve[data-world="official"] .ve-note { color: rgba(143, 183, 255, 0.38); }
-.ve[data-world="staged"]   .ve-note { color: rgba(215, 168, 110, 0.38); }
-.ve[data-world="lived"]    .ve-note { color: rgba(255, 142, 168, 0.38); }
+.ve[data-world="official"] .ve-note { color: rgba(143, 183, 255, 0.48); }
+.ve[data-world="staged"]   .ve-note { color: rgba(215, 168, 110, 0.48); }
+.ve[data-world="lived"]    .ve-note { color: rgba(255, 142, 168, 0.48); }
 
-.ve:hover .ve-note { opacity: 0.75; filter: brightness(1.4); }
+.ve:hover .ve-note { filter: brightness(1.5); }
 
 .ve-doc {
-  font-size: 7.5px;
-  line-height: 1.7;
-  letter-spacing: 0.06em;
-  color: rgba(255, 255, 255, 0.22);
+  font-size: 10px;
+  line-height: 1.75;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.30);
   text-transform: none;
 }
 

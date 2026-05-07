@@ -958,9 +958,9 @@
       const density = mesh.userData.density ?? getDensity(ex, state.currentWorld, currentViewKey());
 
       // 密度决定基础尺寸：24px（稀疏）→ 78px（核心）
-      const baseSize = Math.round(24 + density * 54);
-      const hitSize  = isSel ? Math.min(Math.round(baseSize * 1.30), 108)
-                     : isHov ? Math.round(baseSize * 1.16)
+      const baseSize = Math.round(36 + density * 72);   // 36–108 px (was 24–78)
+      const hitSize  = isSel ? Math.min(Math.round(baseSize * 1.28), 148)
+                     : isHov ? Math.round(baseSize * 1.18)
                      : baseSize;
 
       // 整体透明度
