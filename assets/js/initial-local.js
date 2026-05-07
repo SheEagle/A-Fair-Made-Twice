@@ -1192,6 +1192,96 @@
   if (reqWorld && WORLD_CONFIG[reqWorld]) setWorld(reqWorld);
 
   animate();
+
+  // ─── 星空动画：闪烁星星 + 流星 ──────────────────────────────────────────────
+  (function initStarField() {
+    const canvas = document.getElementById("star-canvas");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+
+    function resize() {
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener("resize", resize);
+
+    // 280 颗背景星，随机位置、亮度、闪烁频率
+    const STAR_COUNT = 280;
+    const stars = Array.from({ length: STAR_COUNT }, () => ({
+      x:     Math.random(),
+      y:     Math.random(),
+      r:     Math.random() * 0.85 + 0.15,           // 0.15–1px
+      base:  0.06 + Math.random() * 0.42,            // 基础不透明度
+      phase: Math.random() * Math.PI * 2,
+      freq:  0.00015 + Math.random() * 0.00055       // 闪烁速度（慢→快）
+    }));
+
+    // 流星队列
+    const shoots = [];
+    let nextShootAt = performance.now() + 2500 + Math.random() * 4000;
+
+    function spawnShoot(now) {
+      shoots.push({
+        x:        Math.random() * 0.8 + 0.05,        // 起点 x（5%–85% 宽度）
+        y:        Math.random() * 0.45,               // 起点 y（上半屏）
+        len:      0.055 + Math.random() * 0.09,       // 拖尾长度（占宽比）
+        spd:      0.00022 + Math.random() * 0.00028,  // 进度速度 / ms
+        angle:    Math.PI / 5.5 + Math.random() * Math.PI / 9,
+        progress: 0,
+        alpha:    0.55 + Math.random() * 0.35
+      });
+      nextShootAt = now + 4500 + Math.random() * 9000;
+    }
+
+    function draw(now) {
+      const w = canvas.width, h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      // ── 闪烁星星 ──
+      stars.forEach(s => {
+        const a = s.base * (0.45 + 0.55 * Math.sin(s.phase + now * s.freq));
+        ctx.beginPath();
+        ctx.arc(s.x * w, s.y * h, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${a.toFixed(3)})`;
+        ctx.fill();
+      });
+
+      // ── 流星 ──
+      if (now >= nextShootAt) spawnShoot(now);
+
+      for (let i = shoots.length - 1; i >= 0; i--) {
+        const s = shoots[i];
+        s.progress = Math.min(1, s.progress + s.spd * 16);
+
+        const headX = (s.x + Math.cos(s.angle) * s.len * s.progress) * w;
+        const headY = (s.y + Math.sin(s.angle) * s.len * s.progress) * h;
+        const tailT = Math.max(0, s.progress - 0.14);
+        const tailX = (s.x + Math.cos(s.angle) * s.len * tailT) * w;
+        const tailY = (s.y + Math.sin(s.angle) * s.len * tailT) * h;
+
+        // 尾部淡出
+        const fade = s.progress > 0.78 ? (1 - s.progress) / 0.22 : 1;
+        const g = ctx.createLinearGradient(tailX, tailY, headX, headY);
+        g.addColorStop(0, "rgba(255,255,255,0)");
+        g.addColorStop(1, `rgba(255,255,255,${(s.alpha * fade).toFixed(3)})`);
+
+        ctx.beginPath();
+        ctx.moveTo(tailX, tailY);
+        ctx.lineTo(headX, headY);
+        ctx.strokeStyle = g;
+        ctx.lineWidth = 1.1;
+        ctx.stroke();
+
+        if (s.progress >= 1) shoots.splice(i, 1);
+      }
+
+      requestAnimationFrame(draw);
+    }
+
+    requestAnimationFrame(draw);
+  })();
+
 })();
 
 

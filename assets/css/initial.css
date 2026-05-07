@@ -1134,6 +1134,14 @@ body {
     color 0.6s var(--ease-world);
 }
 
+/* 星空动画 canvas */
+#star-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
 /* 背景：天穹层 */
 body::before {
   content: "";
@@ -1151,6 +1159,13 @@ body::before {
     radial-gradient(ellipse 45% 38% at 14% 74%, var(--world-depth), transparent 52%),
     radial-gradient(ellipse 38% 28% at 86% 22%, var(--world-pulse), transparent 48%);
   transition: background 1s var(--ease-world), filter 1s var(--ease-world);
+  animation: nebula-breathe 22s ease-in-out infinite;
+}
+
+@keyframes nebula-breathe {
+  0%, 100% { opacity: 1;    transform: scale(1) translate(0, 0); }
+  30%       { opacity: 0.82; transform: scale(1.028) translate(-0.6%, 0.4%); }
+  65%       { opacity: 0.90; transform: scale(0.978) translate(0.8%, -0.5%); }
 }
 
 body[data-world="official"]::before {
