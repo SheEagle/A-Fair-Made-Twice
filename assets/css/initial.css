@@ -2274,6 +2274,19 @@ body[data-world="lived"]    .image-panel-kicker { color: rgba(240, 80,  128, 0.5
 
 /* 底部信息区 */
 .image-panel-footer {
+  padding: 13px 20px 18px;
+}
+
+#image-panel-caption {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.10em;
+  color: rgba(255, 255, 255, 0.38);
+  line-height: 1.6;
+}
+
+/* 隐藏图片下方的策展描述文字 */
+.image-panel-essay {
   display: none;
 }
 
