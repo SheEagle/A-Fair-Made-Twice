@@ -363,7 +363,7 @@ async function _submit(exhibit) {
    Each bubble carries its prompt_type for visual differentiation.
    ══════════════════════════════════════════════════════════════════════ */
 
-const ORBIT_MARGIN = 30;   // gap outside image-panel edge
+const ORBIT_MARGIN = 24;   // clear gap between panel edge and nearest bubble edge
 
 async function _fetchAndOrbit(exhibit) {
   const eid = String(exhibit.exhibitId || exhibit.id);
@@ -416,11 +416,15 @@ function _spawnBubble(row, _accent, _isNew, isJustPosted = false, fixedAngle = n
 
   bubbleLayer.appendChild(el);
 
+  /* stagger ring: index within current orbit determines which of 3 concentric
+     rings this bubble lives on, so adjacent bubbles at similar angles don't sit
+     on top of each other */
+  const ring = orbitBubbles.length % 3;   // 0 / 1 / 2
   orbitBubbles.push({
     el,
     angle:         fixedAngle ?? (Math.random() * Math.PI * 2),
-    radiusExtra:   10 + Math.random() * 45,
-    speed:         (0.00010 + Math.random() * 0.00012) * (Math.random() < 0.5 ? 1 : -1),
+    ring,                                  // used by _orbitTick for radius stagger
+    speed:         (0.00008 + Math.random() * 0.00010) * (Math.random() < 0.5 ? 1 : -1),
     wobble:        Math.random() * Math.PI * 2,
     born:          performance.now(),
     isPlaceholder: false,
@@ -436,8 +440,8 @@ function _spawnPlaceholder(text, fixedAngle) {
   orbitBubbles.push({
     el,
     angle:         fixedAngle,
-    radiusExtra:   20 + Math.random() * 25,
-    speed:         0.00007 * (Math.random() < 0.5 ? 1 : -1),
+    ring:          orbitBubbles.length % 3,
+    speed:         0.00006 * (Math.random() < 0.5 ? 1 : -1),
     wobble:        Math.random() * Math.PI * 2,
     born:          performance.now(),
     isPlaceholder: true,
@@ -454,16 +458,44 @@ function _orbitTick() {
   const r   = imagePanel.getBoundingClientRect();
   const cx  = r.left + r.width  / 2;
   const cy  = r.top  + r.height / 2;
-  const bRx = r.width  / 2 + ORBIT_MARGIN;
-  const bRy = r.height / 2 + ORBIT_MARGIN;
   const now = performance.now();
+
+  /* ── Soft angular repulsion — keeps bubbles spread apart ──────────────
+     For each pair, if their angles are too close, gently push them apart.
+     This runs every frame so the separation is maintained as they orbit.  */
+  const N = orbitBubbles.length;
+  if (N > 1) {
+    const idealGap = (Math.PI * 2) / N;
+    const minGap   = Math.max(0.42, idealGap * 0.55);   // ~24° minimum
+
+    for (let i = 0; i < N; i++) {
+      for (let j = i + 1; j < N; j++) {
+        let diff = orbitBubbles[i].angle - orbitBubbles[j].angle;
+        // wrap to (−π, π]
+        diff = ((diff % (Math.PI * 2)) + Math.PI * 3) % (Math.PI * 2) - Math.PI;
+        if (Math.abs(diff) < minGap) {
+          const push = (minGap - Math.abs(diff)) * 0.003 * Math.sign(diff || 1);
+          orbitBubbles[i].angle += push;
+          orbitBubbles[j].angle -= push;
+        }
+      }
+    }
+  }
 
   orbitBubbles.forEach(b => {
     b.angle += b.speed;
     const age     = Math.min((now - b.born) / 900, 1);
-    const wobbleY = Math.sin(now * 0.0007 + b.wobble) * 12;
-    const rx      = bRx + b.radiusExtra;
-    const ry      = bRy + b.radiusExtra * 0.65;
+    const wobbleY = Math.sin(now * 0.0006 + b.wobble) * 7;
+
+    /* Radius: panel half-size + gap + actual bubble DOM half-size + ring offset.
+       Using offsetWidth/Height means the bubble edge always clears the panel edge
+       regardless of content length or font size. */
+    const bHalfW = b.el.offsetWidth  > 0 ? b.el.offsetWidth  / 2 + 16 : 130;
+    const bHalfH = b.el.offsetHeight > 0 ? b.el.offsetHeight / 2 + 12 : 46;
+    const ringOffset = b.ring * 28;         // 0 / 28 / 56 px — concentric layers
+
+    const rx = r.width  / 2 + ORBIT_MARGIN + bHalfW + ringOffset;
+    const ry = r.height / 2 + ORBIT_MARGIN + bHalfH + ringOffset * 0.6;
 
     b.el.style.left      = `${cx + Math.cos(b.angle) * rx}px`;
     b.el.style.top       = `${cy + Math.sin(b.angle) * ry + wobbleY}px`;
