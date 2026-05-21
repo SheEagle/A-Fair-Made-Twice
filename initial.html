@@ -24,11 +24,6 @@
 
   <div id="expo-ribbon">Official World / Staged World / Lived World</div>
 
-  <a id="uw-tab-link" href="./unfinished.html" aria-label="Enter the Unfinished World">
-    <span class="uwt-dot" aria-hidden="true"></span>
-    <span class="uwt-label">Unfinished World</span>
-  </a>
-
 
 
   <section id="intro" aria-labelledby="gate-title">
@@ -67,9 +62,10 @@
   </section>
 
   <div id="world-bar">
-    <button class="wb" data-world="official" aria-pressed="false">Official World</button>
-    <button class="wb" data-world="staged" aria-pressed="false">Staged World</button>
-    <button class="wb" data-world="lived" aria-pressed="false">Lived World</button>
+    <button class="wb" data-world="official"    aria-pressed="false">Official World</button>
+    <button class="wb" data-world="staged"      aria-pressed="false">Staged World</button>
+    <button class="wb" data-world="lived"       aria-pressed="false">Lived World</button>
+    <button class="wb" data-world="unfinished"  aria-pressed="false">Unfinished World</button>
   </div>
 
   <div id="mode-toggle" role="group" aria-label="Point display mode">
@@ -125,5 +121,6 @@
   <script src="./initial.data.js"></script>
   <script src="./initial.embeddings.js"></script>
   <script src="./assets/js/initial-local.js"></script>
+  <script src="./assets/js/unfinished-world.js"></script>
 </body>
 </html>

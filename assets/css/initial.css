@@ -1049,9 +1049,10 @@
 /* ─── 设计令牌 ─────────────────────────────────────────────────────────────── */
 
 :root {
-  --c-official: #6aaaf0;
-  --c-staged:   #f0a830;
-  --c-lived:    #f05080;
+  --c-official:    #6aaaf0;
+  --c-staged:      #f0a830;
+  --c-lived:       #f05080;
+  --c-unfinished:  #c4a882;
 
   --world-accent:  rgba(255, 232, 190, 0.18);
   --world-haze:    rgba(215, 168, 110, 0.16);
@@ -2001,9 +2002,10 @@ body[data-world="lived"] #expo-ribbon {
   text-transform: none;
 }
 
-.wb[data-world="official"].active { color: rgba(180, 215, 255, 0.96); }
-.wb[data-world="staged"].active   { color: rgba(252, 210, 130, 0.96); }
-.wb[data-world="lived"].active    { color: rgba(255, 175, 200, 0.96); }
+.wb[data-world="official"].active    { color: rgba(180, 215, 255, 0.96); }
+.wb[data-world="staged"].active      { color: rgba(252, 210, 130, 0.96); }
+.wb[data-world="lived"].active       { color: rgba(255, 175, 200, 0.96); }
+.wb[data-world="unfinished"].active  { color: rgba(210, 185, 148, 0.96); }
 
 /* 活跃下方细线 */
 .wb.active::after {
@@ -2703,54 +2705,210 @@ body[data-world="lived"]    .image-panel-kicker { color: rgba(240, 80,  128, 0.5
   .gate-title { font-size: clamp(28px, 6vw, 44px); }
 }
 
-/* ── Unfinished World tab link ─────────────────────────────────────────── */
-#uw-tab-link {
-  position: fixed;
-  top: 50%;
-  right: 0;
-  transform: translateY(-50%) translateX(calc(100% - 28px));
-  z-index: 200;
+/* ══════════════════════════════════════════════════════════════════════════
+   UNFINISHED WORLD — constellation world styles
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* World-bar button */
+.wb[data-world="unfinished"] { --wc: #c4a882; }
+body[data-world="unfinished"] .wb[data-world="unfinished"] {
+  color: #c4a882;
+  border-color: rgba(196,168,130,0.55);
+}
+
+/* Body-level world accent override */
+body[data-world="unfinished"] {
+  --world-key:  #c4a882;
+  --world-glow: rgba(196,168,130,0.28);
+}
+
+/* ── Visitor orbiting comment bubbles ──────────────────────────────────── */
+.visitor-bubble {
+  position: absolute;
+  max-width: 180px;
+  padding: 6px 11px;
+  background: rgba(196, 168, 130, 0.10);
+  border: 1px solid var(--wc, rgba(196,168,130,0.40));
+  border-radius: 40px;
+  font-size: 11px;
+  line-height: 1.45;
+  color: rgba(255, 232, 190, 0.72);
+  pointer-events: none;
+  white-space: normal;
+  text-align: center;
+  letter-spacing: 0.02em;
+  backdrop-filter: blur(3px);
+  transition: opacity 0.4s;
+}
+.visitor-bubble.new {
+  border-color: rgba(196, 168, 130, 0.70);
+  color: rgba(255, 232, 190, 0.92);
+  background: rgba(196, 168, 130, 0.18);
+}
+
+/* ── In-panel comment form ─────────────────────────────────────────────── */
+.image-panel-essay:has(.uw-inline-form) {
+  overflow: visible;
+}
+
+.uw-inline-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 6px;
+}
+
+/* Voice count badge */
+.uw-voice-count {
   display: flex;
   align-items: center;
-  gap: 0;
-  text-decoration: none;
-  background: rgba(6, 6, 14, 0.80);
-  border: 1px solid rgba(255, 232, 190, 0.14);
-  border-right: none;
-  border-radius: 10px 0 0 10px;
-  padding: 10px 12px 10px 10px;
-  transition: transform 0.40s cubic-bezier(0.16, 1, 0.3, 1),
-              border-color 0.30s,
-              background 0.30s;
-  backdrop-filter: blur(10px);
-  overflow: hidden;
+  gap: 6px;
+  font-size: 11px;
+  letter-spacing: 0.09em;
+  color: rgba(196, 168, 130, 0.65);
+}
+.uvc-dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #c4a882;
+  opacity: 0.70;
+  animation: uvc-pulse 2.4s ease-in-out infinite;
+}
+@keyframes uvc-pulse {
+  0%, 100% { transform: scale(1);    opacity: 0.55; }
+  50%       { transform: scale(1.45); opacity: 0.90; }
+}
+
+/* Tag row */
+.uw-tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.uw-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: rgba(196, 168, 130, 0.06);
+  border: 1px solid rgba(196, 168, 130, 0.22);
+  border-radius: 20px;
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: rgba(255, 232, 190, 0.60);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
   white-space: nowrap;
 }
-#uw-tab-link:hover {
-  transform: translateY(-50%) translateX(0);
-  border-color: rgba(255, 232, 190, 0.32);
-  background: rgba(12, 12, 24, 0.92);
+.uw-tag-icon { font-style: normal; font-size: 10px; opacity: 0.70; }
+.uw-tag:hover {
+  background: rgba(196, 168, 130, 0.14);
+  border-color: rgba(196, 168, 130, 0.50);
+  color: rgba(255, 232, 190, 0.90);
 }
-.uwt-dot {
-  display: block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: rgba(255, 232, 190, 0.65);
-  flex-shrink: 0;
-  box-shadow: 0 0 6px rgba(255, 232, 190, 0.55);
-  animation: uwt-pulse 2.8s ease-in-out infinite;
+.uw-tag.active {
+  background: rgba(196, 168, 130, 0.20);
+  border-color: rgba(196, 168, 130, 0.70);
+  color: #c4a882;
 }
-@keyframes uwt-pulse {
-  0%, 100% { opacity: 0.55; transform: scale(1.0); }
-  50%       { opacity: 0.90; transform: scale(1.25); }
+.uw-tag.active .uw-tag-icon { opacity: 1; }
+
+/* Compose area */
+.uw-compose { display: flex; flex-direction: column; gap: 7px; }
+
+.uw-textarea {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(196, 168, 130, 0.22);
+  border-radius: 8px;
+  color: rgba(255, 232, 190, 0.88);
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.55;
+  padding: 8px 10px;
+  resize: none;
+  outline: none;
+  transition: border-color 0.25s, box-shadow 0.25s;
 }
-.uwt-label {
+.uw-textarea::placeholder { color: rgba(255,232,190,0.28); font-style: italic; }
+.uw-textarea:focus {
+  border-color: rgba(196, 168, 130, 0.55);
+  box-shadow: 0 0 0 2px rgba(196,168,130,0.10);
+}
+
+.uw-compose-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.uw-name-input {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(196, 168, 130, 0.16);
+  border-radius: 6px;
+  color: rgba(255, 232, 190, 0.72);
+  font-family: inherit;
   font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(255, 232, 190, 0.70);
-  margin-left: 8px;
-  transition: color 0.25s;
+  padding: 5px 9px;
+  outline: none;
+  transition: border-color 0.25s;
 }
-#uw-tab-link:hover .uwt-label { color: rgba(255, 232, 190, 0.95); }
+.uw-name-input::placeholder { color: rgba(255,232,190,0.25); }
+.uw-name-input:focus { border-color: rgba(196, 168, 130, 0.40); }
+
+.uw-submit-btn {
+  flex-shrink: 0;
+  padding: 5px 14px;
+  background: rgba(196, 168, 130, 0.10);
+  border: 1px solid rgba(196, 168, 130, 0.32);
+  border-radius: 16px;
+  color: rgba(196, 168, 130, 0.82);
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 0.09em;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s, opacity 0.2s;
+}
+.uw-submit-btn:hover:not(:disabled) {
+  background: rgba(196, 168, 130, 0.22);
+  border-color: rgba(196, 168, 130, 0.60);
+  color: rgba(196, 168, 130, 1);
+}
+.uw-submit-btn:disabled { opacity: 0.30; cursor: not-allowed; }
+
+.uw-msg {
+  font-size: 11px;
+  min-height: 14px;
+  letter-spacing: 0.04em;
+  color: transparent;
+  transition: color 0.3s;
+}
+.uw-msg.ok  { color: rgba(140, 210, 160, 0.80); }
+.uw-msg.err { color: rgba(255, 120, 120, 0.80); }
+
+/* Make image-panel taller for unfinished world form */
+body[data-world="unfinished"] #image-panel {
+  max-height: min(92vh, 760px);
+}
+body[data-world="unfinished"] .image-panel-footer {
+  overflow-y: auto;
+}
+body[data-world="unfinished"] .image-panel-footer::-webkit-scrollbar { width: 3px; }
+body[data-world="unfinished"] .image-panel-footer::-webkit-scrollbar-thumb {
+  background: rgba(196,168,130,0.25); border-radius: 2px;
+}
+
+/* Override kicker text for unfinished world */
+body[data-world="unfinished"] .image-panel-kicker::after {
+  content: " · Visitor Record";
+}
+
+/* Slightly reduce image height to make room for the form */
+body[data-world="unfinished"] .image-frame img {
+  max-height: 200px;
+  object-fit: contain;
+}

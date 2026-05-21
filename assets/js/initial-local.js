@@ -46,6 +46,17 @@
       pointTint: 0.18,
       bubbleW: 220,
       cardW: 220
+    },
+    unfinished: {
+      label: "The Unfinished World",
+      className: "unfinished",
+      color: new THREE.Color(0xc4a882),
+      orbit: 0.38,
+      scale: [2.0, 2.6, 1.7],
+      offset: [-2.4, 2.8, -4.6],
+      pointTint: 0.16,
+      bubbleW: 220,
+      cardW: 220
     }
   };
 
@@ -209,9 +220,11 @@
     const jy = Math.cos(i * 1.618) * 0.30;
     const jz = Math.sin(i * 3.141) * 0.38;
 
-    x += jx + (world === "lived"    ? Math.cos(i * 1.7)  * 0.10 : 0);
-    y += jy + (world === "staged"   ? Math.sin(i * 1.13) * 0.10 : 0);
-    z += jz + (world === "official" ? Math.sin(i * 0.58) * 0.10 : 0);
+    x += jx + (world === "lived"       ? Math.cos(i * 1.7)  * 0.10 : 0);
+    y += jy + (world === "staged"      ? Math.sin(i * 1.13) * 0.10 : 0)
+            + (world === "unfinished"  ? Math.cos(i * 2.29) * 0.12 : 0);
+    z += jz + (world === "official"   ? Math.sin(i * 0.58) * 0.10 : 0)
+            + (world === "unfinished"  ? Math.sin(i * 1.41) * 0.12 : 0);
 
     const rotatedX = x * c - z * s;
     const rotatedZ = x * s + z * c;
@@ -242,6 +255,17 @@
   }
 
   function getNarratives(exhibit, world, viewKey) {
+    // Unfinished world: gather one representative narrative from each of the three worlds
+    if (world === "unfinished") {
+      const cross = [];
+      ["official", "staged", "lived"].forEach(w => {
+        const s = exhibit.narratives?.[w] || {};
+        const pool = s.overall?.length ? s.overall
+                   : ["made","is","belongs","seen"].map(k => s[k]?.[0]).filter(Boolean);
+        if (pool[0]) cross.push(pool[0]);
+      });
+      return cross;
+    }
     const scoped = exhibit.narratives?.[world] || {};
     if (viewKey === "overall") {
       if (scoped.overall?.length) return scoped.overall;
@@ -255,22 +279,25 @@
   }
 
   function getDensity(exhibit, world, viewKey) {
-    const n = getNarratives(exhibit, world, viewKey).length
-           || getNarratives(exhibit, world, "overall").length;
+    const w = world === "unfinished" ? "official" : world;
+    const n = getNarratives(exhibit, w, viewKey).length
+           || getNarratives(exhibit, w, "overall").length;
     return clamp(n / 9, 0.22, 1);
   }
 
   function getSimilarIds(exhibit) {
-    const vk = currentViewKey();
-    return exhibit.similar?.[state.currentWorld]?.[vk]
-      || exhibit.similar?.[state.currentWorld]?.overall
+    const vk  = currentViewKey();
+    const w   = state.currentWorld === "unfinished" ? "official" : state.currentWorld;
+    return exhibit.similar?.[w]?.[vk]
+      || exhibit.similar?.[w]?.overall
       || [];
   }
 
   function getSimilarReason(exhibit, ti) {
     const vk = currentViewKey();
-    return exhibit.simReason?.[state.currentWorld]?.[vk]?.[String(ti)]
-      || exhibit.simReason?.[state.currentWorld]?.overall?.[String(ti)]
+    const w  = state.currentWorld === "unfinished" ? "official" : state.currentWorld;
+    return exhibit.simReason?.[w]?.[vk]?.[String(ti)]
+      || exhibit.simReason?.[w]?.overall?.[String(ti)]
       || `${WORLD_CONFIG[state.currentWorld].label} · ${state.currentView}`;
   }
 
@@ -365,13 +392,17 @@
     els.imagePanelCaption.textContent =
       `archive ${archiveId.padStart(4, "0")}  ·  ${(exhibit.country || exhibit.location || "").toUpperCase()}`;
 
-    // 策展文字：从叙述中取 1–2 个最具代表性的 val 拼成短文
+    // 策展文字（非 unfinished world）或留空由 unfinished-world.js 注入
     if (els.imagePanelEssay) {
       const w = world || state.currentWorld || "official";
-      const k = vk    || currentViewKey()   || "overall";
-      const narrs = getNarratives(exhibit, w, k);
-      const essayParts = narrs.slice(0, 3).map(n => n.val || n.value || "").filter(Boolean);
-      els.imagePanelEssay.textContent = essayParts.join("  ·  ");
+      if (w === "unfinished") {
+        els.imagePanelEssay.innerHTML = "";   // unfinished-world.js fills this
+      } else {
+        const k = vk || currentViewKey() || "overall";
+        const narrs = getNarratives(exhibit, w, k);
+        const essayParts = narrs.slice(0, 3).map(n => n.val || n.value || "").filter(Boolean);
+        els.imagePanelEssay.textContent = essayParts.join("  ·  ");
+      }
     }
 
     els.imagePanelImg.alt = `${exhibit.name} stereo view`;
@@ -836,22 +867,27 @@
     const world   = state.currentWorld;
     const vk      = currentViewKey();
     updateImagePanel(ex, world, vk);
-    const narratives = getNarratives(ex, world, vk).slice(0, 6);
-    const items   = narratives.length ? narratives : [{ key: state.currentView, val: "No extracted text in this dimension." }];
 
-    items.forEach((item, i) => {
-      const el = document.createElement("div");
-      el.className = `kw-bubble ${WORLD_CONFIG[world].className}`;
-      el.dataset.kind  = "bubble";
-      el.dataset.index = String(i);
-      el.innerHTML = `
-        <span class="bubble-field">${escapeHtml(item.key || state.currentView)}</span>
-        <span class="bubble-value">${escapeHtml(item.val || item.value || item.text || "")}</span>
-      `;
-      els.labels.appendChild(el);
-      state.labels.push(el);
-      requestAnimationFrame(() => el.classList.add("shown"));
-    });
+    // Unfinished world: skip narrative bubbles; hand off to unfinished-world.js via event
+    if (world === "unfinished") {
+      document.dispatchEvent(new CustomEvent("uwExhibitSelect", { detail: { exhibit: ex, index } }));
+    } else {
+      const narratives = getNarratives(ex, world, vk).slice(0, 6);
+      const items = narratives.length ? narratives : [{ key: state.currentView, val: "No extracted text in this dimension." }];
+      items.forEach((item, i) => {
+        const el = document.createElement("div");
+        el.className = `kw-bubble ${WORLD_CONFIG[world].className}`;
+        el.dataset.kind  = "bubble";
+        el.dataset.index = String(i);
+        el.innerHTML = `
+          <span class="bubble-field">${escapeHtml(item.key || state.currentView)}</span>
+          <span class="bubble-value">${escapeHtml(item.val || item.value || item.text || "")}</span>
+        `;
+        els.labels.appendChild(el);
+        state.labels.push(el);
+        requestAnimationFrame(() => el.classList.add("shown"));
+      });
+    }
 
     getSimilarIds(ex).slice(0, 3).forEach((ti, i) => {
       const tgt = EXHIBITS[ti];
@@ -889,6 +925,7 @@
     els.deselectHint.classList.remove("on");
     els.tip.style.opacity = "0";
     document.body.style.cursor = "default";
+    document.dispatchEvent(new CustomEvent("uwExhibitDeselect"));
   }
 
   // ─── 世界连接桥 ───────────────────────────────────────────────────────────
@@ -945,7 +982,7 @@
 
     // 幽灵背景文字（世界名第一个词，作为大气水印）
     if (els.worldGhost) {
-      const ghostWords = { official: "Official", staged: "Staged", lived: "Lived" };
+      const ghostWords = { official: "Official", staged: "Staged", lived: "Lived", unfinished: "Unfinished" };
       els.worldGhost.textContent = ghostWords[state.currentWorld] || "";
     }
 
