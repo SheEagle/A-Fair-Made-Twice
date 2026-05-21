@@ -92,11 +92,39 @@ const PERSPECTIVES = [
   { label: "Local",             value: "local"         },
 ];
 
-/* ── Placeholder bubble texts shown before any real comments ─────────── */
-const PLACEHOLDERS = [
-  "The first impression is yours.",
-  "No words left here yet.",
-  "This object awaits a voice.",
+/* ── Demo bubbles shown before any real comments ─────────────────────
+   These look like real visitor impressions to show the visual vocabulary.
+   They are removed as soon as the first real comment is submitted.
+   ─────────────────────────────────────────────────────────────────── */
+const DEMO_COMMENTS = [
+  {
+    prompt_type: "observe",
+    content: "I see an empire arranging the world by categories.",
+    country: "France",
+    perspective: "researcher",
+    username: "",
+  },
+  {
+    prompt_type: "imagine",
+    content: "I imagine the workers who built these displays, unseen.",
+    country: "Japan",
+    perspective: "student",
+    username: "",
+  },
+  {
+    prompt_type: "connect",
+    content: "It reminds me of how museums still frame what is 'civilised'.",
+    country: "Egypt",
+    perspective: "artist",
+    username: "",
+  },
+  {
+    prompt_type: "question",
+    content: "Who is absent from this display?",
+    country: "India",
+    perspective: "general",
+    username: "",
+  },
 ];
 
 /* ── State ──────────────────────────────────────────────────────────── */
@@ -128,7 +156,9 @@ document.addEventListener("uwExhibitSelect", ev => {
   currentExhibit = ev.detail.exhibit;
   _clearOrbit();
   _buildPanel(currentExhibit);
-  setTimeout(() => { if (currentExhibit) _fetchAndOrbit(currentExhibit); }, 520);
+  // Capture exhibit at call-time so rapid re-clicks don't double-spawn
+  const captured = currentExhibit;
+  setTimeout(() => { if (currentExhibit === captured) _fetchAndOrbit(captured); }, 520);
 });
 
 document.addEventListener("uwExhibitDeselect", () => {
@@ -359,13 +389,13 @@ async function _submit(exhibit) {
    Each bubble carries its prompt_type for visual differentiation.
    ══════════════════════════════════════════════════════════════════════ */
 
-const ORBIT_MARGIN = 60;   // minimum px gap outside panel edge
+const ORBIT_MARGIN = 30;   // gap outside image-panel edge
 
 async function _fetchAndOrbit(exhibit) {
   const eid = String(exhibit.exhibitId || exhibit.id);
   let rows  = [];
   try {
-    const res = await fetch(`${UW_API}/comments?exhibitId=${encodeURIComponent(eid)}&limit=10`);
+    const res = await fetch(`${UW_API}/comments?exhibitId=${encodeURIComponent(eid)}&limit=12`);
     if (res.ok) rows = await res.json();
   } catch (_) {}
 
@@ -376,10 +406,10 @@ async function _fetchAndOrbit(exhibit) {
       _spawnBubble(row, exhibit.color || "#c4a882", false, false, angle);
     });
   } else {
-    /* Placeholder bubbles */
-    PLACEHOLDERS.forEach((text, i) => {
-      const angle = (i / PLACEHOLDERS.length) * Math.PI * 2;
-      _spawnBubblePlaceholder(text, angle);
+    /* Demo bubbles: show visual vocabulary before any real comments exist */
+    DEMO_COMMENTS.forEach((row, i) => {
+      const angle = (i / DEMO_COMMENTS.length) * Math.PI * 2 + Math.PI * 0.15;
+      _spawnBubble(row, exhibit.color || "#c4a882", false, false, angle, true /* isDemo */);
     });
   }
   _orbitTick();
@@ -390,14 +420,14 @@ const TYPE_LABELS = {
   question: "Question", free: "",
 };
 
-function _spawnBubble(row, _accent, _isNew, isJustPosted = false, fixedAngle = null) {
+function _spawnBubble(row, _accent, _isNew, isJustPosted = false, fixedAngle = null, isDemo = false) {
   if (!bubbleLayer) return;
   const el = document.createElement("div");
   const type = row.prompt_type || "free";
-  el.className  = `visitor-bubble vb-${type}${isJustPosted ? " vb-new" : ""}`;
+  el.className = `visitor-bubble vb-${type}${isJustPosted ? " vb-new" : ""}${isDemo ? " vb-demo" : ""}`;
 
-  /* Structured HTML: optional type tag + content + attribution */
-  const text    = (row.content || "").slice(0, 100) + ((row.content||"").length > 100 ? "…" : "");
+  /* Structured HTML: type-tag / content / attribution */
+  const text = (row.content || "").slice(0, 100) + ((row.content||"").length > 100 ? "…" : "");
   const attrParts = [
     row.username && row.username !== "Anonymous" ? row.username : null,
     row.country  || null,
@@ -414,29 +444,12 @@ function _spawnBubble(row, _accent, _isNew, isJustPosted = false, fixedAngle = n
 
   orbitBubbles.push({
     el,
-    angle:       fixedAngle ?? (Math.random() * Math.PI * 2),
-    radiusExtra: 8 + Math.random() * 55,
-    speed:       (0.00013 + Math.random() * 0.00013) * (Math.random() < 0.5 ? 1 : -1),
-    wobble:      Math.random() * Math.PI * 2,
-    born:        performance.now(),
-    isPlaceholder: false,
-  });
-}
-
-function _spawnBubblePlaceholder(text, fixedAngle) {
-  if (!bubbleLayer) return;
-  const el = document.createElement("div");
-  el.className = "visitor-bubble vb-placeholder";
-  el.textContent = text;
-  bubbleLayer.appendChild(el);
-  orbitBubbles.push({
-    el,
-    angle:       fixedAngle,
-    radiusExtra: 15 + Math.random() * 30,
-    speed:       0.00008 * (Math.random() < 0.5 ? 1 : -1),
-    wobble:      Math.random() * Math.PI * 2,
-    born:        performance.now(),
-    isPlaceholder: true,
+    angle:         fixedAngle ?? (Math.random() * Math.PI * 2),
+    radiusExtra:   10 + Math.random() * 45,
+    speed:         (0.00010 + Math.random() * 0.00012) * (Math.random() < 0.5 ? 1 : -1),
+    wobble:        Math.random() * Math.PI * 2,
+    born:          performance.now(),
+    isPlaceholder: isDemo,   // demo bubbles are removed on first real submit
   });
 }
 
@@ -463,7 +476,7 @@ function _orbitTick() {
 
     b.el.style.left      = `${cx + Math.cos(b.angle) * rx}px`;
     b.el.style.top       = `${cy + Math.sin(b.angle) * ry + wobbleY}px`;
-    b.el.style.opacity   = String(b.isPlaceholder ? age * 0.45 : age * 0.90);
+    b.el.style.opacity   = String(age * (b.isPlaceholder ? 0.72 : 0.92));
     b.el.style.transform = `translate(-50%,-50%) scale(${0.88 + age * 0.12})`;
   });
 
