@@ -22,10 +22,13 @@ async function initDB() {
         id          SERIAL PRIMARY KEY,
         exhibit_id  TEXT        NOT NULL,
         username    TEXT        NOT NULL DEFAULT 'Anonymous',
+        country     TEXT        NOT NULL DEFAULT '',
         world       TEXT        NOT NULL DEFAULT 'visitor',
         content     TEXT        NOT NULL,
         created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
+      -- Safely add country column if table existed without it
+      ALTER TABLE comments ADD COLUMN IF NOT EXISTS country TEXT NOT NULL DEFAULT '';
       CREATE INDEX IF NOT EXISTS comments_exhibit_id_idx ON comments(exhibit_id);
     `);
     console.log("[db] schema ready");
@@ -49,7 +52,7 @@ app.get("/api/comments", async (req, res) => {
   if (!exhibitId) return res.status(400).json({ error: "exhibitId required" });
   try {
     const { rows } = await pool.query(
-      `SELECT id, username, world, content, created_at
+      `SELECT id, username, country, world, content, created_at
        FROM comments
        WHERE exhibit_id = $1
        ORDER BY created_at DESC
@@ -63,21 +66,22 @@ app.get("/api/comments", async (req, res) => {
   }
 });
 
-// POST /api/comments  { exhibitId, username, world, content }
+// POST /api/comments  { exhibitId, username, country, world, content }
 app.post("/api/comments", async (req, res) => {
-  const { exhibitId, username = "Anonymous", world = "visitor", content } = req.body;
+  const { exhibitId, username = "Anonymous", country = "", world = "visitor", content } = req.body;
   if (!exhibitId || !content?.trim()) {
     return res.status(400).json({ error: "exhibitId and content required" });
   }
   const safeUsername = String(username).slice(0, 80) || "Anonymous";
+  const safeCountry  = String(country).slice(0, 80).trim();
   const safeContent  = String(content).slice(0, 2000).trim();
   const safeWorld    = ["official", "staged", "lived", "visitor"].includes(world) ? world : "visitor";
   try {
     const { rows } = await pool.query(
-      `INSERT INTO comments (exhibit_id, username, world, content)
-       VALUES ($1, $2, $3, $4)
-       RETURNING id, username, world, content, created_at`,
-      [String(exhibitId), safeUsername, safeWorld, safeContent]
+      `INSERT INTO comments (exhibit_id, username, country, world, content)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING id, username, country, world, content, created_at`,
+      [String(exhibitId), safeUsername, safeCountry, safeWorld, safeContent]
     );
     res.status(201).json(rows[0]);
   } catch (err) {
@@ -86,12 +90,12 @@ app.post("/api/comments", async (req, res) => {
   }
 });
 
-// GET /api/recent  — most recent comments across all exhibits (for ambient feed)
+// GET /api/recent  — most recent comments across all exhibits
 app.get("/api/recent", async (req, res) => {
   const { limit = 20 } = req.query;
   try {
     const { rows } = await pool.query(
-      `SELECT id, exhibit_id, username, world, content, created_at
+      `SELECT id, exhibit_id, username, country, world, content, created_at
        FROM comments
        ORDER BY created_at DESC
        LIMIT $1`,
