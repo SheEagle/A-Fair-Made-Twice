@@ -1,47 +1,112 @@
 /* ──────────────────────────────────────────────────────────────────────
-   unfinished-world.js
-   The fourth world: visitor impressions orbiting the constellation.
+   unfinished-world.js  —  The Fourth World
 
-   UX philosophy:
-   – Ask for country (echoes the exposition's international structure)
-   – Free-form writing; soft prompts available but never mandatory
-   – Comment bubbles orbit AROUND the image panel, not over it
+   Thesis: The 1867 Exposition was a constructed exhibition with an
+   inherent point of view. So is this digital one. Visitors are invited
+   to observe, imagine, connect — and question.
+
+   Bubble shapes/colours by prompt type:
+     observe  → cool blue, pill
+     imagine  → lavender, organic blob
+     connect  → amber, rounded rectangle
+     question → rose-pink, angular / dashed
+     free     → parchment, default pill
+
+   New meaningful fields:
+     country     — echoes the Exposition's national structure
+     perspective — who is looking (student / researcher / artist / …)
+     prompt_type — which mode was used (stored in DB, drives visual)
    ────────────────────────────────────────────────────────────────────── */
 "use strict";
 
 const UW_API = "http://localhost:3800/api";
 
-/* ── Soft prompt starters ───────────────────────────────────────────────
-   These offer a first word, not a template.
-   Clicking one pre-fills the textarea starter and moves cursor to end.
-   The visitor is free to write anything — the chip is just a door.
+/* ── Prompt categories ─────────────────────────────────────────────────
+   Each category has a visual type that drives the bubble's appearance.
+   Chips within a category share that type.
    ─────────────────────────────────────────────────────────────────────── */
-const PROMPTS = [
-  { chip: "I see",            start: "I see "           },
-  { chip: "I imagine",        start: "I imagine "       },
-  { chip: "I wonder",         start: "I wonder "        },
-  { chip: "It reminds me of", start: "It reminds me of " },
-  { chip: "What strikes me",  start: "What strikes me " },
-  { chip: "Across 160 years", start: "Across 160 years, " },
-  { chip: "The catalogue missed", start: "What the catalogue never recorded was " },
+const PROMPT_CATS = [
+  {
+    type:  "observe",
+    label: "Observe",
+    chips: [
+      { chip: "I see",    start: "I see "    },
+      { chip: "I notice", start: "I notice " },
+    ],
+  },
+  {
+    type:  "imagine",
+    label: "Imagine",
+    chips: [
+      { chip: "I imagine",  start: "I imagine " },
+      { chip: "In 1867,",   start: "In 1867, "  },
+    ],
+  },
+  {
+    type:  "connect",
+    label: "Connect",
+    chips: [
+      { chip: "It reminds me of",  start: "It reminds me of "   },
+      { chip: "Across 160 years,", start: "Across 160 years, " },
+    ],
+  },
+  {
+    type:  "question",
+    label: "Question",
+    chips: [
+      { chip: "What's missing",   start: "What this doesn't show is " },
+      { chip: "The bias here",    start: "The bias here is "           },
+      { chip: "Who is absent",    start: "Who is absent from this is " },
+    ],
+  },
 ];
 
-/* ── Countries datalist (common, for autocomplete only) ────────────────── */
-const COUNTRIES = [
-  "Argentina","Australia","Austria","Belgium","Brazil","Canada","Chile","China",
-  "Colombia","Czech Republic","Denmark","Egypt","Finland","France","Germany",
-  "Greece","Hungary","India","Indonesia","Iran","Ireland","Israel","Italy",
-  "Japan","Malaysia","Mexico","Morocco","Netherlands","New Zealand","Nigeria",
-  "Norway","Pakistan","Peru","Philippines","Poland","Portugal","Romania",
-  "Russia","Saudi Arabia","South Africa","South Korea","Spain","Sweden",
-  "Switzerland","Taiwan","Thailand","Turkey","Ukraine","United Kingdom",
-  "United States","Vietnam",
+/* ── Common countries for quick-select ────────────────────────────────
+   Ordered to reflect the 1867 Exposition's prominent participating nations
+   plus contemporary reach.
+   ─────────────────────────────────────────────────────────────────────── */
+const COUNTRY_CHIPS = [
+  "France","United Kingdom","Germany","United States",
+  "Italy","Japan","China","Russia","India","Egypt",
+  "Brazil","Australia",
+];
+
+/* Extended list for datalist autocomplete */
+const ALL_COUNTRIES = [
+  ...COUNTRY_CHIPS,
+  "Afghanistan","Algeria","Argentina","Austria","Belgium","Canada","Chile",
+  "Colombia","Czech Republic","Denmark","Finland","Greece","Hungary","Indonesia",
+  "Iran","Ireland","Israel","Malaysia","Mexico","Morocco","Netherlands",
+  "New Zealand","Nigeria","Norway","Pakistan","Peru","Philippines","Poland",
+  "Portugal","Romania","Saudi Arabia","South Africa","South Korea","Spain",
+  "Sweden","Switzerland","Taiwan","Thailand","Turkey","Ukraine","Vietnam",
+];
+
+/* ── Perspective options ────────────────────────────────────────────── */
+const PERSPECTIVES = [
+  { label: "General visitor",   value: "general"       },
+  { label: "Student",           value: "student"       },
+  { label: "Researcher",        value: "researcher"    },
+  { label: "Artist",            value: "artist"        },
+  { label: "Museum professional", value: "professional" },
+  { label: "Local",             value: "local"         },
+];
+
+/* ── Placeholder bubble texts shown before any real comments ─────────── */
+const PLACEHOLDERS = [
+  "The first impression is yours.",
+  "No words left here yet.",
+  "This object awaits a voice.",
 ];
 
 /* ── State ──────────────────────────────────────────────────────────── */
-let currentExhibit = null;
-let orbitBubbles   = [];   // { el, angle, rx, ry, speed, wobble, born }
-let animFrame      = null;
+let currentExhibit  = null;
+let orbitBubbles    = [];   // { el, angle, rx, ry, speed, wobble, born, isPlaceholder }
+let animFrame       = null;
+let activeType      = "free";
+let activeCountry   = "";
+let activePerspective = "";
+let hasRealComments = false;
 
 /* ── DOM refs ───────────────────────────────────────────────────────── */
 const bubbleLayer  = document.getElementById("bubble-layer");
@@ -49,16 +114,14 @@ const imagePanel   = document.getElementById("image-panel");
 const commentPanel = document.getElementById("uw-comment-panel");
 const essaySlot    = document.getElementById("image-panel-essay");
 
-/* ── Populate datalist once ─────────────────────────────────────────── */
-const dl = document.getElementById("country-datalist");
-if (dl) COUNTRIES.forEach(c => {
-  const opt = document.createElement("option");
-  opt.value = c;
-  dl.appendChild(opt);
+/* ── Build country datalist ────────────────────────────────────────── */
+const dl = document.getElementById("uwcp-country-dl");
+if (dl) ALL_COUNTRIES.forEach(c => {
+  const o = document.createElement("option"); o.value = c; dl.appendChild(o);
 });
 
 /* ══════════════════════════════════════════════════════════════════════
-   EVENTS FROM initial-local.js
+   EVENTS
    ══════════════════════════════════════════════════════════════════════ */
 
 document.addEventListener("uwExhibitSelect", ev => {
@@ -70,44 +133,58 @@ document.addEventListener("uwExhibitSelect", ev => {
 
 document.addEventListener("uwExhibitDeselect", () => {
   currentExhibit = null;
+  activeType = "free";
   _clearOrbit();
   _hidePanel();
 });
 
 /* ══════════════════════════════════════════════════════════════════════
-   COMMENT PANEL
+   PANEL
    ══════════════════════════════════════════════════════════════════════ */
 
 function _buildPanel(exhibit) {
   if (!commentPanel) return;
 
-  /* Exhibit title */
-  const titleEl = document.getElementById("uwcp-title");
-  if (titleEl) titleEl.textContent = exhibit.name || "";
+  activeType        = "free";
+  activeCountry     = "";
+  activePerspective = "";
+  hasRealComments   = false;
 
-  /* Voice count placeholder */
-  const vtEl = document.getElementById("uwcp-voice-text");
-  if (vtEl) vtEl.textContent = "—";
+  /* Title */
+  const t = document.getElementById("uwcp-title");
+  if (t) t.textContent = exhibit.name || "";
 
-  /* Build prompt chips */
+  /* Voice count */
+  const vt = document.getElementById("uwcp-voice-text");
+  if (vt) vt.textContent = "—";
+
+  /* ── Prompt chips: categorised ──────────────────────────────────── */
   const promptsEl = document.getElementById("uwcp-prompts");
   if (promptsEl) {
-    promptsEl.innerHTML = PROMPTS.map(p =>
-      `<button type="button" class="uwcp-chip" data-start="${escHtml(p.start)}">${escHtml(p.chip)}</button>`
-    ).join("");
+    promptsEl.innerHTML = PROMPT_CATS.map(cat => `
+      <div class="uwcp-cat">
+        <span class="uwcp-cat-label uwcp-cat-${cat.type}">${cat.label}</span>
+        ${cat.chips.map(ch => `
+          <button type="button"
+                  class="uwcp-chip uwcp-chip-${cat.type}"
+                  data-type="${cat.type}"
+                  data-start="${escHtml(ch.start)}">${escHtml(ch.chip)}</button>
+        `).join("")}
+      </div>`).join("");
 
     promptsEl.querySelectorAll(".uwcp-chip").forEach(btn => {
       btn.addEventListener("click", () => {
         const ta = document.getElementById("uwcp-body");
         if (!ta) return;
-        const active = btn.classList.contains("active");
+        const wasActive = btn.classList.contains("active");
         promptsEl.querySelectorAll(".uwcp-chip").forEach(b => b.classList.remove("active"));
-        if (active) {
-          ta.value = "";
+        if (wasActive) {
+          activeType = "free";
+          ta.value   = "";
         } else {
           btn.classList.add("active");
-          // If textarea is empty or still contains the old starter, replace it
-          ta.value = btn.dataset.start;
+          activeType = btn.dataset.type;
+          ta.value   = btn.dataset.start;
           ta.setSelectionRange(ta.value.length, ta.value.length);
         }
         ta.focus();
@@ -116,29 +193,71 @@ function _buildPanel(exhibit) {
     });
   }
 
-  /* Reset fields */
+  /* ── Country chips ──────────────────────────────────────────────── */
+  const ccEl = document.getElementById("uwcp-country-chips");
+  if (ccEl) {
+    ccEl.innerHTML = COUNTRY_CHIPS.map(c =>
+      `<button type="button" class="uwcp-country-chip" data-val="${escHtml(c)}">${escHtml(c)}</button>`
+    ).join("");
+    ccEl.querySelectorAll(".uwcp-country-chip").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const wasActive = btn.classList.contains("active");
+        ccEl.querySelectorAll(".uwcp-country-chip").forEach(b => b.classList.remove("active"));
+        const ci = document.getElementById("uwcp-country");
+        if (wasActive) {
+          activeCountry = "";
+          if (ci) ci.value = "";
+        } else {
+          btn.classList.add("active");
+          activeCountry = btn.dataset.val;
+          if (ci) { ci.value = ""; ci.placeholder = btn.dataset.val; }
+        }
+      });
+    });
+    /* Typing in country field clears chip selection */
+    const ci = document.getElementById("uwcp-country");
+    if (ci) {
+      ci.addEventListener("input", () => {
+        activeCountry = ci.value.trim();
+        ccEl.querySelectorAll(".uwcp-country-chip").forEach(b => b.classList.remove("active"));
+      });
+    }
+  }
+
+  /* ── Perspective chips ──────────────────────────────────────────── */
+  const pcEl = document.getElementById("uwcp-perspective-chips");
+  if (pcEl) {
+    pcEl.innerHTML = PERSPECTIVES.map(p =>
+      `<button type="button" class="uwcp-persp-chip" data-val="${escHtml(p.value)}">${escHtml(p.label)}</button>`
+    ).join("");
+    pcEl.querySelectorAll(".uwcp-persp-chip").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const wasActive = btn.classList.contains("active");
+        pcEl.querySelectorAll(".uwcp-persp-chip").forEach(b => b.classList.remove("active"));
+        activePerspective = wasActive ? "" : btn.dataset.val;
+        if (!wasActive) btn.classList.add("active");
+      });
+    });
+  }
+
+  /* ── Reset compose ──────────────────────────────────────────────── */
   const ta  = document.getElementById("uwcp-body");
   const sub = document.getElementById("uwcp-submit");
   const msg = document.getElementById("uwcp-msg");
+  const ci  = document.getElementById("uwcp-country");
+  const ni  = document.getElementById("uwcp-name");
   if (ta)  { ta.value = ""; ta.removeEventListener("input", _validateSubmit); ta.addEventListener("input", _validateSubmit); }
-  if (sub) { const fresh = sub.cloneNode(true); sub.replaceWith(fresh); fresh.addEventListener("click", () => _submitComment(exhibit)); }
+  if (sub) { const f = sub.cloneNode(true); sub.replaceWith(f); f.addEventListener("click", () => _submit(exhibit)); }
   if (msg) { msg.textContent = ""; msg.className = "uwcp-msg"; }
+  if (ci)  { ci.value = ""; ci.placeholder = "Other country…"; }
+  if (ni)  ni.value = "";
   _validateSubmit();
-
-  /* Country & name reset */
-  const ctry = document.getElementById("uwcp-country");
-  const name = document.getElementById("uwcp-name");
-  if (ctry) ctry.value = "";
-  if (name) name.value = "";
 
   /* Show panel */
   commentPanel.setAttribute("aria-hidden", "false");
   commentPanel.classList.add("on");
-
-  /* Image panel: suppress essay text */
   if (essaySlot) essaySlot.textContent = "";
 
-  /* Fetch count */
   _fetchVoiceCount(String(exhibit.exhibitId || exhibit.id));
 }
 
@@ -165,80 +284,82 @@ async function _fetchVoiceCount(exhibitId) {
     const n = rows.length;
     const countries = new Set(rows.map(r => r.country).filter(Boolean));
     const c = countries.size;
-    if (n === 0) {
-      el.textContent = "no impressions yet";
-    } else if (c >= 2) {
-      el.textContent = `${n} voice${n > 1 ? "s" : ""} · ${c} countries`;
-    } else {
-      el.textContent = `${n} impression${n > 1 ? "s" : ""}`;
-    }
-  } catch (_) {
-    el.textContent = "—";
-  }
+    if (n === 0)        el.textContent = "no impressions yet";
+    else if (c >= 2)    el.textContent = `${n} voice${n>1?"s":""} · ${c} countries`;
+    else                el.textContent = `${n} impression${n>1?"s":""}`;
+  } catch (_) { el.textContent = "—"; }
 }
 
-async function _submitComment(exhibit) {
+async function _submit(exhibit) {
   const ta   = document.getElementById("uwcp-body");
-  const ctry = document.getElementById("uwcp-country");
-  const name = document.getElementById("uwcp-name");
+  const ni   = document.getElementById("uwcp-name");
+  const ci   = document.getElementById("uwcp-country");
   const btn  = document.getElementById("uwcp-submit");
   const msg  = document.getElementById("uwcp-msg");
   if (!ta || !ta.value.trim()) return;
   if (btn) btn.disabled = true;
 
-  const exhibitId = String(exhibit.exhibitId || exhibit.id);
+  const country = activeCountry || ci?.value.trim() || "";
 
   try {
     const res = await fetch(`${UW_API}/comments`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        exhibitId,
-        username: name?.value.trim() || "Anonymous",
-        country:  ctry?.value.trim() || "",
-        world:    "visitor",
-        content:  ta.value.trim(),
+        exhibitId:   String(exhibit.exhibitId || exhibit.id),
+        username:    ni?.value.trim() || "Anonymous",
+        country,
+        perspective: activePerspective,
+        prompt_type: activeType,
+        world:       "visitor",
+        content:     ta.value.trim(),
       }),
     });
     if (!res.ok) throw new Error(await res.text());
     const comment = await res.json();
 
-    /* Confirmation message */
+    /* First real comment — remove placeholder bubbles */
+    if (!hasRealComments) {
+      hasRealComments = true;
+      orbitBubbles = orbitBubbles.filter(b => {
+        if (b.isPlaceholder) { b.el.remove(); return false; }
+        return true;
+      });
+    }
+
     if (msg) {
       msg.textContent = "Recorded. Your impression joins the constellation.";
       msg.className   = "uwcp-msg ok";
       setTimeout(() => { if (msg) { msg.textContent = ""; msg.className = "uwcp-msg"; } }, 5000);
     }
 
-    /* Reset form */
+    /* Reset */
     ta.value = "";
-    if (ctry) ctry.value = "";
-    if (name) name.value = "";
-    document.querySelectorAll(".uwcp-chip").forEach(b => b.classList.remove("active"));
+    if (ci) { ci.value = ""; ci.placeholder = "Other country…"; }
+    if (ni) ni.value = "";
+    activeType = "free"; activeCountry = ""; activePerspective = "";
+    document.querySelectorAll(".uwcp-chip,.uwcp-country-chip,.uwcp-persp-chip")
+      .forEach(b => b.classList.remove("active"));
     _validateSubmit();
 
-    /* Add new bubble to the orbit immediately */
-    const label = _bubbleLabel(comment);
-    _spawnBubble(label, exhibit.color || "#c4a882", true);
-
-    /* Refresh voice count */
-    _fetchVoiceCount(exhibitId);
+    /* New bubble orbits immediately */
+    _spawnBubble(comment, exhibit.color || "#c4a882", false, true);
+    _fetchVoiceCount(String(exhibit.exhibitId || exhibit.id));
 
   } catch (err) {
     console.error(err);
-    if (msg) {
-      msg.textContent = "Server unreachable — is the API running?";
-      msg.className   = "uwcp-msg err";
-    }
+    if (msg) { msg.textContent = "Server unreachable."; msg.className = "uwcp-msg err"; }
     if (btn) btn.disabled = false;
   }
 }
 
 /* ══════════════════════════════════════════════════════════════════════
-   ORBITING COMMENT BUBBLES
-   Orbit is an ellipse whose semi-axes are computed from the live
-   image-panel bounding rect, guaranteeing bubbles stay outside.
+   ORBITING BUBBLES
+   Elliptical orbit with semi-axes derived from the live panel rect.
+   Each bubble carries its prompt_type for visual differentiation.
    ══════════════════════════════════════════════════════════════════════ */
+
+const ORBIT_MARGIN = 60;   // minimum px gap outside panel edge
 
 async function _fetchAndOrbit(exhibit) {
   const eid = String(exhibit.exhibitId || exhibit.id);
@@ -248,89 +369,102 @@ async function _fetchAndOrbit(exhibit) {
     if (res.ok) rows = await res.json();
   } catch (_) {}
 
-  const EMPTY = [
-    "The first impression is yours.",
-    "No words left here yet.",
-    "This exhibit awaits a voice.",
-  ];
-
-  const items = rows.length ? rows : EMPTY.map(t => ({ content: t, username: "", country: "" }));
-  const color = exhibit.color || "#c4a882";
-
-  items.forEach((item, i) => {
-    const label = typeof item === "string" ? item : _bubbleLabel(item);
-    const angle = (i / items.length) * Math.PI * 2;
-    _spawnBubble(label, color, false, angle);
-  });
-
+  if (rows.length > 0) {
+    hasRealComments = true;
+    rows.forEach((row, i) => {
+      const angle = (i / rows.length) * Math.PI * 2;
+      _spawnBubble(row, exhibit.color || "#c4a882", false, false, angle);
+    });
+  } else {
+    /* Placeholder bubbles */
+    PLACEHOLDERS.forEach((text, i) => {
+      const angle = (i / PLACEHOLDERS.length) * Math.PI * 2;
+      _spawnBubblePlaceholder(text, angle);
+    });
+  }
   _orbitTick();
 }
 
-/* Build a display label from a comment row */
-function _bubbleLabel(row) {
-  const text = (row.content || "").slice(0, 80) + ((row.content || "").length > 80 ? "…" : "");
-  const who  = [row.username, row.country].filter(Boolean).join(" · ");
-  return who ? `${text}\n— ${who}` : text;
-}
+const TYPE_LABELS = {
+  observe: "Observe", imagine: "Imagine", connect: "Connect",
+  question: "Question", free: "",
+};
 
-function _spawnBubble(label, color, isNew = false, fixedAngle = null) {
+function _spawnBubble(row, _accent, _isNew, isJustPosted = false, fixedAngle = null) {
   if (!bubbleLayer) return;
   const el = document.createElement("div");
-  el.className  = isNew ? "visitor-bubble new" : "visitor-bubble";
-  el.textContent = label;
-  el.style.setProperty("--wc", color);
+  const type = row.prompt_type || "free";
+  el.className  = `visitor-bubble vb-${type}${isJustPosted ? " vb-new" : ""}`;
+
+  /* Structured HTML: optional type tag + content + attribution */
+  const text    = (row.content || "").slice(0, 100) + ((row.content||"").length > 100 ? "…" : "");
+  const attrParts = [
+    row.username && row.username !== "Anonymous" ? row.username : null,
+    row.country  || null,
+    row.perspective ? _perspLabel(row.perspective) : null,
+  ].filter(Boolean);
+  const typeLabel = TYPE_LABELS[type] || "";
+
+  el.innerHTML =
+    (typeLabel ? `<span class="vb-type-tag">${typeLabel}</span>` : "") +
+    `<span class="vb-content">${escHtml(text)}</span>` +
+    (attrParts.length ? `<span class="vb-attr">— ${escHtml(attrParts.join(" · "))}</span>` : "");
+
   bubbleLayer.appendChild(el);
 
-  /* Each bubble gets its own orbit radii (base + small offset) so they
-     don't all stack. The base is computed live in _orbitTick() from the
-     panel rect; here we store just the extra per-bubble offset. */
   orbitBubbles.push({
     el,
     angle:       fixedAngle ?? (Math.random() * Math.PI * 2),
-    radiusExtra: 10 + Math.random() * 50,   // px added on top of panel clearance
-    speed:       (0.00014 + Math.random() * 0.00012) * (Math.random() < 0.5 ? 1 : -1),
+    radiusExtra: 8 + Math.random() * 55,
+    speed:       (0.00013 + Math.random() * 0.00013) * (Math.random() < 0.5 ? 1 : -1),
     wobble:      Math.random() * Math.PI * 2,
     born:        performance.now(),
+    isPlaceholder: false,
   });
 }
 
-const ORBIT_MARGIN = 55;  // minimum px of clear space outside the panel edge
+function _spawnBubblePlaceholder(text, fixedAngle) {
+  if (!bubbleLayer) return;
+  const el = document.createElement("div");
+  el.className = "visitor-bubble vb-placeholder";
+  el.textContent = text;
+  bubbleLayer.appendChild(el);
+  orbitBubbles.push({
+    el,
+    angle:       fixedAngle,
+    radiusExtra: 15 + Math.random() * 30,
+    speed:       0.00008 * (Math.random() < 0.5 ? 1 : -1),
+    wobble:      Math.random() * Math.PI * 2,
+    born:        performance.now(),
+    isPlaceholder: true,
+  });
+}
 
 function _orbitTick() {
   if (!imagePanel) return;
-
-  /* If panel isn't visible yet, keep waiting */
   if (!imagePanel.classList.contains("on")) {
     animFrame = requestAnimationFrame(_orbitTick);
     return;
   }
 
-  const r  = imagePanel.getBoundingClientRect();
-  const cx = r.left + r.width  / 2;
-  const cy = r.top  + r.height / 2;
-
-  /* Base semi-axes: just enough to clear the panel */
-  const baseRx = r.width  / 2 + ORBIT_MARGIN;
-  const baseRy = r.height / 2 + ORBIT_MARGIN;
-
+  const r   = imagePanel.getBoundingClientRect();
+  const cx  = r.left + r.width  / 2;
+  const cy  = r.top  + r.height / 2;
+  const bRx = r.width  / 2 + ORBIT_MARGIN;
+  const bRy = r.height / 2 + ORBIT_MARGIN;
   const now = performance.now();
 
   orbitBubbles.forEach(b => {
     b.angle += b.speed;
-
     const age     = Math.min((now - b.born) / 900, 1);
-    const wobbleY = Math.sin(now * 0.0008 + b.wobble) * 14;
+    const wobbleY = Math.sin(now * 0.0007 + b.wobble) * 12;
+    const rx      = bRx + b.radiusExtra;
+    const ry      = bRy + b.radiusExtra * 0.65;
 
-    const rx = baseRx + b.radiusExtra;
-    const ry = baseRy + b.radiusExtra * 0.6;
-
-    const x = cx + Math.cos(b.angle) * rx;
-    const y = cy + Math.sin(b.angle) * ry + wobbleY;
-
-    b.el.style.left      = `${x}px`;
-    b.el.style.top       = `${y}px`;
-    b.el.style.opacity   = String(age * 0.88);
-    b.el.style.transform = `translate(-50%, -50%) scale(${0.88 + age * 0.12})`;
+    b.el.style.left      = `${cx + Math.cos(b.angle) * rx}px`;
+    b.el.style.top       = `${cy + Math.sin(b.angle) * ry + wobbleY}px`;
+    b.el.style.opacity   = String(b.isPlaceholder ? age * 0.45 : age * 0.90);
+    b.el.style.transform = `translate(-50%,-50%) scale(${0.88 + age * 0.12})`;
   });
 
   animFrame = requestAnimationFrame(_orbitTick);
@@ -343,11 +477,11 @@ function _clearOrbit() {
   orbitBubbles = [];
 }
 
-/* ── Utility ────────────────────────────────────────────────────────── */
 function escHtml(s) {
-  return String(s)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+function _perspLabel(val) {
+  const p = PERSPECTIVES.find(x => x.value === val);
+  return p ? p.label : val;
 }

@@ -2735,23 +2735,21 @@ body[data-world="unfinished"] .image-panel-kicker { color: rgba(196, 168, 130, 0
 /* ── Orbiting visitor-comment pills ─────────────────────────────────────── */
 .visitor-bubble {
   position: absolute;
-  max-width: 210px;
-  padding: 8px 16px;
+  max-width: 230px;
+  padding: 10px 18px;
   background: rgba(196, 168, 130, 0.10);
   border: 1px solid rgba(196, 168, 130, 0.36);
   border-radius: 40px;
-  font-size: 13px;
-  line-height: 1.48;
-  color: rgba(255, 232, 190, 0.86);
   pointer-events: none;
-  white-space: pre-wrap;     /* preserve the \n — attribution shows below text */
   text-align: center;
-  letter-spacing: 0.01em;
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(6px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
 }
 .visitor-bubble.new {
   border-color: rgba(196, 168, 130, 0.72);
-  color: rgba(255, 232, 190, 0.96);
   background: rgba(196, 168, 130, 0.20);
 }
 
@@ -2863,38 +2861,6 @@ body[data-world="unfinished"] .image-panel-kicker { color: rgba(196, 168, 130, 0
   box-shadow: 0 0 0 2px rgba(196, 168, 130, 0.08);
 }
 
-/* Soft prompt chips — optional starters */
-.uwcp-prompts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-}
-.uwcp-chip {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 11px;
-  background: rgba(196, 168, 130, 0.05);
-  border: 1px solid rgba(196, 168, 130, 0.18);
-  border-radius: 20px;
-  font-family: inherit;
-  font-size: 12px;
-  letter-spacing: 0.04em;
-  color: rgba(255, 232, 190, 0.52);
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background 0.16s, border-color 0.16s, color 0.16s;
-}
-.uwcp-chip:hover {
-  background: rgba(196, 168, 130, 0.12);
-  border-color: rgba(196, 168, 130, 0.44);
-  color: rgba(255, 232, 190, 0.85);
-}
-.uwcp-chip.active {
-  background: rgba(196, 168, 130, 0.18);
-  border-color: rgba(196, 168, 130, 0.65);
-  color: #c4a882;
-}
-
 /* Identity row: From + Name */
 .uwcp-identity {
   display: grid;
@@ -2964,6 +2930,263 @@ body[data-world="unfinished"] .image-panel-kicker { color: rgba(196, 168, 130, 0
   color: rgba(196, 168, 130, 1);
 }
 .uwcp-submit:disabled { opacity: 0.26; cursor: not-allowed; }
+
+/* ── Bubble type variants ─────────────────────────────────────────────────── */
+
+/* Observe — cool silver-blue pill */
+.vb-observe {
+  background: rgba(100, 160, 240, 0.13);
+  border: 1px solid rgba(120, 180, 255, 0.40);
+  border-radius: 50px;
+  color: rgba(190, 220, 255, 0.90);
+}
+.vb-observe.new {
+  background: rgba(100, 160, 240, 0.26);
+  border-color: rgba(140, 200, 255, 0.70);
+  color: rgba(210, 235, 255, 0.96);
+}
+
+/* Imagine — lavender organic blob */
+.vb-imagine {
+  background: rgba(160, 120, 220, 0.13);
+  border: 1px solid rgba(180, 140, 240, 0.38);
+  border-radius: 62% 38% 55% 45% / 48% 52% 42% 58%;
+  color: rgba(220, 200, 255, 0.88);
+}
+.vb-imagine.new {
+  background: rgba(160, 120, 220, 0.24);
+  border-color: rgba(190, 155, 250, 0.68);
+  color: rgba(230, 215, 255, 0.96);
+}
+
+/* Connect — warm amber rounded rect */
+.vb-connect {
+  background: rgba(220, 165, 80, 0.12);
+  border: 1px solid rgba(230, 175, 90, 0.38);
+  border-radius: 14px;
+  color: rgba(255, 220, 155, 0.88);
+}
+.vb-connect.new {
+  background: rgba(220, 165, 80, 0.24);
+  border-color: rgba(240, 185, 100, 0.68);
+  color: rgba(255, 230, 170, 0.96);
+}
+
+/* Question — rose angular, dashed border */
+.vb-question {
+  background: rgba(230, 100, 120, 0.10);
+  border: 1px dashed rgba(240, 120, 130, 0.42);
+  border-radius: 6px;
+  color: rgba(255, 195, 200, 0.88);
+}
+.vb-question.new {
+  background: rgba(230, 100, 120, 0.22);
+  border-color: rgba(250, 140, 145, 0.68);
+  color: rgba(255, 210, 215, 0.96);
+}
+
+/* Placeholder — faint ghost, barely visible */
+.vb-placeholder {
+  background: rgba(196, 168, 130, 0.05);
+  border: 1px solid rgba(196, 168, 130, 0.18);
+  border-radius: 40px;
+  color: rgba(255, 232, 190, 0.34);
+  font-style: italic;
+}
+
+/* ── Bubble text layers ───────────────────────────────────────────────────── */
+.vb-content {
+  display: block;
+  font-size: 14px;
+  line-height: 1.46;
+  letter-spacing: 0.01em;
+}
+.vb-attr {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  opacity: 0.70;
+  margin-top: 5px;
+}
+.vb-country {
+  opacity: 0.80;
+  font-size: 11px;
+}
+.vb-type-tag {
+  display: inline-block;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.58;
+  margin-bottom: 4px;
+}
+.vb-observe  .vb-type-tag { color: rgba(140, 200, 255, 0.90); }
+.vb-imagine  .vb-type-tag { color: rgba(200, 170, 255, 0.90); }
+.vb-connect  .vb-type-tag { color: rgba(240, 190, 100, 0.90); }
+.vb-question .vb-type-tag { color: rgba(250, 150, 155, 0.90); }
+
+/* ── Panel: thesis / critical framing ────────────────────────────────────── */
+.uwcp-thesis {
+  font-size: 12px;
+  font-style: italic;
+  line-height: 1.68;
+  color: rgba(196, 168, 130, 0.60);
+  letter-spacing: 0.02em;
+  margin: 0;
+  padding: 0 2px;
+}
+.uwcp-thesis em {
+  font-style: normal;
+  color: rgba(196, 168, 130, 0.86);
+}
+
+/* ── Section labels ──────────────────────────────────────────────────────── */
+.uwcp-section-label {
+  font-size: 9px;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: rgba(196, 168, 130, 0.45);
+  margin-bottom: -6px;
+}
+
+/* ── Categorised prompt chips ────────────────────────────────────────────── */
+.uwcp-prompt-section {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.uwcp-cat {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+}
+/* Category label — spans inside .uwcp-cat */
+.uwcp-cat-label {
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  opacity: 0.80;
+}
+/* Class names as generated by JS: uwcp-cat-observe / uwcp-cat-imagine / … */
+.uwcp-cat-observe  { color: rgba(140, 200, 255, 0.90); background: rgba(100, 160, 240, 0.12); border: 1px solid rgba(120, 180, 255, 0.22); }
+.uwcp-cat-imagine  { color: rgba(200, 170, 255, 0.90); background: rgba(160, 120, 220, 0.12); border: 1px solid rgba(180, 140, 240, 0.22); }
+.uwcp-cat-connect  { color: rgba(240, 190, 100, 0.90); background: rgba(220, 165, 80,  0.12); border: 1px solid rgba(230, 175, 90,  0.22); }
+.uwcp-cat-question { color: rgba(250, 150, 155, 0.90); background: rgba(230, 100, 120, 0.10); border: 1px solid rgba(240, 120, 130, 0.22); }
+
+/* ── Category chips — class: uwcp-chip uwcp-chip-{type} ─────────────────── */
+.uwcp-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.16s, border-color 0.16s, color 0.16s;
+}
+.uwcp-chip-observe  { color: rgba(180, 215, 255, 0.62); background: rgba(100, 160, 240, 0.06); border: 1px solid rgba(120, 180, 255, 0.22); }
+.uwcp-chip-observe:hover  { background: rgba(100, 160, 240, 0.16); border-color: rgba(140, 200, 255, 0.52); color: rgba(200, 230, 255, 0.90); }
+.uwcp-chip-observe.active { background: rgba(100, 160, 240, 0.24); border-color: rgba(140, 200, 255, 0.68); color: rgba(210, 235, 255, 0.96); }
+
+.uwcp-chip-imagine  { color: rgba(210, 185, 255, 0.62); background: rgba(160, 120, 220, 0.06); border: 1px solid rgba(180, 140, 240, 0.22); }
+.uwcp-chip-imagine:hover  { background: rgba(160, 120, 220, 0.16); border-color: rgba(190, 155, 250, 0.52); color: rgba(225, 210, 255, 0.90); }
+.uwcp-chip-imagine.active { background: rgba(160, 120, 220, 0.24); border-color: rgba(190, 155, 250, 0.68); color: rgba(235, 220, 255, 0.96); }
+
+.uwcp-chip-connect  { color: rgba(250, 205, 130, 0.62); background: rgba(220, 165, 80, 0.06); border: 1px solid rgba(230, 175, 90, 0.22); }
+.uwcp-chip-connect:hover  { background: rgba(220, 165, 80, 0.16); border-color: rgba(240, 185, 100, 0.52); color: rgba(255, 225, 160, 0.90); }
+.uwcp-chip-connect.active { background: rgba(220, 165, 80, 0.24); border-color: rgba(240, 185, 100, 0.68); color: rgba(255, 232, 170, 0.96); }
+
+.uwcp-chip-question  { color: rgba(255, 185, 190, 0.62); background: rgba(230, 100, 120, 0.06); border: 1px dashed rgba(240, 120, 130, 0.22); }
+.uwcp-chip-question:hover  { background: rgba(230, 100, 120, 0.16); border-color: rgba(250, 140, 145, 0.52); color: rgba(255, 205, 210, 0.90); }
+.uwcp-chip-question.active { background: rgba(230, 100, 120, 0.22); border-color: rgba(250, 140, 145, 0.68); color: rgba(255, 215, 218, 0.96); }
+
+/* ── Country quick-select chips ──────────────────────────────────────────── */
+.uwcp-country-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 4px;
+}
+.uwcp-country-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  background: rgba(196, 168, 130, 0.05);
+  border: 1px solid rgba(196, 168, 130, 0.18);
+  border-radius: 20px;
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  color: rgba(255, 232, 190, 0.52);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.uwcp-country-chip:hover {
+  background: rgba(196, 168, 130, 0.12);
+  border-color: rgba(196, 168, 130, 0.40);
+  color: rgba(255, 232, 190, 0.82);
+}
+.uwcp-country-chip.active {
+  background: rgba(196, 168, 130, 0.20);
+  border-color: rgba(196, 168, 130, 0.65);
+  color: #c4a882;
+}
+.uwcp-country-input {
+  font-size: 12px;
+  padding: 5px 9px;
+}
+
+/* ── Perspective chips ────────────────────────────────────────────────────── */
+.uwcp-perspective-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.uwcp-persp-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  background: rgba(196, 168, 130, 0.05);
+  border: 1px solid rgba(196, 168, 130, 0.16);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  color: rgba(255, 232, 190, 0.50);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.uwcp-persp-chip:hover {
+  background: rgba(196, 168, 130, 0.11);
+  border-color: rgba(196, 168, 130, 0.38);
+  color: rgba(255, 232, 190, 0.80);
+}
+.uwcp-persp-chip.active {
+  background: rgba(196, 168, 130, 0.18);
+  border-color: rgba(196, 168, 130, 0.58);
+  color: #c4a882;
+}
+
+/* ── Bottom row: name + submit ────────────────────────────────────────────── */
+.uwcp-bottom {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.uwcp-name-input {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  padding: 6px 9px;
+}
 
 /* Narrow viewports */
 @media (max-width: 900px) {
