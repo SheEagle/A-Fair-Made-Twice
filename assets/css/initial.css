@@ -2702,3 +2702,55 @@ body[data-world="lived"]    .image-panel-kicker { color: rgba(240, 80,  128, 0.5
 @media (max-width: 600px) {
   .gate-title { font-size: clamp(28px, 6vw, 44px); }
 }
+
+/* ── Unfinished World tab link ─────────────────────────────────────────── */
+#uw-tab-link {
+  position: fixed;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%) translateX(calc(100% - 28px));
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  text-decoration: none;
+  background: rgba(6, 6, 14, 0.80);
+  border: 1px solid rgba(255, 232, 190, 0.14);
+  border-right: none;
+  border-radius: 10px 0 0 10px;
+  padding: 10px 12px 10px 10px;
+  transition: transform 0.40s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.30s,
+              background 0.30s;
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+  white-space: nowrap;
+}
+#uw-tab-link:hover {
+  transform: translateY(-50%) translateX(0);
+  border-color: rgba(255, 232, 190, 0.32);
+  background: rgba(12, 12, 24, 0.92);
+}
+.uwt-dot {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 232, 190, 0.65);
+  flex-shrink: 0;
+  box-shadow: 0 0 6px rgba(255, 232, 190, 0.55);
+  animation: uwt-pulse 2.8s ease-in-out infinite;
+}
+@keyframes uwt-pulse {
+  0%, 100% { opacity: 0.55; transform: scale(1.0); }
+  50%       { opacity: 0.90; transform: scale(1.25); }
+}
+.uwt-label {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 232, 190, 0.70);
+  margin-left: 8px;
+  transition: color 0.25s;
+}
+#uw-tab-link:hover .uwt-label { color: rgba(255, 232, 190, 0.95); }

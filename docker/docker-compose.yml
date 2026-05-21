@@ -15,6 +15,38 @@ services:
     volumes:
       - ollama_storage:/root/.ollama
 
+  postgres:
+    image: postgres:16-alpine
+    container_name: paris-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: parisexpo
+      POSTGRES_USER: expo
+      POSTGRES_PASSWORD: expo1867
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: ../server
+      dockerfile: Dockerfile
+    container_name: paris-api
+    restart: unless-stopped
+    ports:
+      - "3800:3800"
+    environment:
+      PG_HOST: postgres
+      PG_PORT: 5432
+      PG_DB: parisexpo
+      PG_USER: expo
+      PG_PASSWORD: expo1867
+      PORT: 3800
+    depends_on:
+      - postgres
+
 volumes:
   qdrant_storage:
   ollama_storage:
+  postgres_data:
