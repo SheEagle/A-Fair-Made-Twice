@@ -92,39 +92,13 @@ const PERSPECTIVES = [
   { label: "Local",             value: "local"         },
 ];
 
-/* ── Demo bubbles shown before any real comments ─────────────────────
-   These look like real visitor impressions to show the visual vocabulary.
-   They are removed as soon as the first real comment is submitted.
+/* ── Empty-state placeholders (no real comments yet) ─────────────────
+   Shown only when the exhibit has no visitor impressions.
+   Removed the moment the first real comment is submitted.
    ─────────────────────────────────────────────────────────────────── */
-const DEMO_COMMENTS = [
-  {
-    prompt_type: "observe",
-    content: "I see an empire arranging the world by categories.",
-    country: "France",
-    perspective: "researcher",
-    username: "",
-  },
-  {
-    prompt_type: "imagine",
-    content: "I imagine the workers who built these displays, unseen.",
-    country: "Japan",
-    perspective: "student",
-    username: "",
-  },
-  {
-    prompt_type: "connect",
-    content: "It reminds me of how museums still frame what is 'civilised'.",
-    country: "Egypt",
-    perspective: "artist",
-    username: "",
-  },
-  {
-    prompt_type: "question",
-    content: "Who is absent from this display?",
-    country: "India",
-    perspective: "general",
-    username: "",
-  },
+const EMPTY_PLACEHOLDERS = [
+  "No impressions recorded yet.",
+  "Be the first to leave your voice here.",
 ];
 
 /* ── State ──────────────────────────────────────────────────────────── */
@@ -406,10 +380,10 @@ async function _fetchAndOrbit(exhibit) {
       _spawnBubble(row, exhibit.color || "#c4a882", false, false, angle);
     });
   } else {
-    /* Demo bubbles: show visual vocabulary before any real comments exist */
-    DEMO_COMMENTS.forEach((row, i) => {
-      const angle = (i / DEMO_COMMENTS.length) * Math.PI * 2 + Math.PI * 0.15;
-      _spawnBubble(row, exhibit.color || "#c4a882", false, false, angle, true /* isDemo */);
+    /* Empty state: gentle placeholder ghosts */
+    EMPTY_PLACEHOLDERS.forEach((text, i) => {
+      const angle = (i / EMPTY_PLACEHOLDERS.length) * Math.PI * 2 + Math.PI * 0.25;
+      _spawnPlaceholder(text, angle);
     });
   }
   _orbitTick();
@@ -420,11 +394,11 @@ const TYPE_LABELS = {
   question: "Question", free: "",
 };
 
-function _spawnBubble(row, _accent, _isNew, isJustPosted = false, fixedAngle = null, isDemo = false) {
+function _spawnBubble(row, _accent, _isNew, isJustPosted = false, fixedAngle = null) {
   if (!bubbleLayer) return;
   const el = document.createElement("div");
   const type = row.prompt_type || "free";
-  el.className = `visitor-bubble vb-${type}${isJustPosted ? " vb-new" : ""}${isDemo ? " vb-demo" : ""}`;
+  el.className = `visitor-bubble vb-${type}${isJustPosted ? " vb-new" : ""}`;
 
   /* Structured HTML: type-tag / content / attribution */
   const text = (row.content || "").slice(0, 100) + ((row.content||"").length > 100 ? "…" : "");
@@ -449,7 +423,24 @@ function _spawnBubble(row, _accent, _isNew, isJustPosted = false, fixedAngle = n
     speed:         (0.00010 + Math.random() * 0.00012) * (Math.random() < 0.5 ? 1 : -1),
     wobble:        Math.random() * Math.PI * 2,
     born:          performance.now(),
-    isPlaceholder: isDemo,   // demo bubbles are removed on first real submit
+    isPlaceholder: false,
+  });
+}
+
+function _spawnPlaceholder(text, fixedAngle) {
+  if (!bubbleLayer) return;
+  const el = document.createElement("div");
+  el.className = "visitor-bubble vb-placeholder";
+  el.innerHTML = `<span class="vb-content">${escHtml(text)}</span>`;
+  bubbleLayer.appendChild(el);
+  orbitBubbles.push({
+    el,
+    angle:         fixedAngle,
+    radiusExtra:   20 + Math.random() * 25,
+    speed:         0.00007 * (Math.random() < 0.5 ? 1 : -1),
+    wobble:        Math.random() * Math.PI * 2,
+    born:          performance.now(),
+    isPlaceholder: true,
   });
 }
 
@@ -476,7 +467,7 @@ function _orbitTick() {
 
     b.el.style.left      = `${cx + Math.cos(b.angle) * rx}px`;
     b.el.style.top       = `${cy + Math.sin(b.angle) * ry + wobbleY}px`;
-    b.el.style.opacity   = String(age * (b.isPlaceholder ? 0.72 : 0.92));
+    b.el.style.opacity   = String(age * (b.isPlaceholder ? 0.55 : 1.0));
     b.el.style.transform = `translate(-50%,-50%) scale(${0.88 + age * 0.12})`;
   });
 
