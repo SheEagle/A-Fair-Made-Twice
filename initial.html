@@ -109,6 +109,34 @@
     </div>
   </aside>
 
+  <!-- Unfinished World: right-side comment panel -->
+  <aside id="uw-comment-panel" aria-hidden="true">
+    <div class="uwcp-kicker">Unfinished World · Visitor Record</div>
+    <div class="uwcp-title" id="uwcp-title"></div>
+    <div class="uwcp-rule"></div>
+
+    <div class="uwcp-voice-count" id="uwcp-voice-count">
+      <span class="uwcp-dot" aria-hidden="true"></span>
+      <span id="uwcp-voice-text"></span>
+    </div>
+
+    <div class="uwcp-tags" id="uwcp-tags" role="group" aria-label="Choose a register"></div>
+
+    <div class="uwcp-compose" id="uwcp-compose">
+      <textarea id="uwcp-body" class="uwcp-textarea"
+                placeholder="Leave an impression…"
+                maxlength="2000" rows="4"
+                aria-label="Your impression"></textarea>
+      <div class="uwcp-row">
+        <input id="uwcp-name" class="uwcp-name"
+               type="text" placeholder="Your name · optional"
+               maxlength="80" autocomplete="off">
+        <button id="uwcp-submit" class="uwcp-submit" disabled>Record</button>
+      </div>
+      <div id="uwcp-msg" class="uwcp-msg" aria-live="polite"></div>
+    </div>
+  </aside>
+
   <article id="object-panel" aria-hidden="true">
     <div class="panel-kicker" id="panel-kicker"></div>
     <h2 class="panel-title" id="panel-title"></h2>

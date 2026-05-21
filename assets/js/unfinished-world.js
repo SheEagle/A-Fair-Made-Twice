@@ -1,8 +1,9 @@
 /* ──────────────────────────────────────────────────────────────────────
    unfinished-world.js
-   Handles the Unfinished World layer: visitor comment bubbles that orbit
-   the image panel, and the in-panel quick-tag comment form.
-   Wired to initial-local.js via CustomEvents:
+   Fourth world in the Paris 1867 constellation.
+   – Orbiting visitor-comment pills around the image panel
+   – Dedicated right-side comment form with HCI quick-tag starters
+   Communicates with initial-local.js via CustomEvents:
      "uwExhibitSelect"   { detail: { exhibit, index } }
      "uwExhibitDeselect"
    ────────────────────────────────────────────────────────────────────── */
@@ -10,59 +11,210 @@
 
 const UW_API = "http://localhost:3800/api";
 
-/* ── HCI tag palette ────────────────────────────────────────────────────
-   Each tag has:
-     label   — button text
-     starter — sentence fragment pre-filled into textarea
-     emoji   — small unicode icon (no colour emoji, just shape/symbol)
+/* ── Quick-response tags (HCI: recognition over recall) ────────────────
+   label   shown on button
+   starter sentence fragment pre-filled into textarea
+   icon    tiny unicode glyph (decorative only)
    ─────────────────────────────────────────────────────────────────────── */
 const TAGS = [
-  { label: "Wonder",     emoji: "✦", starter: "What struck me with wonder was " },
-  { label: "Unease",     emoji: "◈", starter: "There was something unsettling here — " },
-  { label: "Familiar",   emoji: "◎", starter: "This reminded me of " },
-  { label: "Overlooked", emoji: "△", starter: "Most visitors seemed to miss " },
-  { label: "Haunting",   emoji: "◇", starter: "I couldn’t quite forget " },
-  { label: "Ordinary",   emoji: "○", starter: "What surprised me was how ordinary " },
-  { label: "Grand",      emoji: "◉", starter: "The scale of it felt " },
-  { label: "Personal",   emoji: "◑", starter: "Standing here, I thought of " },
+  { label: "Wonder",     icon: "✦", starter: "What struck me with wonder was " },
+  { label: "Unease",     icon: "◈", starter: "There was something unsettling here — " },
+  { label: "Familiar",   icon: "◎", starter: "This reminded me of " },
+  { label: "Overlooked", icon: "△", starter: "Most visitors seemed to miss " },
+  { label: "Haunting",   icon: "◇", starter: "I couldn't quite forget " },
+  { label: "Ordinary",   icon: "○", starter: "What surprised me was how ordinary " },
+  { label: "Grand",      icon: "◉", starter: "The scale of it felt " },
+  { label: "Personal",   icon: "◑", starter: "Standing here, I thought of " },
 ];
 
 /* ── State ──────────────────────────────────────────────────────────── */
 let currentExhibit  = null;
-let orbitTimer      = null;
-let orbitBubbles    = [];       // { el, angle, radius, speed, wobble }
+let orbitBubbles    = [];       // { el, angle, radius, speed, wobble, born }
 let animFrame       = null;
 
 /* ── DOM refs ───────────────────────────────────────────────────────── */
-const bubbleLayer = document.getElementById("bubble-layer");
-const imagePanel  = document.getElementById("image-panel");
-const essaySlot   = document.getElementById("image-panel-essay");
+const bubbleLayer  = document.getElementById("bubble-layer");
+const imagePanel   = document.getElementById("image-panel");
+const commentPanel = document.getElementById("uw-comment-panel");
+const essaySlot    = document.getElementById("image-panel-essay");
 
-/* ── Listen for events from initial-local.js ────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════════
+   EVENT HOOKS FROM initial-local.js
+   ══════════════════════════════════════════════════════════════════════ */
+
 document.addEventListener("uwExhibitSelect", ev => {
   currentExhibit = ev.detail.exhibit;
-  clearAll();
-  // Wait for panel to animate in before fetching
+  _clearOrbit();
+  _buildPanel(currentExhibit);
+  // Wait for image panel entrance animation, then begin orbit
   setTimeout(() => {
-    if (currentExhibit) {
-      buildForm(currentExhibit);
-      fetchAndOrbit(currentExhibit);
-    }
-  }, 500);
+    if (currentExhibit) fetchAndOrbit(currentExhibit);
+  }, 480);
 });
 
 document.addEventListener("uwExhibitDeselect", () => {
   currentExhibit = null;
-  clearAll();
+  _clearOrbit();
+  _hideCommentPanel();
 });
 
-/* ── Clear all visitor UI ───────────────────────────────────────────── */
-function clearAll() {
-  cancelAnimationFrame(animFrame);
-  clearInterval(orbitTimer);
-  orbitBubbles.forEach(b => b.el.remove());
-  orbitBubbles = [];
-  if (essaySlot) essaySlot.innerHTML = "";
+/* ══════════════════════════════════════════════════════════════════════
+   COMMENT PANEL — right-side form
+   ══════════════════════════════════════════════════════════════════════ */
+
+function _buildPanel(exhibit) {
+  if (!commentPanel) return;
+
+  // Title
+  const titleEl = document.getElementById("uwcp-title");
+  if (titleEl) titleEl.textContent = exhibit.name || "";
+
+  // Voice count (loaded async)
+  const voiceTextEl = document.getElementById("uwcp-voice-text");
+  if (voiceTextEl) voiceTextEl.textContent = "loading…";
+
+  // Build tag buttons
+  const tagsEl = document.getElementById("uwcp-tags");
+  if (tagsEl) {
+    tagsEl.innerHTML = TAGS.map(t => `
+      <button type="button" class="uwcp-tag" data-starter="${escHtml(t.starter)}" title="${escHtml(t.starter)}">
+        <span class="uwcp-tag-icon" aria-hidden="true">${t.icon}</span>${escHtml(t.label)}
+      </button>`).join("");
+
+    tagsEl.querySelectorAll(".uwcp-tag").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const ta = document.getElementById("uwcp-body");
+        if (!ta) return;
+        // Toggle: click same tag again → clear
+        const isActive = btn.classList.contains("active");
+        tagsEl.querySelectorAll(".uwcp-tag").forEach(b => b.classList.remove("active"));
+        if (isActive) {
+          ta.value = "";
+        } else {
+          btn.classList.add("active");
+          ta.value = btn.dataset.starter;
+          ta.setSelectionRange(ta.value.length, ta.value.length);
+        }
+        ta.focus();
+        _validateSubmit();
+      });
+    });
+  }
+
+  // Wire textarea + submit
+  const ta  = document.getElementById("uwcp-body");
+  const sub = document.getElementById("uwcp-submit");
+  if (ta)  ta.addEventListener("input", _validateSubmit);
+  if (sub) sub.addEventListener("click", () => {
+    const eid = String(exhibit.exhibitId || exhibit.id);
+    _submitComment(eid, exhibit.color);
+  });
+
+  // Reset compose area
+  if (ta)  ta.value = "";
+  const name = document.getElementById("uwcp-name");
+  if (name) name.value = "";
+  const msg = document.getElementById("uwcp-msg");
+  if (msg) { msg.textContent = ""; msg.className = "uwcp-msg"; }
+  _validateSubmit();
+
+  // Show panel
+  commentPanel.setAttribute("aria-hidden", "false");
+  commentPanel.classList.add("on");
+
+  // Fetch count (deferred)
+  const eid = String(exhibit.exhibitId || exhibit.id);
+  _fetchVoiceCount(eid);
+
+  // Show minimal cue in the image panel essay slot
+  if (essaySlot) {
+    essaySlot.textContent = "";
+    essaySlot.className   = "image-panel-essay uw-essay-quiet";
+  }
+}
+
+function _hideCommentPanel() {
+  if (!commentPanel) return;
+  commentPanel.classList.remove("on");
+  commentPanel.setAttribute("aria-hidden", "true");
+  if (essaySlot) {
+    essaySlot.textContent = "";
+    essaySlot.className   = "image-panel-essay";
+  }
+}
+
+function _validateSubmit() {
+  const ta  = document.getElementById("uwcp-body");
+  const btn = document.getElementById("uwcp-submit");
+  if (ta && btn) btn.disabled = ta.value.trim().length < 2;
+}
+
+async function _fetchVoiceCount(exhibitId) {
+  const el = document.getElementById("uwcp-voice-text");
+  if (!el) return;
+  try {
+    const res = await fetch(`${UW_API}/comments?exhibitId=${encodeURIComponent(exhibitId)}&limit=200`);
+    if (!res.ok) return;
+    const rows = await res.json();
+    const n = rows.length;
+    el.textContent = n === 0 ? "No impressions yet"
+                   : n === 1 ? "1 impression"
+                   : `${n} impressions`;
+  } catch (_) {
+    el.textContent = "server offline";
+  }
+}
+
+async function _submitComment(exhibitId, accentColor) {
+  const ta   = document.getElementById("uwcp-body");
+  const name = document.getElementById("uwcp-name");
+  const btn  = document.getElementById("uwcp-submit");
+  const msg  = document.getElementById("uwcp-msg");
+  if (!ta || !ta.value.trim()) return;
+  if (btn) btn.disabled = true;
+
+  try {
+    const res = await fetch(`${UW_API}/comments`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        exhibitId,
+        username: name?.value.trim() || "Anonymous",
+        world:    "visitor",
+        content:  ta.value.trim(),
+      }),
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const comment = await res.json();
+
+    // Feedback
+    if (msg) {
+      msg.textContent = "Recorded — your impression joins the constellation.";
+      msg.className   = "uwcp-msg ok";
+      setTimeout(() => { if (msg) { msg.textContent = ""; msg.className = "uwcp-msg"; } }, 4000);
+    }
+
+    // Reset form
+    ta.value = "";
+    if (name) name.value = "";
+    document.querySelectorAll(".uwcp-tag").forEach(b => b.classList.remove("active"));
+    _validateSubmit();
+
+    // Immediately orbit the new comment
+    const text = comment.content.slice(0, 72) + (comment.content.length > 72 ? "…" : "");
+    _addOrbitBubble(text, accentColor || "#c4a882", true);
+
+    // Refresh count
+    await _fetchVoiceCount(exhibitId);
+
+  } catch (err) {
+    console.error(err);
+    if (msg) {
+      msg.textContent = "Server unreachable — is the API running on :3800?";
+      msg.className   = "uwcp-msg err";
+    }
+    if (btn) btn.disabled = false;
+  }
 }
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -77,233 +229,73 @@ async function fetchAndOrbit(exhibit) {
     if (res.ok) comments = await res.json();
   } catch (_) {}
 
-  // Always start orbiting; use placeholders if no comments yet
-  spawnOrbitBubbles(comments, exhibit.color || "#c4a882");
-}
-
-function spawnOrbitBubbles(comments, accentColor) {
-  if (!imagePanel || !bubbleLayer) return;
-
-  const PLACEHOLDER = [
+  const PLACEHOLDERS = [
+    "The first impression is yours.",
     "No words left here yet.",
-    "The first impression is yours to record.",
     "This exhibit awaits a visitor's voice.",
   ];
 
-  // Use real comments or placeholders
   const texts = comments.length
-    ? comments.map(c => c.content.slice(0, 72) + (c.content.length > 72 ? "…" : ""))
-    : PLACEHOLDER;
+    ? comments.map(c => c.content.slice(0, 68) + (c.content.length > 68 ? "…" : ""))
+    : PLACEHOLDERS;
 
-  // Create DOM elements
+  const color = exhibit.color || "#c4a882";
   texts.forEach((text, i) => {
-    const el = document.createElement("div");
-    el.className = "visitor-bubble";
-    el.textContent = text;
-    el.style.setProperty("--wc", accentColor);
-    bubbleLayer.appendChild(el);
-
-    // Space bubbles evenly around a full orbit
-    const angle  = (i / texts.length) * Math.PI * 2 + (Math.random() * 0.4 - 0.2);
-    const radius = 180 + Math.random() * 70;
-    const speed  = (0.00018 + Math.random() * 0.00012) * (Math.random() < 0.5 ? 1 : -1);
-    const wobble = Math.random() * Math.PI * 2;
-
-    orbitBubbles.push({ el, angle, radius, speed, wobble, born: performance.now() });
+    const angle = (i / texts.length) * Math.PI * 2;
+    _addOrbitBubble(text, color, false, angle);
   });
 
-  orbitTick();
+  _orbitTick();
 }
 
-function orbitTick() {
-  if (!imagePanel || !imagePanel.classList.contains("on")) {
-    animFrame = requestAnimationFrame(orbitTick);
+function _addOrbitBubble(text, color, isNew = false, fixedAngle = null) {
+  if (!bubbleLayer) return;
+  const el = document.createElement("div");
+  el.className = isNew ? "visitor-bubble new" : "visitor-bubble";
+  el.textContent = text;
+  el.style.setProperty("--wc", color);
+  bubbleLayer.appendChild(el);
+
+  const angle  = fixedAngle ?? (Math.random() * Math.PI * 2);
+  const radius = 200 + Math.random() * 80;
+  const speed  = (0.00016 + Math.random() * 0.00014) * (Math.random() < 0.5 ? 1 : -1);
+  orbitBubbles.push({ el, angle, radius, speed, wobble: Math.random() * Math.PI * 2, born: performance.now() });
+}
+
+function _orbitTick() {
+  if (!imagePanel) return;
+  if (!imagePanel.classList.contains("on")) {
+    animFrame = requestAnimationFrame(_orbitTick);
     return;
   }
 
-  const r   = imagePanel.getBoundingClientRect();
-  const cx  = r.left + r.width  / 2;
-  const cy  = r.top  + r.height / 2;
-  const now = performance.now();
+  const r  = imagePanel.getBoundingClientRect();
+  const cx = r.left + r.width  / 2;
+  const cy = r.top  + r.height / 2;
+  const t  = performance.now();
 
   orbitBubbles.forEach(b => {
     b.angle += b.speed;
-    const age = Math.min((now - b.born) / 900, 1);   // fade-in over 900 ms
-    const wobbleY = Math.sin(now * 0.0008 + b.wobble) * 14;
+    const age     = Math.min((t - b.born) / 800, 1);
+    const wobbleY = Math.sin(t * 0.0009 + b.wobble) * 18;
 
+    // Elliptical orbit — wider than tall
     const x = cx + Math.cos(b.angle) * b.radius;
-    const y = cy + Math.sin(b.angle) * (b.radius * 0.42) + wobbleY;
+    const y = cy + Math.sin(b.angle) * (b.radius * 0.38) + wobbleY;
 
-    b.el.style.left    = `${x}px`;
-    b.el.style.top     = `${y}px`;
-    b.el.style.opacity = String(age * 0.82);
-    b.el.style.transform = `translate(-50%, -50%) scale(${0.88 + age * 0.12})`;
+    b.el.style.left      = `${x}px`;
+    b.el.style.top       = `${y}px`;
+    b.el.style.opacity   = String(age * 0.78);
+    b.el.style.transform = `translate(-50%, -50%) scale(${0.90 + age * 0.10})`;
   });
 
-  animFrame = requestAnimationFrame(orbitTick);
+  animFrame = requestAnimationFrame(_orbitTick);
 }
 
-/* ══════════════════════════════════════════════════════════════════════
-   IN-PANEL COMMENT FORM
-   ══════════════════════════════════════════════════════════════════════ */
-
-function buildForm(exhibit) {
-  if (!essaySlot) return;
-  const eid = String(exhibit.exhibitId || exhibit.id);
-
-  essaySlot.innerHTML = `
-    <div class="uw-inline-form" id="uw-inline-form">
-
-      <div class="uw-voice-count" id="uw-voice-count">
-        <span class="uvc-dot"></span><span id="uvc-text">loading voices…</span>
-      </div>
-
-      <div class="uw-tag-row" role="group" aria-label="Choose a register">
-        ${TAGS.map(t => `
-          <button type="button" class="uw-tag" data-starter="${escHtml(t.starter)}"
-                  title="${escHtml(t.starter)}">
-            <span class="uw-tag-icon" aria-hidden="true">${t.emoji}</span>
-            ${escHtml(t.label)}
-          </button>`).join("")}
-      </div>
-
-      <div class="uw-compose" id="uw-compose">
-        <textarea id="uw-body" class="uw-textarea"
-                  placeholder="Leave an impression…"
-                  maxlength="2000" rows="3"
-                  aria-label="Your impression"></textarea>
-        <div class="uw-compose-row">
-          <input id="uw-name" class="uw-name-input"
-                 type="text" placeholder="Your name · optional"
-                 maxlength="80" autocomplete="off">
-          <button id="uw-submit" class="uw-submit-btn" disabled>Record</button>
-        </div>
-        <div id="uw-msg" class="uw-msg" aria-live="polite"></div>
-      </div>
-
-    </div>
-  `;
-
-  // Fetch count
-  fetchVoiceCount(eid);
-
-  // Tag click → pre-fill textarea and focus
-  essaySlot.querySelectorAll(".uw-tag").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const starter = btn.dataset.starter;
-      const ta = document.getElementById("uw-body");
-      if (!ta) return;
-      // toggle: if already starts with this starter, clear it
-      if (ta.value.startsWith(starter)) {
-        ta.value = "";
-      } else {
-        ta.value = starter;
-        ta.setSelectionRange(ta.value.length, ta.value.length);
-      }
-      // mark active tag
-      essaySlot.querySelectorAll(".uw-tag").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      ta.focus();
-      validateSubmit();
-    });
-  });
-
-  // char validation
-  const body = document.getElementById("uw-body");
-  if (body) body.addEventListener("input", validateSubmit);
-
-  // submit
-  const submitBtn = document.getElementById("uw-submit");
-  if (submitBtn) submitBtn.addEventListener("click", () => submitComment(eid, exhibit.color));
-}
-
-function validateSubmit() {
-  const body = document.getElementById("uw-body");
-  const btn  = document.getElementById("uw-submit");
-  if (!body || !btn) return;
-  btn.disabled = body.value.trim().length < 2;
-}
-
-async function fetchVoiceCount(exhibitId) {
-  const el = document.getElementById("uvc-text");
-  if (!el) return;
-  try {
-    const res = await fetch(`${UW_API}/comments?exhibitId=${encodeURIComponent(exhibitId)}&limit=200`);
-    if (!res.ok) return;
-    const rows = await res.json();
-    const n = rows.length;
-    el.textContent = n === 0 ? "No impressions yet — be the first"
-                   : n === 1 ? "1 impression recorded"
-                   : `${n} impressions recorded`;
-  } catch (_) {
-    el.textContent = "Server offline";
-  }
-}
-
-async function submitComment(exhibitId, accentColor) {
-  const body    = document.getElementById("uw-body");
-  const nameEl  = document.getElementById("uw-name");
-  const btn     = document.getElementById("uw-submit");
-  const msg     = document.getElementById("uw-msg");
-
-  if (!body || !body.value.trim()) return;
-  if (btn) btn.disabled = true;
-
-  try {
-    const res = await fetch(`${UW_API}/comments`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        exhibitId,
-        username: nameEl?.value.trim() || "Anonymous",
-        world:    "visitor",
-        content:  body.value.trim(),
-      }),
-    });
-
-    if (!res.ok) throw new Error(await res.text());
-    const comment = await res.json();
-
-    // Show gentle confirmation
-    if (msg) {
-      msg.textContent = "Recorded. Your impression joins the constellation.";
-      msg.className = "uw-msg ok";
-    }
-
-    // Reset form
-    body.value = "";
-    document.querySelectorAll(".uw-tag").forEach(b => b.classList.remove("active"));
-    validateSubmit();
-
-    // Add new bubble to orbit immediately
-    const text = comment.content.slice(0, 72) + (comment.content.length > 72 ? "…" : "");
-    if (bubbleLayer) {
-      const el = document.createElement("div");
-      el.className = "visitor-bubble new";
-      el.textContent = text;
-      el.style.setProperty("--wc", accentColor || "#c4a882");
-      bubbleLayer.appendChild(el);
-
-      const angle  = Math.random() * Math.PI * 2;
-      const radius = 190 + Math.random() * 60;
-      const speed  = 0.00020 * (Math.random() < 0.5 ? 1 : -1);
-      orbitBubbles.push({ el, angle, radius, speed, wobble: Math.random() * Math.PI * 2, born: performance.now() });
-    }
-
-    // Refresh count
-    await fetchVoiceCount(exhibitId);
-
-    // Clear message after 4s
-    setTimeout(() => { if (msg) { msg.textContent = ""; msg.className = "uw-msg"; } }, 4000);
-
-  } catch (err) {
-    console.error(err);
-    if (msg) {
-      msg.textContent = "Could not reach server. Is the API running?";
-      msg.className = "uw-msg err";
-    }
-    if (btn) btn.disabled = false;
-  }
+function _clearOrbit() {
+  cancelAnimationFrame(animFrame);
+  orbitBubbles.forEach(b => b.el.remove());
+  orbitBubbles = [];
 }
 
 /* ── Utility ────────────────────────────────────────────────────────── */
