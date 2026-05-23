@@ -1,16 +1,32 @@
-# Museum Multi-Discourse Semantic System
+# A Fair Made Twice
 
-This project turns long-form museum source texts into discourse-aware, view-specific exhibit representations for retrieval, clustering, visualization, and downstream curatorial systems. It uses Docker Qdrant for vector search and Ollama for query generation, metadata translation, and chunk-level extraction. PDF-to-Markdown parsing can run through MinerU and is cached locally before chunking and indexing.
+## Constructing, Unmaking, and Remaking the 1867 Paris Exposition
+
+**A Fair Made Twice** is a digital humanities and curatorial experiment that revisits the 1867 Paris Exposition not as a fixed historical event, but as something constructed twice. The first construction took place in 1867, when objects, nations, technologies, and cultures were arranged into an official spectacle of progress, order, and imperial display. The second construction happens now, through a digital system that gathers, reorganizes, and reinterprets the traces left behind by catalogues, reports, expert commentary, visual records, and personal experiences.
+
+Rather than presenting the exposition as a complete or neutral archive, the project moves through three overlapping worlds:
+
+- **The Official World**, where objects are named, classified, and authorized.
+- **The Staged World**, where exhibition design, expert commentary, and institutional interpretation produce meaning.
+- **The Lived World**, where visitors encounter the fair through memory, movement, fatigue, wonder, confusion, and omission.
+
+Across these worlds, the same object may appear differently: celebrated in one space, analyzed in another, forgotten or misread in a third.
+
+By making these shifts visible, **A Fair Made Twice** does not attempt to recover a single truth of the 1867 Paris Exposition. Instead, it asks how exhibitions become history, how archives preserve some voices while silencing others, and how every act of digital reconstruction is also an act of choice. The project invites viewers to see the world's fair not simply as a past event to be revisited, but as a layered, unfinished construction, one that continues to be made, unmade, and remade through the ways we look at it today.
+
+## System Overview
+
+This repository implements the local semantic pipeline and browser demo behind **A Fair Made Twice**. It turns long-form museum source texts into discourse-aware, view-specific exhibit representations for retrieval, extraction, clustering, visualization, audio narration, and downstream curatorial systems. It uses Docker Qdrant for vector search, local/Ollama or Gemini-compatible LLM calls for generation and extraction, MinerU for PDF-to-Markdown parsing, and cached local outputs for reproducible visualization.
 
 ## What The System Models
 
-The pipeline keeps three discourse channels separate:
+The pipeline keeps three discourse channels separate and maps them into the three curatorial worlds:
 
-- `official`
-- `personal`
-- `institutional`
+- `official` -> **The Official World**
+- `institutional` -> **The Staged World**
+- `personal` -> **The Lived World**
 
-It then builds five semantic views for each discourse:
+It then builds five semantic views for each world:
 
 - `technical`
 - `category`
@@ -18,14 +34,16 @@ It then builds five semantic views for each discourse:
 - `perception`
 - `overall`
 
-The final semantic space is therefore `view × discourse`, for example:
+The final semantic space is therefore `view x world`, for example:
 
-- `technical_official_report`
-- `technical_visitor_accounts`
-- `perception_official_report`
-- `perception_visitor_accounts`
+- `technical_official`
+- `technical_staged`
+- `perception_lived`
+- `overall_official`
 
-The current repository also contains a `text/commentary/` folder. In this project it is treated as the more personal discourse channel and mapped into `visitor_accounts`.
+This separation is the conceptual center of the project. The system does not simply ask what an exhibit is. It asks how the same exhibit is recorded by official authority, framed by exhibition systems, and felt or ignored by visitors.
+
+The current repository also contains a `text/commentary/` folder. In this project it is treated as part of the personal/visitor discourse channel and mapped into **The Lived World**.
 
 ## Multilingual Input, English Semantic Output
 
@@ -66,17 +84,17 @@ After the first pass, changing `top_k`, query logic, or extraction prompts shoul
 
 ## Why Embeddings Are Not Merged
 
-The system does **not** merge embeddings across views or discourse types.
+The system does **not** merge embeddings across views or worlds.
 
 - Technical language, exhibition framing, and visitor perception encode different semantics.
-- Official institutional discourse and visitor narrative discourse often emphasize different evidence and different absences.
+- The Official, Staged, and Lived Worlds often emphasize different evidence and different absences.
 - Merging them into one vector would hide curatorial differences, suppress discourse distance, and blur omission patterns.
 
-Instead, each `view × discourse` pair gets its own text and its own embedding so that curators can compare:
+Instead, each `view x world` pair gets its own text and its own embedding so that curators can compare:
 
-- how official and visitor narratives diverge
-- where one discourse is silent
-- which exhibits cluster similarly in one view but not another
+- how official records, staged interpretation, and lived perception diverge
+- where one world is silent
+- which exhibits cluster similarly in one world but not another
 
 ## Data Model
 
@@ -295,11 +313,11 @@ These outputs are machine-readable and suitable for downstream 3D spatial system
 Open `outputs/exhibit_map.html` in a browser after a run.
 
 - Use the `View` control to switch between technical, category, exhibition, perception, and overall projections.
-- Use the `Discourse` control to switch between institutional and visitor semantic spaces.
+- Use the world controls to switch between **The Official World**, **The Staged World**, and **The Lived World**.
 - Hover over a point to see the English metadata layer and the extracted English field values.
-- Distances represent similarity only within the currently selected `view × discourse` slice.
+- Distances represent similarity only within the currently selected `view x world` slice.
 
-If two exhibits cluster together in `perception_visitor_accounts` but not in `technical_official_report`, that suggests public reception is aligning differently from institutional description.
+If two exhibits cluster together in `perception_lived` but not in `technical_official`, that suggests public reception is aligning differently from official description.
 
 ## How To Interpret Discourse Differences
 
