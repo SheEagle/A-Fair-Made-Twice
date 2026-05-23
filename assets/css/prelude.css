@@ -1,0 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Mono:wght@300;400&display=swap');
+
+:root {
+  --serif: 'Cormorant Garamond', Georgia, serif;
+  --mono: 'DM Mono', monospace;
+  --off: #97b8e8; --sta: #c8a06a; --liv: #d4849a;
+  --ink: #eeede2; --ink-dim: rgba(238,232,218,0.4);
+}
+
+html, body {
+  background: #020205; color: var(--ink);
+  font-family: var(--serif); overflow: hidden;
+}
+
+#bg { position: fixed; inset: 0; z-index: 0; }
+#grain {
+  position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' .../%3E");
+}
+
+/* 场景系统 */
+.scene {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 1.8s ease;
+}
+.scene.active { opacity: 1; pointer-events: auto; }
+
+/* 字体排版优化 */
+.s0-year { font-size: 15vw; color: rgba(255,255,255,0.03); position: absolute; }
+.s0-title { font-size: clamp(32px, 4vw, 64px); font-style: italic; text-align: center; line-height: 1.2; }
+
+.s-split { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid rgba(255,255,255,0.1); width: 80vw; }
+.split-left { padding: 40px; border-right: 1px solid rgba(255,255,255,0.1); }
+.split-right { padding: 40px; background: rgba(255,255,255,0.02); }
+
+/* 选择卡片 */
+.triptych { display: grid; grid-template-columns: repeat(3, 1fr); width: 80vw; margin-top: 40px; border: 1px solid rgba(255,255,255,0.1); }
+.w-panel { padding: 30px; border-right: 1px solid rgba(255,255,255,0.1); cursor: pointer; transition: background 0.4s; }
+.w-panel:hover { background: rgba(255,255,255,0.05); }
+.wp-world-label { font-family: var(--mono); color: var(--wc); text-transform: uppercase; font-size: 11px; margin-bottom: 10px; }
+
+/* 进度条 */
+#progress-bar { position: fixed; top: 0; left: 0; height: 1px; background: var(--sta); width: 0%; z-index: 100; }

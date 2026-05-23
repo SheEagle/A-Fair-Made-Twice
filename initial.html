@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paris Exposition Worlds</title>
+<link rel="stylesheet" href="./assets/css/initial.css">
+</head>
+<body>
+  <canvas id="star-canvas" aria-hidden="true"></canvas>
+  <div id="renderer-host"></div>
+  <div id="point-layer"></div>
+  <canvas id="connector-canvas"></canvas>
+  <div id="label-root"></div>
+  <div id="world-ghost" aria-hidden="true"></div>
+
+  <div id="expo-ornament">
+    <div class="orn-year">1867</div>
+    <div class="orn-line"></div>
+    <div class="orn-small">Paris Universal Exposition</div>
+    <div class="orn-small">Three worlds of seeing</div>
+    <div class="orn-arc"></div>
+  </div>
+
+  <div id="expo-ribbon">Official World / Staged World / Lived World</div>
+
+
+
+  <section id="intro" aria-labelledby="gate-title">
+    <div class="intro-gate">
+      <div class="gate-eye">Paris, 1867</div>
+      <h1 id="gate-title" class="gate-title">Three worlds gather around the same exhibits.</h1>
+      <div class="gate-note">Choose a world to enter the constellation.</div>
+
+      <div class="view-grid">
+        <!-- 增加了 role="button" 和 tabindex 使其支持更规范的交互 -->
+        <div class="ve" data-world="official" style="color:var(--c-official)" role="button" tabindex="0">
+          <div class="ve-ring" aria-hidden="true"><div class="ve-dot"></div></div>
+          <span class="ve-lbl">The Official World</span>
+          <div class="ve-copy">Declared order.</div>
+          <div class="ve-note">catalogue / report / nation</div>
+          <div class="ve-doc">formal reports and official state description</div>
+        </div>
+
+        <div class="ve" data-world="staged" style="color:var(--c-staged)" role="button" tabindex="0">
+          <div class="ve-ring" aria-hidden="true"><div class="ve-dot"></div></div>
+          <span class="ve-lbl">The Staged World</span>
+          <div class="ve-copy">Arranged meaning.</div>
+          <div class="ve-note">display / expertise / institution</div>
+          <div class="ve-doc">scientific, expert, and institutional commentary</div>
+        </div>
+
+        <div class="ve" data-world="lived" style="color:var(--c-lived)" role="button" tabindex="0">
+          <div class="ve-ring" aria-hidden="true"><div class="ve-dot"></div></div>
+          <span class="ve-lbl">The Lived World</span>
+          <div class="ve-copy">Felt experience.</div>
+          <div class="ve-note">wonder / fatigue / witness</div>
+          <div class="ve-doc">private sensation and personal response</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="world-bar">
+    <button class="wb" data-world="official"    aria-pressed="false">Official World</button>
+    <button class="wb" data-world="staged"      aria-pressed="false">Staged World</button>
+    <button class="wb" data-world="lived"       aria-pressed="false">Lived World</button>
+    <button class="wb" data-world="unfinished"  aria-pressed="false">Unfinished World</button>
+  </div>
+
+  <div id="mode-toggle" role="group" aria-label="Point display mode">
+    <button class="mt active" data-mode="dots">Dots</button>
+    <button class="mt" data-mode="images">Images</button>
+  </div>
+
+  <nav id="view-bar" aria-label="View switcher">
+    <button class="vb active" data-view="overall" aria-pressed="true">Overall</button>
+    <button class="vb" data-view="technical" aria-pressed="false">Technical</button>
+    <button class="vb" data-view="category" aria-pressed="false">Category</button>
+    <button class="vb" data-view="exhibition" aria-pressed="false">Exhibition</button>
+    <button class="vb" data-view="perception" aria-pressed="false">Perception</button>
+  </nav>
+
+  <div id="deselect-hint" role="status">Esc · click space to deselect</div>
+  <div id="tip" aria-hidden="true">
+    <div id="tip-thumb-wrap">
+      <img id="tip-thumb" alt="">
+    </div>
+    <div class="tip-text">
+      <div class="tip-name" id="tip-name"></div>
+      <div class="tip-sub">click to explore</div>
+    </div>
+  </div>
+
+  <div id="bubble-layer" aria-hidden="true"></div>
+
+  <aside id="image-panel" aria-hidden="true">
+    <div class="image-panel-header">
+      <div class="image-panel-kicker">Stereo View</div>
+      <h3 class="image-panel-title" id="image-panel-title"></h3>
+      <div class="image-panel-rule"></div>
+    </div>
+    <div class="image-frame">
+      <img id="image-panel-img" alt="Selected exhibit image">
+    </div>
+    <div class="image-panel-footer">
+      <div id="image-panel-caption"></div>
+      <div class="image-panel-essay" id="image-panel-essay"></div>
+    </div>
+  </aside>
+
+  <!-- Unfinished World: visitor record panel -->
+  <aside id="uw-comment-panel" aria-hidden="true">
+
+    <div class="uwcp-header">
+      <span class="uwcp-kicker">Visitor Record · Paris 1867</span>
+      <div class="uwcp-voices">
+        <span class="uwcp-dot" aria-hidden="true"></span>
+        <span id="uwcp-voice-text">—</span>
+      </div>
+    </div>
+
+    <div class="uwcp-exhibit" id="uwcp-title"></div>
+
+    <!-- Project thesis: invites critical reflection -->
+    <p class="uwcp-thesis">
+      Every exhibition is constructed. The 1867 Exposition declared an order of the world —
+      and so does this one. What do <em>you</em> see?
+    </p>
+
+    <div class="uwcp-rule"></div>
+
+    <!-- Categorised prompt chips: four modes of seeing -->
+    <div class="uwcp-prompt-section" id="uwcp-prompts"></div>
+
+    <!-- Open textarea -->
+    <textarea id="uwcp-body" class="uwcp-textarea"
+              placeholder="Write freely — or choose a mode above."
+              maxlength="2000" rows="4"
+              aria-label="Your impression"></textarea>
+
+    <!-- Country: quick-select chips + free-text fallback -->
+    <div class="uwcp-section-label">Where are you from?</div>
+    <div class="uwcp-country-chips" id="uwcp-country-chips"></div>
+    <input id="uwcp-country" class="uwcp-field uwcp-country-input"
+           type="text" placeholder="Other country…"
+           maxlength="60" autocomplete="country-name" list="uwcp-country-dl">
+    <datalist id="uwcp-country-dl"></datalist>
+
+    <!-- Perspective: how are you visiting -->
+    <div class="uwcp-section-label">I am visiting as</div>
+    <div class="uwcp-perspective-chips" id="uwcp-perspective-chips"></div>
+
+    <!-- Name + Submit -->
+    <div class="uwcp-bottom">
+      <input id="uwcp-name" class="uwcp-field uwcp-name-input"
+             type="text" placeholder="Name · optional" maxlength="80" autocomplete="off">
+      <button id="uwcp-submit" class="uwcp-submit" disabled>Record</button>
+    </div>
+    <div id="uwcp-msg" class="uwcp-msg" aria-live="polite"></div>
+
+  </aside>
+
+  <article id="object-panel" aria-hidden="true">
+    <div class="panel-kicker" id="panel-kicker"></div>
+    <h2 class="panel-title" id="panel-title"></h2>
+    <div class="panel-sub" id="panel-sub"></div>
+    <div class="panel-essay" id="panel-essay"></div>
+    <div class="panel-prompt" id="panel-prompt"></div>
+  </article>
+
+  <script src="./vendor/three.min.js"></script>
+  <script src="./initial.data.js"></script>
+  <script src="./initial.embeddings.js"></script>
+  <script src="./assets/js/initial-local.js"></script>
+  <script src="./assets/js/unfinished-world.js"></script>
+  <script src="./assets/js/ambient.js"></script>
+</body>
+</html>

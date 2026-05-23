@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unfinished World · Paris 1867</title>
+<link rel="stylesheet" href="./assets/css/unfinished.css">
+</head>
+<body>
+
+  <canvas id="star-canvas" aria-hidden="true"></canvas>
+
+  <!-- ── Header ──────────────────────────────────────────────────── -->
+  <header id="uw-header">
+    <a href="./initial.html" class="uw-back" aria-label="Return to constellation">← constellation</a>
+    <div class="uw-title-group">
+      <div class="uw-kicker">Paris · 1867</div>
+      <h1 class="uw-title">The Unfinished World</h1>
+      <p class="uw-sub">Every visitor carried away something the catalogue never recorded.</p>
+    </div>
+    <div class="uw-live-count" id="live-count" aria-live="polite"></div>
+  </header>
+
+  <!-- ── Main layout ─────────────────────────────────────────────── -->
+  <main id="uw-main">
+
+    <!-- Left: exhibit picker + write form -->
+    <section id="uw-write" aria-label="Leave an impression">
+
+      <div class="write-step" id="step-pick">
+        <label class="step-label" for="exhibit-search">
+          <span class="step-num">01</span> Choose an exhibit
+        </label>
+        <div class="search-wrap">
+          <input id="exhibit-search" type="text" placeholder="Search by name or type…"
+                 autocomplete="off" aria-autocomplete="list" aria-controls="exhibit-list">
+          <div id="exhibit-list" role="listbox" aria-label="Exhibit suggestions"></div>
+        </div>
+        <div id="selected-exhibit" class="selected-exhibit" aria-live="polite"></div>
+      </div>
+
+      <div class="write-step" id="step-voice">
+        <label class="step-label">
+          <span class="step-num">02</span> Pick a voice
+        </label>
+        <div class="voice-grid" role="radiogroup" aria-label="Perspective">
+          <button class="voice-btn" data-world="official"  aria-pressed="false">
+            <span class="v-dot"></span>Official
+          </button>
+          <button class="voice-btn" data-world="staged"    aria-pressed="false">
+            <span class="v-dot"></span>Staged
+          </button>
+          <button class="voice-btn" data-world="lived"     aria-pressed="false">
+            <span class="v-dot"></span>Lived
+          </button>
+          <button class="voice-btn active" data-world="visitor" aria-pressed="true">
+            <span class="v-dot"></span>Visitor
+          </button>
+        </div>
+      </div>
+
+      <div class="write-step" id="step-compose">
+        <label class="step-label" for="comment-name">
+          <span class="step-num">03</span> Write your impression
+        </label>
+        <input id="comment-name" type="text" placeholder="Your name (optional)"
+               maxlength="80" autocomplete="off">
+        <textarea id="comment-body" placeholder="What did you see? What did you feel?"
+                  maxlength="2000" rows="5" aria-describedby="char-count"></textarea>
+        <div class="compose-footer">
+          <span id="char-count" aria-live="polite">0 / 2000</span>
+          <button id="submit-btn" class="submit-btn" disabled>Leave impression</button>
+        </div>
+        <div id="submit-msg" class="submit-msg" aria-live="polite"></div>
+      </div>
+
+    </section>
+
+    <!-- Right: comment feed -->
+    <section id="uw-feed" aria-label="Visitor impressions">
+      <div class="feed-header">
+        <h2 class="feed-title">Impressions</h2>
+        <div class="feed-tabs" role="tablist">
+          <button class="ftab active" data-feed="exhibit" role="tab" aria-selected="true" id="tab-exhibit">
+            This exhibit
+          </button>
+          <button class="ftab" data-feed="recent" role="tab" aria-selected="false" id="tab-recent">
+            All recent
+          </button>
+        </div>
+      </div>
+      <div id="feed-list" role="tabpanel" aria-labelledby="tab-exhibit">
+        <div class="feed-empty" id="feed-placeholder">
+          Select an exhibit to see what others wrote.
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="./unfinished.data.js"></script>
+  <script src="./assets/js/unfinished.js"></script>
+</body>
+</html>

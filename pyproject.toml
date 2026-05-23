@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "museum-multidiscourse-semantic-system"
+version = "0.1.0"
+description = "Fully local multi-discourse, multi-view semantic modeling pipeline for museum exhibits."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "easyocr>=1.7",
+  "ftfy>=6.3",
+  "langdetect>=1.0.9",
+  "numpy>=1.26",
+  "openpyxl>=3.1",
+  "pandas>=2.2",
+  "plotly>=5.24",
+  "pymupdf>=1.24",
+  "pydantic>=2.8",
+  "pypdf>=5.0",
+  "pyyaml>=6.0.2",
+  "qdrant-client>=1.11",
+  "requests>=2.32",
+  "scikit-learn>=1.5",
+  "sentence-transformers>=3.0",
+  "tenacity>=9.0",
+  "typer>=0.12",
+  "umap-learn>=0.5.6",
+]
+
+[project.scripts]
+museum-pipeline = "src.cli.main:app"
+
+[tool.setuptools.packages.find]
+include = ["src*"]

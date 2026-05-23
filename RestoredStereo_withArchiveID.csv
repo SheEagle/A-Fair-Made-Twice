@@ -1,0 +1,216 @@
+archive_id,card_id,title,country,location,medium,collection,geolocated,x,y,notes,include
+0,101,Last Days of Napoleon by Vincenzo Vela,Italian Fine Arts Section,Palais,Sculpture,Francois Brunet,Confident,6.225086541,37.24878803,Seen from 1044 Alt view 368 0,True
+2,159,Jardin Central Sculptures,Central Garden,Central Garden,Sculpture,Francois Brunet,Confident,30.81346264,0.023832094,Alt view 378 3 4,True
+3,206,Italian Fine Arts No. 28,Italian Fine Arts Section,Palais,Painting Sculpture,Francois Brunet,Confident,4.442371543,44.33990341,Row of sculptures,True
+4,164,The Kiss,Central Garden,Central Garden,Sculpture,Francois Brunet,Confident,55.10660801,1.238489362,Alt view 378 3 4,True
+5,215,Cannon Krupp,Prussian Section,Palais,Machine,Francois Brunet,approximate,-179.1271106,7.988717308,alt view 1073 5,True
+6,220,Gallery of Industry Italian Section,Italian Section,Palais,Machine,Francois Brunet,Confident,1.893836248,165.354802,Weird Damage in ceiling,True
+7,204,Piety by Jean Dupre,French Fine Arts Section,Palais,Sculpture,Francois Brunet,Arbitrary,-85.63445545,-27.07023452,Sculpture Close up,True
+8,245,Italian Fine Arts No. 41,Italian Fine Arts Section,Palais,Sculpture,Francois Brunet,approximate,12.65354493,57.56913475,,True
+9,211,Italian Fine Arts No. 29,Papal States (Rome) Fine Arts Section,Palais,Painting Sculpture,Francois Brunet,Confident,31.87037744,41.35584311,Alt View 1044 1123 9 379 211 1042 123 inconsistent,True
+10,252,Italian Statues and Russian Costumes,Italian Section ,Palais,Sculpture Costume,Francois Brunet,somewhat confident,4.587819025,85.04260293,Row of sculptures,True
+11,288,The Mosque,Ottoman Park,Parc,Architecture,Francois Brunet,remove,231.5794325,121.8361733,Dupe of 1120,False
+12,240,Italian Fine Arts No. 39,Italian Fine Arts Section,Palais,Painting Sculpture,Francois Brunet,Confident,17.70182266,37.36197715,Alt View 1044 1123 9 379 211 1042 123 inconsistent. The sculptures move between all of these but the rooms can be identified from paintings on the walls.,True
+13,286,Aerial View of Ottoman and Egyptian Parks,Ottoman Park,Parc,Architecture Landscape,Francois Brunet,Confident,228.6150955,109.9788254,Alt view 11 422 13 313 1120 ,True
+14,287,Replica of the Temple of Edfu ,Egyptian Park,Parc,Architecture,Francois Brunet,Confident,254.3060158,145.0568128,Alt view 1116,True
+15,297,Aerial View of the Park from Circle International,Exposition Grounds,Parc,Landscape,Francois Brunet,Confident,452.6409193,73.44286398,capture point seen from 266,True
+16,313,Perfumes,French Section,Palais,Painting Sculpture Perfume,Francois Brunet,Confident,-96.09352228,-75.65283601,,True
+17,336,East India Company Pavillion,French Park,Parc,Architecture,Francois Brunet,Confident,267.094182,-158.6407736,,True
+18,366,Austrian Crystal,Austrian Section,Palais,Crystal,Francois Brunet,approximate,-85.98536473,90.76358676,,True
+19,390,Labour Gallery Ottoman Section,Ottoman Section,Palais,Architecture,Francois Brunet,Confident,36.36233757,140.2225605,,True
+20,444,Emperor's Pavillion,French Park,Parc,Architecture,Francois Brunet,Confident,276.7239682,-5.28269897,20 48,True
+21,480,Labour Gallery Japanese Section,Japanese Section,Palais,Architecture Animal,Francois Brunet,Confident,12.71101776,166.1960491,,True
+22,648,The Little Fisherman by Cambos,Papal States (Rome) Fine Arts Section,Palais,Sculpture,Francois Brunet,Confident,27.92024002,38.00460961,Sculpture Close up,True
+23,699,La Cigale by Cambos,Italian Fine Arts Section,Palais,Sculpture,Francois Brunet, Arbitrary,45.552845,37.91035712,Sculpture Close up,True
+30,NA (6138),Italian Fine Arts,Italian Section ,Palais,Sculpture,Francois Brunet,Confident,3.249726558,111.0396771,Row of sculptures,True
+25,,Reserved Garden,Horticultural Gardens,Parc,Architecture,Francois Brunet,Confident,-245.7257272,-222.6815161,,True
+43,75,Prussian Fine Arts No. 2,Prussian Fine Arts Section,Palais,Painting Sculpture,Francois Brunet,approximate,-93.31274308,23.04887673,,True
+46,513,Distribution of Awards. Group 3 Furniture,Palais de l'Industrie (External Venue),Palais de l'Industrie (External Venue),Furniture Household goods,Francois Brunet,Offsite,573.649723,4.57075051,Awards,True
+47,490,Labour Gallery Ottoman Empire,Ottoman Section,Palais,Architecture,Francois Brunet,Confident,29.7989037,149.8558581,,True
+48,367,Emperor's Pavillion Front View,French Park,Parc,Architecture,Francois Brunet,Confident,286.1584849,-7.75732629,,True
+49,63,Wrestlers,Prussian Section,Palais,Crystal Sculpture,Francois Brunet,approximate,-103.1165596,26.4710253,,True
+25,,Blackwell London Horse,Great Britain and Ireland,Palais,Commercial,Francois Brunet,approximate,106.7739781,45.68767336,,True
+52,363,Elephant with Palanquin,Japanese Section,Palais,Architecture Animal,Patrick Montgomery,confident,20.19576056,163.8596272,,True
+53,474,The Moroccan Rider,Moroccan Section,Palais,Architecture Animal,Library Company of Philadelphia, approximate,49.40783431,126.1947228,,True
+54,66,Fountains,French Park,Palais,Sculpture,Library Company of Philadelphia,approximate,89.53613916,-86.20276274,,True
+55,170,Electroplating French Park,French Park,Parc,Architecture,Library Company of Philadelphia, confident,272.3653242,-123.600071,,True
+56,435,Japanese Warrior Costume,Japanese Section,Palais,Costume Armory,Library Company of Philadelphia,approximate,42.87320806,85.34813127,,True
+60,8002,General View of the Expo from the lighthouse,Exposition Grounds,Parc,Landscape,Patrick Montgomery,Confident,369.4993034,-83.51581486,"duplicate of 263, 1026",False
+25,,Lighting,Prussian Section,Palais,Furniture Household goods,Roger Viollet,approximate,-137.2483586,36.04725177,,True
+25,,Bronzes,Prussian Section,Palais,Bronzes,Roger Viollet,approximate,-155.9462538,30.03140724,,True
+25,,Porcelain and Crystal,Austrian Section,Palais,Decorative Arts,Roger Viollet,approximate,-79.91707267,67.98867207,,True
+1121,8123,Belgian Staircase,Belgian Section,Palais,Decorative Arts,Roger Viollet,somewhat confident,-89.72042575,0.151456407,Alt view of 251,True
+25,,Bronzes,Great Britain and Ireland,Palais,Decorative Arts,Roger Viollet,approximate,117.0806298,67.51628396,,True
+25,,Sleeping Nymph,Italian Section,Palais,Sculpture,Roger Viollet,Confident,0.005661675,52.52234765,Sculpture Close up,True
+25,,The Kidnapping of Ganymede,French Fine Arts Section,Palais,Sculpture,Roger Viollet,Confident,-12.39982178,-42.47140252,Sculpture Close up 184,True
+93,528,Distribution of Awards. General view No. 2,Palais de l'Industrie (External Venue),Palais de l'Industrie (External Venue),Landscape,Library Company of Philadelphia,Offsite,568.7069274,-5.582018957,Awards,True
+95,328,English Agricultural Machines,Great Britain and Ireland,Palais,Machine,Brian May,approximate,148.6933854,55.26115633,,True
+25,,Kingdom of Wurttemberg,Wurttemberg Section,Palais,Birdcage,Archives Nationales de France,Approximate,-95.26375567,50.10041039,,True
+111,589,Jardin Central Sculptures,Central Garden,Central Garden,Sculpture,Brian May, confident,-52.59776275,18.67892942,,True
+25,,August Klein Austria,Austrian Section,Palais,Crystal,Roger Viollet,approximate,-85.11495829,79.11738878,Alt view of 254 115 154,True
+25,,Porcelain and Sculptures,Prussian Section,Palais,Sculpture Porcelain,Roger Viollet,approximate,-127.2544867,13.20829885,,True
+25,,Swiss Labour Gallery,Swiss Section,Palais,Machine,Roger Viollet,confident,-77.32124223,164.0225139,,True
+25,,Bronzes and Photographs,French Section,Palais,Bronzes Photographs,Roger Viollet,approximate,53.86259085,-95.85842796,,True
+25,,Fine Arts,French Fine Arts Section,Palais,Sculpture Painting,Roger Viollet,approximate,-67.06771886,-36.59647889,,True
+25,,Fine Arts,French Fine Arts Section,Palais,Sculpture Painting,Roger Viollet,approximate,-77.14561221,-38.33031,,True
+25,,Fine Arts,French Fine Arts Section,Palais,Sculpture Painting,Roger Viollet,approximate,4.486535007,-45.95508397,,True
+25,,Sculptures and Paintings,French Fine Arts Section,Palais,Sculpture Painting,Roger Viollet,approximate,42.04822894,-37.90758447,,True
+25,,Sculptures and Paintings,Italian Fine Arts Section,Palais,Sculpture Painting,Roger Viollet,remove,21.11648579,45.24498479,duplicate of 1046,False
+129,117,Crib of the Imperial Prince,Imperial Pavillion,Palais,Imperial,Brian May,Very Unsure - Fabricated,286.1696392,-24.44329712,,True
+141,747,The Tribunal by L Harze,Belgian Fine Arts Section,Palais,Sculpture,Brian May,approximate,-94.57508204,-12.24384417,,True
+144,124,Algeria and French Colonies,Algerian Section,Palais,Colonial Animals,Brian May,approximate,-129.9452713,-48.52674885,,True
+145,181,Labour Gallery Algerian Section,Algerian Section,Palais,Machine,Brian May,confident,-177.2248668,-75.71033263,,True
+146,261,Apparatus for Science,American Section,Palais,Machine,Brian May,approximate,70.46156787,126.2714577,,True
+148,339,Furniture,American Section,Palais,Furniture,Archives Nationales de France,approximate,64.59695366,85.26596976,,True
+149,342,Vehicles and Locomotives,American Section,Palais,Machines,Archives Nationales de France,Confident,60.23208728,167.3037739,,True
+150,405,Statue of Napoleon,American Fine Arts Section,Palais,Fine Arts,Archives Nationales de France,somewhat confident,63.49659503,38.05838238,,True
+151,406,Indian Hunter Statue,American Fine Arts Section,Palais,Fine Arts,Archives Nationales de France,somewhat confident,58.29510169,36.21618682,,True
+154,106,Chandeliers and Crystals,Austrian Section,Palais,Crystal,Brian May,approximate,-69.85992801,83.32837579,Alt view of 254 115 154,True
+25,,Crystal,French Section,Palais,Crystal,Roger Viollet,approximate,43.32599954,-78.28890373,Horrible 3D remove??,False
+25,,Baccarat Crystals,French Section,Palais,Crystal,Roger Viollet,Confident,23.54786974,-71.87199939,,True
+171,134,Labour Gallery French Section,French Section,Palais,Machine,Brian May,approximate,-142.4163364,-145.4634275,,True
+172,152,Renaissance Bed,French Section,Palais,Furniture,Brian May,somewhat confident,142.4434446,-35.71036305,,True
+176,249,The Lion,French Section,Palais,Animal,Archives Nationales de France,approximate,-114.1767922,-39.13465694,,True
+180,475,Gallery of French Furniture: Marble and Onyx,French Section,Palais,Sculpture Furniture,Brian May,approximate,47.55632382,-62.60172251,,True
+184,563,French Fine Arts,French Fine Arts Section,Palais,Sculpture Painting,Brian May,approximate,-18.77644418,-38.77901815,same sculpture as 67,True
+209,8206,Piccirillo napolitain by Miglioretti,Central Garden,Palais,Sculpture,Roger Viollet,approximate,9.737254375,17.81957365,,True
+210,8207,La Vanite by Tantardini,Central Garden,Palais,Sculpture,Roger Viollet,approximate,19.93160583,17.73161781,,True
+211,8212,Fine Arts,Papal States (Rome) Fine Arts Section,Palais,Sculpture,Roger Viollet,Confident,36.20336939,41.38786237,  ,True
+212,251,Norwegian Costumes,Norwegian Section,Palais,Costume,Brian May,approximate,-24.00596359,63.26052454,,True
+214,304,Nova Scotia Exhibition,Canadian Section (British Colonies),Palais,Cultural artefacts,Archives Nationales de France,Confident,89.53084827,36.18027207,,True
+216,299,Portuguese Pavillion,Portuguese Park,Parc,Architecture,Brian May,Confident,-284.8219096,195.3227923,,True
+25,,Geography Room,Prussian Section,Palais,Globes Furniture,Roger Viollet,approximate,-74.02290671,21.9618136,,True
+220,42,Labour Gallery Prussian Section,Prussian Section,Palais,Architecture,Archives Nationales de France,approximate,-208.634884,36.07062061,Alt View of 220 848,True
+230,77,Russian Furniture,Russian Section,Palais,Furniture,Brian May,somewhat confident,-12.11929959,107.8524792,sculpture from number 3 seen,True
+212,251,Swedish Costumes,Swedish Section,Palais,Costume,Brian May,approximate,-22.19998219,68.09319861,,True
+243,217,English Terracottas,Great Britain and Ireland,Palais,Tiles,Brian May,Guess,81.51238329,52.95510444,,True
+246,369,English Curtains,Great Britain and Ireland,Palais,Curtain,Brian May,Confident,99.44455431,34.05600263,,True
+25,,Belgian Staircase,Belgian Section,Palais,Architecture,Roger Viollet,somewhat confident,-99.55007952,0.151456407,Alt view of 64,True
+25,,August Klein,Austrian Section,Palais,Crystal,Roger Viollet,somewhat confident,-102.293829,69.77891902,Alt view of 254 115 154,True
+255,348,South American States Gallery,South American Section,Palais,Sculpture Photography Map,Archives Nationales de France,Approximate,69.00992621,62.90116941,,True
+25,,Labour Gallery Swedish Section,Swedish Section,Palais,Machine (Boats),Roger Viollet,Confident,-27.2366875,161.8385795,,True
+25,,General View of the Expo from the lighthouse,Exposition Grounds,Parc,Landscape,Roger Viollet,remove,442.9518731,-105.6420533,"alt view of 60, 1026",False
+264,279,Birds Eye View of the Palais,Exposition Grounds,Parc,Landscape,Archives Nationales de France,Confident,-229.6947048,1.642390498,,True
+266,365,View of Seine from the Lighthouse,Exposition Grounds,Parc,Landscape,Brian May,remove,452.0399811,-97.62439661,duplicate of 426,False
+25,,Saltwater Aquarium a,Saltwater Aquarium,Parc,Architecture,Roger Viollet,Confident,-369.4153911,-64.15310062,Partial duplicate of 1050,False
+25,,Saltwater Aquarium b,Saltwater Aquarium,Parc,Aquarium,Roger Viollet,remove,-370.3784283,-69.98647796,Ghosts,False
+25,,Saltwater Aquarium c,Saltwater Aquarium,Parc,Aquarium,Roger Viollet,remove,-371.130359,-70.622727,Duplicate with bad exposure,False
+287,182,Freshwater Aquarium Exterior,Horticultural Gardens,Parc,Architecture,Brian May,Confident,-302.8816478,-167.211377,,True
+295,185,The Arch of the Giants,Belgian Park,Parc,Architecture,Archives Nationales de France,Confident,-260.6237177,-52.34700005,,True
+296,187,Exterior of the Painting Museum,Belgian Park,Parc,Architecture,Archives Nationales de France,Confident,-270.9100762,-5.056452283,,True
+312,647,Temple of Edfu,Egyptian Park,Parc,Architecture,Brian May,remove,233.641965,142.7240037,Duplicate of 1115 remove,False
+11,288,The Mosque,Ottoman Park,Parc,Architecture,Brian May,remove,231.8488995,120.6866504,dupe of 11 alt view of 13,False
+25,,Emperors Pavillion Front View,French Park,Parc,Architecture,Roger Viollet,Confident,286.3949414,-10.11689543,alt view of 20 48 314,True
+324,553,Italian Earthenware Pavillion,Italian Park,Parc,Architecture,Archives Nationales de France,confident,65.66588241,208.3431575,,True
+327,184,The Creek Bridge With a View of the Dutch Farmhouse,Dutch Park (Horticultural Garden),Parc,Architecture,Brian May,Confident,-282.2444925,-219.7554835, ,True
+329,210,Empress Pavillion,Horticultural Gardens,Parc,Architecture,Brian May,Confident,-437.2472079,-166.7595628,,True
+333,378,The Mexican Temple,Mexican Park,Parc,Architecture,Archives Nationales de France,Confident,412.4051427,66.39079675,,True
+25,,Diamond Cutting of the Netherlands,Dutch Park (Horticultural Garden),Parc,Architecture,Archives Nationales de France,Confident,-276.1806612,-128.7256049,,True
+25,,American Farmer's Home,American Park,Parc ,Architecture,Francois Brunet,Confident,272.3576557,79.51038337,,True
+346,451,Romanian Church,Romanian Park,Parc,Architecture,Brian May,Confident,388.654962,129.1594496,,True
+25,,Northern Yurt,Russian Park,Parc,Architecture,Gary Van Zante,Confident,-95.31838991,212.7277128,,True
+25,,The Great Greenhouse,Horticultural Gardens,Parc,Landscape,Brian May,Confident,-379.3076385,-188.2560166,,True
+25,,Inside the Pavilion of the Bey of Tunisia,Tunisian Park,Parc,Architecture (Interior),Archives Nationales de France,Confident,430.4098501,199.0673933,,True
+350,45,Bey Palace,Tunisian Park,Parc,Architecture,Brian May,Confident,399.0346,202.0685042,,True
+351,213,Bey Palace Exterior,Tunisian Park,Parc,Architecture,Brian May,Confident,387.1665706,174.785678,,True
+25,,Pottery and Enamels,French Park,Parc,Architecture Parc,Roger Viollet,Confident,267.6466242,-94.48272886,372 410 359,True
+25,,Virebent Freres & Fils,French Park,Parc,Architecture Parc,Roger Viollet,somewhat confident,301.735121,-117.4744204,,True
+365,8020,Swedish Section,Swedish Section,Palais,Furniture Sculpture Porcelain,Tekniska museet,approximate,-20.04545412,96.59677567,,True
+25,,Thorvaldesen Leaning on the Statue of Hope,Danish Fine Arts Section,Palais,Sculpture,Tekniska museet,approximate,-32.42470973,43.74443196,,True
+25,,Young Cupid,Papal States (Rome) Fine Arts Section,Palais,Sculpture,Tekniska museet,somewhat confident,27.753268,44.66462054,sculpture close up as seen in 211,False
+25,,Last Days of Napoleon by Vincenzo Vela,French Fine Arts Section,Palais,Sculpture,Tekniska museet,Confident,4.938009377,35.77420005,      ,True
+25,,View of Lighthouse and Photosculpture Building,Exposition Grounds,Parc,Architecture Lighthouse Photosculpture,Tekniska museet,Confident,360.5773222,8.762582496,,True
+25,,Aquarium Interior,Horticultural Gardens,Parc,Aquarium,Tekniska museet,Confident,-299.0989075,-177.0776202,,True
+25,,Swedish Armour and Weaponry,Swedish Section,Palais,Military,Tekniska museet,Approximate,-22.98689278,83.6819482,,True
+25,,View of the Chateau d'Eau,French Park,Parc,Architecture Pottery,Tekniska museet,Confident,265.1085892,-131.8525582,372 410 359,True
+378,8001,Exhibition Inauguration,Central Garden (Inauguration Ceremony),Central Garden,People Architecture,Patrick Montgomery,Confident,16.700302,0.139513739,,True
+379,8075,Italian Sculptures,Papal States (Rome) Fine Arts Section,Palais,Sculpture,Patrick Montgomery,Confident,24.9754867,41.59260389,Alt View 1044 1123 9 379 211 1042 123 inconsistent,True
+403,8015,English decorative arts,Great Britain and Ireland,Palais,Decorative Arts,Kakou Collection,approximate,148.1328726,76.3664415,,True
+404,8016,Lighthouse Lamp,French Section,Palais,Machines,Kakou Collection,Confident,40.06898264,-152.2201751,,True
+405,8018,French Algerian colony objects,Algerian Section,Palais,Colonial Animals,Kakou Collection,somewhat confident,-150.1293665,-60.01294125,,True
+407,8030,Austrian Decorative Arts,Austrian Section,Palais,Decorative Arts,Kakou Collection,approximate,-118.0104365,106.4024102,,True
+410,8039,Chateu d'Eau Section View of the Lighthouse,French Park,Parc,Architecture,Kakou Collection,Confident,182.995716,-138.6946796,372 410 359,True
+411,8048,Freshwater Aquarium Cave,Horticultural Gardens,Parc,Architecture Nature,Kakou Collection,Confident,-297.8885253,-174.1649732,Aquarium,True
+412,8062,English Machinery,Great Britain and Ireland,Palais,Industry,Kakou Collection,Confident,210.0362303,23.40198252,alt view 413 1043,True
+415,8077,Baccarat Crystals,French Section,Palais,Crystal,Kakou Collection,Confident,13.70200703,-80.5616183,,True
+416,8080,Austrian Crystal,Austrian Section,Palais,Crystal,Kakou Collection,approximate,-91.92040671,84.44640379,Alt view of 416 1035?,True
+417,8105,Construction Work in the Botanical Garden,Horticultural Gardens,Parc,Architecture People,Kakou Collection,Confident,-406.2421499,-156.8953317,,True
+405,8018,Two People under a Tree,Horticultural Gardens,Parc,People Architecture,Kakou Collection,Confident,-379.1659905,-205.1478232,,True
+419,8112,Imperial Pavillion,French Park,Parc,Architecture People,Kakou Collection,Confident,281.8587642,3.979767495,,True
+421,8119,View from the freshwater aquarium,Horticultural Gardens,Parc,Architecture,Kakou Collection,Confident,-284.6150914,-174.7410395,,True
+422,8121,Aerial view of the Egyptian Park,Egyptian Park,Parc,Architecture,Kakou Collection,Confident,200.1245236,125.6239372,,True
+423,8127,Russian Industry,Russian Park,Palais,Architecture Industry,Kakou Collection,Confident,4.761461404,167.1455044,6 424 21,True
+425,8138,Industrial Gallery Swedish Section,Swedish Section,Palais,Industry Architecture,Kakou Collection,Confident,-33.51260544,169.2925476,256 425,True
+426,8150,View of Seine from the Lighthouse,Exposition Grounds,Parc,Architecture Expo,Kakou Collection,Confident,452.1809418,-99.05308496,Duplicate of 266 keep,True
+427,8153,View of Great Greenhouse,Horticultural Gardens,Parc,Architecture People,Kakou Collection,Confident,-405.9675905,-213.3679246,,True
+428,8182,View from the Expo Entrance,Exposition Grounds,Parc,Architecture,Kakou Collection,Confident,-464.6528488,8.725890073,,True
+429,8184,Pavillion of the Empress,Horticultural Gardens,Parc,Architecture,Kakou Collection,Confident,-400.64763,-121.2084559,Alt view of 329,True
+430,8203,Prussian Pavillion,Prussian Park,Parc ,People Architecture,Kakou Collection,remove,-258.5796128,64.34195671,duplicate of 1118 remove this,False
+431,8213,Arch with view of American Automobiles,Australian Section (British Colonies),Palais,Architecture Industry,Kakou Collection,Confident,94.72208189,140.4877747,,True
+432,8219,French Machinery,French Section,Palais,Industry Architecture,Kakou Collection,Confident,3.598420888,-168.9274649,,True
+25,,French Industrial Machines,French Section,Palais,Machines,Kakou Collection,Confident,170.4660975,-91.56980829,,True
+25,,Palais Construction,Rare View,Palais,Architecture,Kakou Collection,Fabricated,-207.3541459,-17.94049742,,True
+25,,Stereoscope,French Section,Palais,Commercial Photography,Kakou Collection,remove,,,duplicate of 1112 remove,False
+649,421,Interior of the Great Greenhouse,Horticultural Gardens,Parc,Greenhouse,Archives Nationales de France,Confident,-328.8912395,-120.31817,,True
+827,61,Awake Lion,Prussian Section,Palais,Sculpture,Archives Nationales de France,approximate,-168.0594433,2.920977711,,True
+829,108,Sleeping Lion,Prussian Section,Palais,Sculpture,Archives Nationales de France,approximate,-161.0664166,2.632473765,,True
+848,483,Krupp Exhibition,Prussian Section,Palais,Military,Archives Nationales de France,Approximate,-210.2171344,26.57711831,Alt view of 220 848,True
+25,,Islamic Doorway,Tunisian Park,Parc,Architecture,Archives Nationales de France,remove,,,duplicate of 1114,False
+165,91,Man Sitting Amidst Baccarat Crystal,French Section,Palais,People Crystal,Smithsonian Institute,Confident,8.868102286,-71.69619379,baccarat,True
+1023,8082,Italian Sculptures,Italian Section ,Palais,Sculpture,Daniel Foliard,remove ,,,Row of sculptures,False
+1024,8174,View of the Great Greenhouse,Horticultural Gardens,Parc,Architecture,Daniel Foliard,Confident,-433.6631398,-104.1164088,,True
+1025,8215,American Furniture and Musical Equipment,American Section,Palais,Decorative Arts,Daniel Foliard,Confident,65.98944096,94.64056579,,True
+1027,8004,Saltwater aquarium Interior Underground,Horticultural Gardens,Parc,Aquarium,Getty Foundation,Confident,-371.6801262,-71.63348565,Aquarium,True
+1027,8004,Sculptures at the Chateau d'Eau,French Park,Parc,Architecture Sculpture,Getty Foundation,Confident,191.8612137,-134.883241,,True
+1029,8010,French Bronzes,French Section,Palais,Decorative Arts,Getty Foundation,somewhat confident,1.184446659,-95.63224309,,True
+1031,8014,Goldsmithing,French Section,Palais,Sculpture Decorative Arts,Getty Foundation,somewhat confident,1.270519143,-112.2152637,,True
+1033,8021,Prussian Decorative Arts,Prussian Section,Palais,Sculpture Decorative Arts,Getty Foundation,approximate,-152.7215833,52.74062129,,True
+407,8030,Austrian Decorative Arts,Austrian Section,Palais,Decorative Arts,Getty Foundation,approximate,-97.49889111,85.73659195,Alt view of 416 1035?,True
+1037,8035,English Glass and Mirrors,Great Britain and Ireland,Palais,Decorative Arts,Getty Foundation,approximate,111.7005995,96.9279539,,True
+1038,8058,Christopher Columbus by Vincent Vela,Italian Section ,Palais,Sculpture,Getty Foundation,Confident,1.854740011,105.450458,Row of sculptures,True
+1039,8043,Porcelain,French Section,Palais,Decorative Arts,Getty Foundation,approximate,-47.56143096,-80.62162456,,True
+1040,8046,Baccarat Crystals,French Section,Palais,Decorative Arts,Getty Foundation,Confident,10.28553286,-75.4701847,Baccarat,True
+1042,8087,Italian Sculptures,Italian Fine Arts Section,Galerie des Beaux-Arts,Sculpture Paintings,Getty Foundation,Confident,14.29892062,44.81256463,Alt View 1044 1123 9 379 211 1042 123 inconsistent,True
+1043,8061,English Industry,Great Britain and Ireland,Palais Industrial Gallery,Industry,Getty Foundation,Confident,161.1102097,108.1758903,alt view 413 1043,True
+1044,8038,Italian Angel Statue,Italian Fine Arts Section,Galerie des Beaux-Arts,Sculpture,Getty Foundation,Confident,0.115150585,26.38314942,,True
+1046,8100,Italian Sculptures,Italian Section,Galerie des Beaux-Arts,Sculpture Paintings,Getty Foundation,Confident,21.03736179,45.21856211,Duplicate of 123 Keep this,True
+1047,8111,Fine Arts Austria,Austrian Fine Arts Section,Galerie des Beaux-Arts,Sculpture Paintings,Getty Foundation,somewhat confident,-71.22409292,37.24696039,,True
+1049,8133,Audience at the Awards Ceremony,Palais de l'Industrie (External Venue),Palais de l'Industrie (External Venue),Awards People,Getty Foundation,Offsite,547.1990868,4.704339582,Awards,True
+25,,Saltwater Aquarium,Horticultural Gardens,Parc,Architecture Interior,Getty Foundation,Confident,-365.1349831,-61.85536504,Aquarium,True
+5,215,Cannon Krupp Right View,Prussian Section,Palais,Military,Bibliotheque National de France,approximate,-177.6337131,20.7387096,alt view 1073 5,True
+268,382,Red Cross building,French Park,Parc,Architecture,Bibliotheque National de France,Confident,457.7768982,-167.5053819,,True
+1110,8140,Awards Ceremony Hall,Palais de l'Industrie (External Venue),Palais de l'Industrie (External Venue),Architecture Interior Awards,Roger Viollet,Offsite,556.1495546,-0.772812368,Awards,True
+1111,8094,Industrial Machines,French Section,Palais,Machines,Roger Viollet,Confident,-133.4995284,-130.3322626,,True
+25,,Stereoscope and Photography Room,Prussian Section,Palais,Photography Stereoviewer,Roger Viollet,approximate,-131.4307096,46.24055841,Duplicate of 436,True
+1113,8201,Great Austrian Restaurant,Austrian Park,Parc,Architecture,Roger Viollet,Confident,-363.1721749,156.129805,,True
+25,,Islamic Doorway,Tunisian Park,Parc,Architecture,Roger Viollet,Confident,413.1994416,191.9972949,Duplicate of 948 ,True
+1115,8195,Temple of Edfu,Egyptian Park,Parc,Architecture,Roger Viollet,Confident,234.2791221,142.1310256,Duplicate of 312,True
+25,,Temple of Edfu with People,Egyptian Park,Parc,Architecture People,Roger Viollet,Confident,244.1646516,149.0568325,,True
+25,,Prussian Pavillion,Prussian Park,Parc ,People Architecture,Roger Viollet,Confident,-261.3169914,65.65533538,Duplicate of 430,True
+25,,Awards Ceremony Audience,Palais de l'Industrie (External Venue),Palais de l'Industrie (External Venue),People,Roger Viollet,Offsite,543.9929491,-6.917909677,awards,True
+1117,8297,Egyptian Mosque,Egyptian Park,Parc,Architecture,Roger Viollet,Confident,230.7187613,120.7815197,Dupe of 313 11 alt 422 13,True
+1121,8123,Expo Riverside,Exposition Grounds,Parc,People Architecture Parc,Roger Viollet,Confident,567.246384,-289.3617686,,True
+430,8203,Awards Ceremony,Palais de l'Industrie (External Venue),Palais de l'Industrie (External Venue),Boats people seine,Roger Viollet,Offsite,536.7724126,2.0147247,awards,True
+25,,Italian Sculptures,Papal States (Rome) Fine Arts Section,Palais,Sculpture,Roger Viollet,Confident,33.95396172,45.13494173, ,True
+60,8002,Panoramic View of the Expo,Exposition Grounds,Parc,UE1867,Getty Foundation,Confident,451.077056,-109.1882501,"Dupe of 60, 263",True
+1045,8091,Colonies. French Section,French Section,Palais,Colonies,Getty Foundation,approximate,-123.7279177,-54.48140312,,True
+315,13,Photography Pavillion,French Park,Parc,Architecture Parc,Bibliotheque National de France,Confident,418.4297618,-127.3242757,,True
+384,47,Swedish Costumes,Swedish Section,Palais,Dolls,Bibliotheque National de France,Confident,-17.51403553,63.15087984,,True
+945,64,Tunisian Exhibition,Tunisian Section,Palais,Animal,Bibliotheque National de France,Confident,48.62059117,71.46302051,,True
+253,153,"""Norwegian Girls' Grooming""",Norwegian Section,Palais,Dolls,Bibliotheque National de France,Approximate,-23.08325144,76.5622262,,True
+177,301,Photography Section,French Section,Palais,Photography,Bibliotheque National de France,Confident,82.77101065,-50.43509312,,True
+247,414,English Photographs,Great Britain and Ireland,Palais,Photography,Bibliotheque National de France,approximate,106.4082389,28.23741358,,True
+276,458,View of Chaillot from the Lighthouse,Exposition Grounds,Parc,River Architecture,Bibliotheque National de France,Confident,461.5589051,-109.9516032,,True
+962,459,Chinese Theater,Chinese Park,Parc,Architecture,Bibliotheque National de France,Confident,345.4074097,216.9116123,,True
+311,568,View from the Mexican Park,Mexican Park,Parc,Architecture People Park,Bibliotheque National de France,Confident,370.8682591,89.19582833,,True
+629,633,Pavillion of M.Leplay General Commissioner,Exposition Grounds,Parc,Architecture,Bibliotheque National de France,Placed near Cl. 15 Chalet de ala Com. On le Imp. (presumably imerpial comissioner). ,97.32185192,-191.3219994,,True
+1117,8204,L'amour Mendiant by Gambi,Papal States (Rome) Fine Arts Section,Palais,Fine Arts,Roger Viollet,Confident,27.99837298,44.60009947,Dupe of 367,True
+158,368,Perspective of the Bavarian Gallery,Bavarian Section,Palais,Pianos,Brian May,Approximate,-123.8105511,44.21625345,,True
+1446,Unknown,View of the Great Greenhouse,Horticultural Gardens,Parc,Parc,Brian May,Confident,-313.257152,-211.1249999,,True
+1463,Unknown,Porte St. Dominique,Palace Gate,Outside,Gate,Brian May,Confident,-56.36135979,-232.5807889,,True
+1468,Unknown,Gallery of Industry,Unknown Section,Palais,Industry,Brian May,Unknown,-137.8626418,128.7551298,,True
+1479,Unknown,View of the Church and the Lighthouse,French Park,Parc,Architecture,Brian May,Confident,445.175547,-31.89183806,,True
+1480,8078,Italian Sculptures along the Rue de Russie,Italian Section ,Palais,Fine Arts,National Gallery of Victoria,Confident,0.954436037,98.85440796,,True
+1481,8167,French Fine Arts,French Fine Arts Section,Palais,Fine Arts,National Gallery of Victoria,Approximate Linked with 184,0.219344288,-35.86039028,,True
+1482,8180,Panoramic View from the Ecole Militaire,Exposition Grounds,Parc,Architecture,National Gallery of Victoria,Confident,-427.8710145,2.279691573,,True
+1486,8147,Trophy No.2,Palais de l'Industrie (External Venue),Palais de l'Industrie (External Venue),Awards,National Gallery of Victoria,Confident,527.2263302,-7.140914947,,True

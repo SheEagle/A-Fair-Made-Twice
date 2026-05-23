@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paris 1867 — Exposition Universelle</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Mono:wght@300;400&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --serif: 'Cormorant Garamond', Georgia, serif;
+  --mono: 'DM Mono', monospace;
+  --off: #97b8e8;
+  --sta: #c8a06a;
+  --liv: #d4849a;
+  --ink: rgba(238,232,218,1);
+  --ink-dim: rgba(238,232,218,0.38);
+  --ink-ghost: rgba(238,232,218,0.1);
+}
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: #07060f;
+  color: var(--ink);
+  font-family: var(--serif);
+  cursor: default;
+}
+
+/* ── CANVAS BACKGROUND ── */
+#bg { position: fixed; inset: 0; z-index: 0; }
+
+/* ── GRAIN OVERLAY ── */
+#grain {
+  position: fixed; inset: 0; z-index: 1; pointer-events: none;
+  opacity: 0.028; mix-blend-mode: screen;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+}
+
+/* ── STAGE ── */
+#stage {
+  position: fixed; inset: 0; z-index: 10;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ── SCENE SYSTEM ── */
+.scene {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 8vw;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.scene.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── SCENE LAYOUTS ── */
+.s-center {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.s-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  align-items: stretch;
+  max-width: 1200px;
+  width: 100%;
+  border: 1px solid var(--ink-ghost);
+}
+.s-three {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  max-width: 1100px;
+  width: 100%;
+}
+
+/* ── TYPOGRAPHY ── */
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin-bottom: 28px;
+}
+
+.headline {
+  font-size: clamp(52px, 7.5vw, 108px);
+  font-weight: 300;
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-bottom: 0;
+}
+.headline em {
+  font-style: italic;
+  font-weight: 300;
+}
+.headline .ruled {
+  display: block;
+  position: relative;
+}
+
+.body-text {
+  font-size: clamp(16px, 1.6vw, 21px);
+  line-height: 1.55;
+  color: rgba(238,232,218,0.7);
+  font-weight: 300;
+  max-width: 440px;
+}
+.body-text strong {
+  color: var(--ink);
+  font-weight: 400;
+}
+
+/* ── RULE ── */
+.thin-rule {
+  width: 1px;
+  height: 48px;
+  background: linear-gradient(to bottom, transparent, var(--ink-dim), transparent);
+  margin: 28px auto;
+}
+.h-rule {
+  height: 1px;
+  background: var(--ink-ghost);
+  margin: 24px 0;
+}
+
+/* ══════════════════════════════════
+   SCENE 0 — OPENING TITLE
+   Pure statement. Date + fact.
+══════════════════════════════════ */
+#s0 { flex-direction: column; }
+
+.s0-year {
+  font-family: var(--serif);
+  font-size: clamp(120px, 18vw, 260px);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: rgba(238,232,218,0.06);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -52%);
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+
+.s0-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.s0-tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: rgba(200,160,106,0.65);
+  margin-bottom: 40px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.s0-tag::before,
+.s0-tag::after {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 1px;
+  background: rgba(200,160,106,0.35);
+}
+
+.s0-title {
+  font-family: var(--serif);
+  font-size: clamp(36px, 5vw, 72px);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.1;
+  text-align: center;
+  color: var(--ink);
+  margin-bottom: 36px;
+  letter-spacing: 0.01em;
+}
+
+.s0-fact {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  text-align: center;
+  line-height: 2.2;
+}
+.s0-fact span {
+  display: inline-block;
+  margin: 0 12px;
+}
+.s0-fact span::before {
+  content: '—';
+  margin-right: 8px;
+  opacity: 0.4;
+}
+
+/* ══════════════════════════════════
+   SCENE 1 — THE CANNON
+   One object. Two silences.
+══════════════════════════════════ */
+#s1 {}
+
+.split-left {
+  padding: 56px 52px 56px 60px;
+  border-right: 1px solid var(--ink-ghost);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.split-right {
+  padding: 56px 60px 56px 52px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: rgba(238,232,218,0.018);
+}
+
+.object-name {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin-bottom: 20px;
+}
+.object-title {
+  font-size: clamp(32px, 4.5vw, 60px);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.05;
+  margin-bottom: 28px;
+  color: var(--ink);
+}
+
+.catalogue-entry {
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.9;
+  color: rgba(238,232,218,0.48);
+  letter-spacing: 0.04em;
+  border-left: 1px solid rgba(238,232,218,0.12);
+  padding-left: 16px;
+}
+.catalogue-entry .field {
+  color: rgba(200,160,106,0.65);
+  letter-spacing: 0.08em;
+  font-size: 9px;
+  text-transform: uppercase;
+}
+
+.counterpoint-text {
+  font-size: clamp(16px, 1.8vw, 22px);
+  font-style: italic;
+  font-weight: 300;
+  line-height: 1.58;
+  color: rgba(238,232,218,0.82);
+  margin-bottom: 28px;
+}
+.counterpoint-note {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin-top: 20px;
+}
+/* subtle color dot */
+.world-dot {
+  display: inline-block;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  margin-right: 8px;
+  vertical-align: middle;
+  margin-top: -2px;
+}
+
+/* ══════════════════════════════════
+   SCENE 2 — THE GAP
+   Where history lives.
+══════════════════════════════════ */
+#s2 {}
+.s2-inner {
+  max-width: 820px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.s2-number {
+  font-family: var(--serif);
+  font-size: clamp(80px, 14vw, 180px);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: rgba(238,232,218,0.04);
+  margin-bottom: -0.1em;
+  user-select: none;
+}
+.s2-statement {
+  font-size: clamp(28px, 4vw, 54px);
+  font-weight: 300;
+  line-height: 1.12;
+  color: var(--ink);
+  margin-bottom: 36px;
+  letter-spacing: -0.01em;
+}
+.s2-statement em {
+  font-style: italic;
+}
+.s2-rows {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-top: 1px solid var(--ink-ghost);
+}
+.s2-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 1fr;
+  gap: 0;
+  border-bottom: 1px solid var(--ink-ghost);
+  align-items: stretch;
+}
+.s2-row-world {
+  padding: 14px 0;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.s2-row-world .dot {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.s2-row-says {
+  padding: 14px 24px;
+  font-size: clamp(14px, 1.4vw, 18px);
+  font-style: italic;
+  font-weight: 300;
+  color: rgba(238,232,218,0.78);
+  line-height: 1.45;
+  border-left: 1px solid var(--ink-ghost);
+  display: flex;
+  align-items: center;
+}
+.s2-row-hides {
+  padding: 14px 24px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  color: rgba(238,232,218,0.3);
+  line-height: 1.55;
+  border-left: 1px solid var(--ink-ghost);
+  display: flex;
+  align-items: center;
+}
+
+/* ══════════════════════════════════
+   SCENE 3 — PORTAL / ENTRY
+   Three worlds. Choose.
+══════════════════════════════════ */
+#s3 { flex-direction: column; }
+
+.portal-tag {
+  font-family: var(--mono);
+  font-size: 8.5px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(200,160,106,0.55);
+  margin-bottom: 44px;
+  text-align: center;
+}
+.portal-question {
+  font-size: clamp(22px, 3.2vw, 44px);
+  font-weight: 300;
+  font-style: italic;
+  text-align: center;
+  line-height: 1.15;
+  color: var(--ink);
+  margin-bottom: 52px;
+  letter-spacing: 0.01em;
+  max-width: 680px;
+}
+
+/* TRIPTYCH WORLD CARDS */
+.triptych {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid var(--ink-ghost);
+  max-width: 960px;
+  width: 100%;
+  margin-bottom: 40px;
+}
+.w-panel {
+  padding: 38px 30px 30px;
+  border-right: 1px solid var(--ink-ghost);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.4s;
+  display: flex;
+  flex-direction: column;
+}
+.w-panel:last-child { border-right: none; }
+
+/* top accent line — draws on hover */
+.w-panel::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: var(--wc);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.w-panel:hover::after { transform: scaleX(1); }
+.w-panel:hover { background: rgba(238,232,218,0.024); }
+
+.wp-num {
+  font-family: var(--mono);
+  font-size: 8.5px;
+  letter-spacing: 0.2em;
+  color: rgba(238,232,218,0.22);
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+.wp-world-label {
+  font-family: var(--mono);
+  font-size: 8.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--wc);
+  opacity: 0.7;
+  margin-bottom: 8px;
+}
+.wp-title {
+  font-size: clamp(28px, 3vw, 42px);
+  font-weight: 300;
+  font-style: italic;
+  color: var(--ink);
+  line-height: 1;
+  margin-bottom: 22px;
+  letter-spacing: -0.01em;
+}
+.wp-rule {
+  height: 1px;
+  background: var(--wc);
+  opacity: 0.3;
+  margin-bottom: 18px;
+  width: 32px;
+}
+.wp-premise {
+  font-size: clamp(13px, 1.25vw, 16px);
+  font-style: italic;
+  font-weight: 300;
+  color: rgba(238,232,218,0.58);
+  line-height: 1.6;
+  flex: 1;
+}
+.wp-enter {
+  margin-top: 26px;
+  font-family: var(--mono);
+  font-size: 8.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--wc);
+  opacity: 0;
+  transition: opacity 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.w-panel:hover .wp-enter { opacity: 0.8; }
+
+/* enter button */
+.enter-btn {
+  display: inline-block;
+  padding: 13px 38px;
+  border: 1px solid rgba(238,232,218,0.22);
+  background: transparent;
+  color: rgba(238,232,218,0.72);
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.3s, color 0.3s, background 0.3s;
+}
+.enter-btn:hover {
+  border-color: rgba(238,232,218,0.5);
+  color: var(--ink);
+  background: rgba(238,232,218,0.04);
+}
+
+/* ── NAV DOTS ── */
+#dots {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.dot-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  opacity: 0.22;
+  transition: opacity 0.5s;
+}
+.dot-item.on { opacity: 1; }
+.dot-pip {
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: var(--ink);
+}
+.dot-label {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  transition: color 0.3s;
+}
+.dot-item.on .dot-label { color: var(--ink); }
+
+/* ── SKIP ── */
+#skip-btn {
+  position: fixed;
+  top: 24px;
+  right: 28px;
+  z-index: 100;
+  padding: 8px 18px;
+  border: 1px solid rgba(238,232,218,0.12);
+  background: transparent;
+  color: rgba(238,232,218,0.38);
+  font-family: var(--mono);
+  font-size: 8.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.3s, color 0.3s;
+}
+#skip-btn:hover {
+  border-color: rgba(238,232,218,0.32);
+  color: rgba(238,232,218,0.78);
+}
+
+/* ── SCENE PROGRESS LINE ── */
+#progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 1px;
+  background: rgba(200,160,106,0.45);
+  z-index: 200;
+  width: 0%;
+  transition: width 0.1s linear;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 860px) {
+  .s-split { grid-template-columns: 1fr; }
+  .split-right { display: none; }
+  .triptych { grid-template-columns: 1fr; }
+  .w-panel { border-right: none; border-bottom: 1px solid var(--ink-ghost); }
+  .w-panel:last-child { border-bottom: none; }
+  .s2-row { grid-template-columns: 80px 1fr; }
+  .s2-row-hides { display: none; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+<div id="grain"></div>
+<div id="progress-bar"></div>
+<button id="skip-btn">Skip →</button>
+
+<div id="dots"></div>
+
+<div id="stage">
+
+  <!-- ── SCENE 0: OUVERTURE ── -->
+  <div class="scene s-center active" id="s0">
+    <div class="s0-year">1867</div>
+    <div class="s0-inner">
+      <div class="s0-tag">Paris · Champ de Mars · Exposition Universelle</div>
+      <div class="s0-title">
+        Fifty-two nations.<br>
+        Fifty thousand objects.<br>
+        <em>One archive that cannot decide what it saw.</em>
+      </div>
+      <div class="thin-rule"></div>
+      <div class="s0-fact">
+        <span>11 million visitors</span>
+        <span>52 nations</span>
+        <span>April–November 1867</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SCENE 1: THE OBJECT ── -->
+  <div class="scene" id="s1">
+    <div class="s-split">
+      <div class="split-left">
+        <div class="object-name">Exhibit No. 4221 — Prussia</div>
+        <div class="object-title">Krupp<br>Steel Cannon</div>
+        <div class="catalogue-entry">
+          <div><span class="field">Weight</span>&nbsp;&nbsp;52 tonnes</div>
+          <div><span class="field">Section</span>&nbsp;&nbsp;I — Machines</div>
+          <div><span class="field">Material</span>&nbsp;Cast steel, precision bore</div>
+          <div><span class="field">Status</span>&nbsp;&nbsp;Sold to French Ministry</div>
+          <div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(238,232,218,0.07);color:rgba(238,232,218,0.22)">
+            <span class="field">Note</span>&nbsp;&nbsp;&nbsp;No mention of intended use.
+          </div>
+        </div>
+      </div>
+      <div class="split-right">
+        <div class="counterpoint-text">
+          "The barrel was cool to touch —<br>
+          an impossible cold,<br>
+          given the furnace it was born in."
+        </div>
+        <div class="h-rule"></div>
+        <div style="font-size:clamp(13px,1.3vw,17px);font-style:italic;font-weight:300;line-height:1.6;color:rgba(238,232,218,0.52)">
+          Three years later it would<br>shell the city that displayed it.
+        </div>
+        <div class="counterpoint-note" style="margin-top:28px">
+          <span class="world-dot" style="background:var(--liv)"></span>
+          visitor account, 1867 — reconstructed from absence
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SCENE 2: THE GAP ── -->
+
+
+  <div class="scene" id="s2">
+  <div class="s2-inner">
+    <div class="s2-statement">
+      One object.<br>
+      <em>Three incompatible readings.</em>
+    </div>
+
+    <div class="s2-rows">
+
+      <!-- OFFICIAL / INSTITUTIONAL -->
+      <div class="s2-row">
+        <div class="s2-row-world">
+          <div class="dot" style="background:var(--off)"></div>
+          Institutional
+        </div>
+        <div class="s2-row-says">
+          "Displayed within the machinery gallery of an oval palace."
+        </div>
+        <div class="s2-row-hides">
+          Omits: what the machine is built to do.
+        </div>
+      </div>
+
+      <!-- STAGED -->
+      <div class="s2-row">
+        <div class="s2-row-world">
+          <div class="dot" style="background:var(--sta)"></div>
+          Staged
+        </div>
+        <div class="s2-row-says">
+          "Part of a triumphal spectacle — music, bells, detonations."
+        </div>
+        <div class="s2-row-hides">
+          Omits: the violence embedded in the object itself.
+        </div>
+      </div>
+
+      <!-- LIVED / PERSONAL -->
+      <div class="s2-row">
+        <div class="s2-row-world">
+          <div class="dot" style="background:var(--liv)"></div>
+          Personal
+        </div>
+        <div class="s2-row-says">
+          "Imposing. Rewarded. A machine that draws admiration."
+        </div>
+        <div class="s2-row-hides">
+          "These engines are made to kill."
+        </div>
+      </div>
+
+    </div>
+
+    <div style="margin-top:20px;font-family:var(--mono);font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(238,232,218,0.22)">
+      The contradiction is not an error. It is the archive.
+    </div>
+  </div>
+</div>
+
+  <!-- ── SCENE 3: ENTER ── -->
+  <div class="scene s-center" id="s3">
+    <div class="portal-tag">Choose which world reads the archive</div>
+    <div class="portal-question">
+      Dans quelle voix<br>cet objet entre-t-il<br><em>dans l'archive?</em>
+    </div>
+
+    <div class="triptych">
+      <div class="w-panel" style="--wc:var(--off)" data-world="official">
+        <div class="wp-num">I</div>
+        <div class="wp-world-label">Monde officiel</div>
+        <div class="wp-title">Official</div>
+        <div class="wp-rule"></div>
+        <div class="wp-premise">
+          The object as unit of account.<br>
+          The catalogue names, classifies,<br>
+          locates — and in doing so, erases.
+        </div>
+        <div class="wp-enter">Enter →</div>
+      </div>
+      <div class="w-panel" style="--wc:var(--sta)" data-world="staged">
+        <div class="wp-num">II</div>
+        <div class="wp-world-label">Monde mis en scène</div>
+        <div class="wp-title">Staged</div>
+        <div class="wp-rule"></div>
+        <div class="wp-premise">
+          Every vitrine is an argument.<br>
+          Every pavilion is a claim about<br>
+          civilisation, power, and progress.
+        </div>
+        <div class="wp-enter">Enter →</div>
+      </div>
+      <div class="w-panel" style="--wc:var(--liv)" data-world="lived">
+        <div class="wp-num">III</div>
+        <div class="wp-world-label">Monde vécu</div>
+        <div class="wp-title">Lived</div>
+        <div class="wp-rule"></div>
+        <div class="wp-premise">
+          What the stereoscope caught<br>
+          of a stranger's gaze,<br>
+          a Tuesday in April, 1867.
+        </div>
+        <div class="wp-enter">Enter →</div>
+      </div>
+    </div>
+
+    <a class="enter-btn" href="./initial.html">Enter the Exhibition</a>
+  </div>
+
+</div><!-- end #stage -->
+
+<script>
+// ═══════════════════════════════════════════════
+//  BACKGROUND — Astronomical field, dead still.
+//  Stars don't flash. Dust doesn't sparkle.
+//  The plan rotates. That's all.
+// ═══════════════════════════════════════════════
+const bg = document.getElementById('bg');
+const bx = bg.getContext('2d');
+
+function resizeBg() {
+  bg.width = innerWidth;
+  bg.height = innerHeight;
+}
+resizeBg();
+window.addEventListener('resize', () => { resizeBg(); buildField(); });
+
+// Star field — built once, drawn each frame with slow parallax
+let FIELD = [];
+
+const PALETTES = {
+  off:  ['#97b8e8','#b3cff5','#d0e4ff','#eef3ff'],
+  sta:  ['#c8a06a','#d4b580','#e8d0a0','#f5ead0'],
+  liv:  ['#d4849a','#e8a0b4','#f5bcc8','#fff0f4'],
+  cold: ['#d0d8f0','#e8eeff','#ffffff'],
+};
+// Cluster centers in normalized [0,1] space
+const CLUSTERS = [
+  { x:0.14, y:0.18, spread:0.10, pal:'off',  density:0.22 },
+  { x:0.86, y:0.22, spread:0.12, pal:'sta',  density:0.20 },
+  { x:0.28, y:0.80, spread:0.09, pal:'liv',  density:0.18 },
+  { x:0.74, y:0.75, spread:0.11, pal:'cold', density:0.16 },
+  { x:0.50, y:0.46, spread:0.18, pal:'cold', density:0.24 },
+  { x:0.06, y:0.52, spread:0.07, pal:'off',  density:0.12 },
+  { x:0.94, y:0.58, spread:0.07, pal:'sta',  density:0.12 },
+];
+
+function gauss() {
+  // Box-Muller
+  const u = 1 - Math.random();
+  const v = Math.random();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+
+function buildField() {
+  FIELD = [];
+  const W = bg.width, H = bg.height;
+
+  // Background scatter — very dim, very small
+  for (let i = 0; i < 900; i++) {
+    FIELD.push({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: 0.3 + Math.random() * 0.45,
+      a: 0.06 + Math.random() * 0.14,
+      col: '#ccddf5',
+      layer: 0,
+    });
+  }
+
+  // Cluster members
+  CLUSTERS.forEach(cl => {
+    const n = Math.floor(120 * cl.density);
+    const pal = PALETTES[cl.pal];
+    for (let i = 0; i < n; i++) {
+      const dist = Math.abs(gauss()) * cl.spread;
+      const angle = Math.random() * Math.PI * 2;
+      const raw_x = cl.x + Math.cos(angle) * dist;
+      const raw_y = cl.y + Math.sin(angle) * dist * 0.7;
+      // size: most tiny, a few prominent
+      const sizeRoll = Math.random();
+      let r, a, layer;
+      if (sizeRoll > 0.97) {
+        r = 1.8 + Math.random() * 1.4; a = 0.55 + Math.random() * 0.35; layer = 3;
+      } else if (sizeRoll > 0.88) {
+        r = 0.9 + Math.random() * 0.8; a = 0.35 + Math.random() * 0.3; layer = 2;
+      } else if (sizeRoll > 0.65) {
+        r = 0.45 + Math.random() * 0.4; a = 0.18 + Math.random() * 0.22; layer = 1;
+      } else {
+        r = 0.2 + Math.random() * 0.28; a = 0.08 + Math.random() * 0.12; layer = 0;
+      }
+      FIELD.push({
+        x: raw_x * W,
+        y: raw_y * H,
+        r, a, layer,
+        col: pal[Math.floor(Math.random() * pal.length)],
+      });
+    }
+  });
+}
+buildField();
+
+// Floor plan — drawn once into offscreen canvas, reused each frame
+let planCanvas = null;
+function buildPlanCanvas(W, H) {
+  planCanvas = document.createElement('canvas');
+  planCanvas.width = W;
+  planCanvas.height = H;
+  const pc = planCanvas.getContext('2d');
+  const cx = W * 0.5, cy = H * 0.78;
+  const R = Math.min(W, H) * 0.24;
+
+  // Elliptical rings
+  const rings = [
+    { rx: 1.00, ry: 0.58, a: 0.10 },
+    { rx: 0.74, ry: 0.43, a: 0.08 },
+    { rx: 0.50, ry: 0.29, a: 0.065 },
+    { rx: 0.28, ry: 0.16, a: 0.05 },
+  ];
+  rings.forEach(({ rx, ry, a }) => {
+    pc.strokeStyle = `rgba(212,168,67,${a})`;
+    pc.lineWidth = 0.7;
+    pc.beginPath();
+    pc.ellipse(cx, cy, rx * R, ry * R, 0, 0, Math.PI * 2);
+    pc.stroke();
+  });
+  // Spokes
+  for (let i = 0; i < 24; i++) {
+    const ang = i / 24 * Math.PI * 2;
+    pc.strokeStyle = 'rgba(255,232,190,0.022)';
+    pc.lineWidth = 0.5;
+    pc.beginPath();
+    pc.moveTo(cx + Math.cos(ang) * 0.28 * R, cy + Math.sin(ang) * 0.16 * R);
+    pc.lineTo(cx + Math.cos(ang) * 1.00 * R, cy + Math.sin(ang) * 0.58 * R);
+    pc.stroke();
+  }
+  // Seine — a single languid curve below
+  pc.strokeStyle = 'rgba(143,183,255,0.10)';
+  pc.lineWidth = 0.8;
+  pc.beginPath();
+  const sw = W * 0.72;
+  const sx0 = cx - sw / 2;
+  pc.moveTo(sx0, cy + R * 0.82);
+  pc.bezierCurveTo(
+    sx0 + sw * 0.28, cy + R * 0.72,
+    sx0 + sw * 0.62, cy + R * 0.98,
+    sx0 + sw,        cy + R * 0.80
+  );
+  pc.stroke();
+
+  return planCanvas;
+}
+
+// Fine grid — also pre-drawn
+let gridCanvas = null;
+function buildGrid(W, H) {
+  gridCanvas = document.createElement('canvas');
+  gridCanvas.width = W; gridCanvas.height = H;
+  const gc = gridCanvas.getContext('2d');
+  gc.strokeStyle = 'rgba(255,232,190,0.009)';
+  gc.lineWidth = 0.5;
+  const gs = 74;
+  for (let x = 0; x < W; x += gs) {
+    gc.beginPath(); gc.moveTo(x, 0); gc.lineTo(x, H); gc.stroke();
+  }
+  for (let y = 0; y < H; y += gs) {
+    gc.beginPath(); gc.moveTo(0, y); gc.lineTo(W, y); gc.stroke();
+  }
+  return gridCanvas;
+}
+
+let planC = null, gridC = null;
+function rebuildOffscreen() {
+  planC = buildPlanCanvas(bg.width, bg.height);
+  gridC = buildGrid(bg.width, bg.height);
+}
+rebuildOffscreen();
+window.addEventListener('resize', rebuildOffscreen);
+
+// Very slow plan rotation
+let planAngle = 0;
+
+function drawBg(t) {
+  const W = bg.width, H = bg.height;
+  bx.clearRect(0, 0, W, H);
+
+  // Base
+  bx.fillStyle = '#07060f';
+  bx.fillRect(0, 0, W, H);
+
+  // Subtle warm center breath — not a glow, a stain
+  const cx = W * 0.5, cy = H * 0.44;
+  const grd = bx.createRadialGradient(cx, cy, 0, cx, cy, W * 0.36);
+  const breath = 0.028 + Math.sin(t * 0.06) * 0.006;
+  grd.addColorStop(0, `rgba(200,160,90,${breath})`);
+  grd.addColorStop(1, 'transparent');
+  bx.fillStyle = grd;
+  bx.fillRect(0, 0, W, H);
+
+  // Grid
+  if (gridC) bx.drawImage(gridC, 0, 0);
+
+  // Stars — no twinkle. Absolute presence.
+  FIELD.forEach(s => {
+    bx.globalAlpha = s.a;
+    bx.fillStyle = s.col;
+    bx.beginPath();
+    bx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    bx.fill();
+    // Cross flare for large stars only — one horizontal, one vertical, very faint
+    if (s.r > 1.4) {
+      bx.globalAlpha = s.a * 0.22;
+      bx.strokeStyle = s.col;
+      bx.lineWidth = 0.4;
+      const fl = s.r * 4;
+      bx.beginPath();
+      bx.moveTo(s.x - fl, s.y); bx.lineTo(s.x + fl, s.y);
+      bx.moveTo(s.x, s.y - fl); bx.lineTo(s.x, s.y + fl);
+      bx.stroke();
+    }
+  });
+  bx.globalAlpha = 1;
+
+  // Floor plan — rotating, very slow, bottom center
+  planAngle = t * 0.006;
+  if (planC) {
+    const pcx = W * 0.5, pcy = H * 0.78;
+    bx.save();
+    bx.translate(pcx, pcy);
+    bx.rotate(planAngle);
+    bx.translate(-pcx, -pcy);
+    bx.globalAlpha = 0.72;
+    bx.drawImage(planC, 0, 0);
+    bx.restore();
+    bx.globalAlpha = 1;
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  SCENE SEQUENCER
+// ═══════════════════════════════════════════════
+const SCENES_EL = document.querySelectorAll('.scene');
+const N = SCENES_EL.length;
+
+const SCENE_META = [
+  { label: 'Ouverture',  dur: 7500 },
+  { label: 'L\'objet',   dur: 8500 },
+  { label: 'La fracture',dur: 9000 },
+  { label: 'Entrer',     dur: null  },
+];
+
+let currentScene = 0;
+let progressTimer = null;
+let sceneTimer = null;
+let sceneStart = 0;
+
+// Build nav dots
+const dotsEl = document.getElementById('dots');
+const dotEls = [];
+SCENE_META.forEach((meta, i) => {
+  const d = document.createElement('div');
+  d.className = 'dot-item' + (i === 0 ? ' on' : '');
+  d.innerHTML = `<div class="dot-pip"></div><div class="dot-label">${meta.label}</div>`;
+  d.addEventListener('click', () => goTo(i));
+  dotsEl.appendChild(d);
+  dotEls.push(d);
+});
+
+const bar = document.getElementById('progress-bar');
+
+function goTo(idx) {
+  clearTimeout(sceneTimer);
+  clearInterval(progressTimer);
+
+  SCENES_EL.forEach((s, i) => s.classList.toggle('active', i === idx));
+  dotEls.forEach((d, i) => d.classList.toggle('on', i === idx));
+  currentScene = idx;
+
+  const meta = SCENE_META[idx];
+  if (meta.dur) {
+    // Animate progress bar
+    bar.style.transition = 'none';
+    bar.style.width = '0%';
+    sceneStart = Date.now();
+
+    setTimeout(() => {
+      bar.style.transition = `width ${meta.dur}ms linear`;
+      bar.style.width = '100%';
+    }, 40);
+
+    sceneTimer = setTimeout(() => {
+      if (idx < N - 1) goTo(idx + 1);
+    }, meta.dur);
+  } else {
+    bar.style.transition = 'none';
+    bar.style.width = '0%';
+  }
+}
+
+document.getElementById('skip-btn').addEventListener('click', () => goTo(N - 1));
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') goTo(N - 1);
+  if (e.key === 'ArrowRight' && currentScene < N - 1) goTo(currentScene + 1);
+  if (e.key === 'ArrowLeft' && currentScene > 0) goTo(currentScene - 1);
+});
+
+// World panel & enter button — navigate to main exhibition
+document.querySelectorAll('.w-panel').forEach(el => {
+  el.addEventListener('click', () => {
+    const world = el.dataset.world || 'official';
+    window.location.href = `./initial.html?world=${world}`;
+  });
+});
+
+document.querySelector('.enter-btn')?.addEventListener('click', e => {
+  e.preventDefault();
+  window.location.href = './initial.html';
+});
+
+// ═══════════════════════════════════════════════
+//  LOOP
+// ═══════════════════════════════════════════════
+let t0 = null;
+function loop(ts) {
+  if (!t0) t0 = ts;
+  drawBg((ts - t0) / 1000);
+  requestAnimationFrame(loop);
+}
+
+requestAnimationFrame(loop);
+goTo(0);
+</script>
+</body>
+</html>

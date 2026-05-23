@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+outputs/
+qdrant_storage/
+ollama_storage/
+Archival Images and Plans/
+Restored/
+text/
+node_modules/
