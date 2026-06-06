@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Paris Exposition Worlds</title>
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400;1,8..60,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="./assets/css/initial.css">
 </head>
 <body>
@@ -28,18 +32,17 @@
 
   <section id="intro" aria-labelledby="gate-title">
     <div class="intro-gate">
-      <div class="gate-eye">Paris, 1867</div>
-      <h1 id="gate-title" class="gate-title">Three worlds gather around the same exhibits.</h1>
-      <div class="gate-note">Choose a world to enter the constellation.</div>
+      <div class="gate-eye">Paris, 1867 — and now</div>
+      <h1 id="gate-title" class="gate-title">A fair made twice.</h1>
+      <div class="gate-note">Every exhibition is a construction. Choose which world you enter.</div>
 
       <div class="view-grid">
-        <!-- 增加了 role="button" 和 tabindex 使其支持更规范的交互 -->
         <div class="ve" data-world="official" style="color:var(--c-official)" role="button" tabindex="0">
           <div class="ve-ring" aria-hidden="true"><div class="ve-dot"></div></div>
           <span class="ve-lbl">The Official World</span>
           <div class="ve-copy">Declared order.</div>
-          <div class="ve-note">catalogue / report / nation</div>
-          <div class="ve-doc">formal reports and official state description</div>
+          <div class="ve-note">catalogue / classification / nation</div>
+          <div class="ve-doc">objects named, ranked, and authorized by the state</div>
         </div>
 
         <div class="ve" data-world="staged" style="color:var(--c-staged)" role="button" tabindex="0">
@@ -54,8 +57,8 @@
           <div class="ve-ring" aria-hidden="true"><div class="ve-dot"></div></div>
           <span class="ve-lbl">The Lived World</span>
           <div class="ve-copy">Felt experience.</div>
-          <div class="ve-note">wonder / fatigue / witness</div>
-          <div class="ve-doc">private sensation and personal response</div>
+          <div class="ve-note">memory / fatigue / omission</div>
+          <div class="ve-doc">movement, wonder, confusion, and what was left unrecorded</div>
         </div>
       </div>
     </div>
@@ -102,6 +105,18 @@
     </div>
     <div class="image-frame">
       <img id="image-panel-img" alt="Selected exhibit image">
+      <model-viewer
+        id="inline-model-viewer"
+        src="./assets/3D/848.glb"
+        camera-controls
+        auto-rotate
+        auto-rotate-delay="800"
+        rotation-per-second="18deg"
+        shadow-intensity="0.8"
+        exposure="0.9"
+        environment-image="neutral"
+        style="width:100%;height:100%;background:transparent;display:none;">
+      </model-viewer>
     </div>
     <div class="image-panel-footer">
       <div id="image-panel-caption"></div>
@@ -109,55 +124,131 @@
     </div>
   </aside>
 
-  <!-- Unfinished World: visitor record panel -->
-  <aside id="uw-comment-panel" aria-hidden="true">
+  <!-- Unfinished World: floating invite bar (shown on exhibit select) -->
+  <div id="uw-mark-invite" aria-hidden="true">
+    <span class="uwmi-guide">Every record is a choice — what did this one leave out?</span>
+    <button id="uwmi-btn">Leave your mark ↗</button>
+  </div>
 
-    <div class="uwcp-header">
-      <span class="uwcp-kicker">Visitor Record · Paris 1867</span>
-      <div class="uwcp-voices">
-        <span class="uwcp-dot" aria-hidden="true"></span>
-        <span id="uwcp-voice-text">—</span>
+  <!-- Unfinished World: modal backdrop -->
+  <div id="uw-modal-backdrop" aria-hidden="true"></div>
+
+  <!-- Unfinished World: modal form -->
+  <aside id="uw-comment-panel" aria-hidden="true"
+         role="dialog" aria-modal="true" aria-labelledby="uwcp-title">
+
+    <button id="uw-modal-close" aria-label="Close">&#x2715;</button>
+
+    <!-- Modal header: spans full width -->
+    <div class="uwcp-modal-header">
+      <div class="uwcp-header">
+        <span class="uwcp-kicker">Visitor Record · Paris 1867</span>
+        <div class="uwcp-voices">
+          <span class="uwcp-dot" aria-hidden="true"></span>
+          <span id="uwcp-voice-text">—</span>
+        </div>
       </div>
+      <div class="uwcp-exhibit" id="uwcp-title"></div>
+      <div class="uwcp-rule"></div>
     </div>
 
-    <div class="uwcp-exhibit" id="uwcp-title"></div>
+    <!-- Two-column body -->
+    <div class="uwcp-modal-body">
 
-    <!-- Project thesis: invites critical reflection -->
-    <p class="uwcp-thesis">
-      Every exhibition is constructed. The 1867 Exposition declared an order of the world —
-      and so does this one. What do <em>you</em> see?
-    </p>
+      <!-- Left col: concentric circle + two constructions -->
+      <div class="uwcp-col-left">
+        <p class="uwcp-c-intro">Two constructions.</p>
 
-    <div class="uwcp-rule"></div>
+        <!-- Concentric circle: visualises 1867 single logic -->
+        <div class="uwcp-circle-wrap" aria-hidden="true">
+          <svg class="uwcp-circle-svg" viewBox="0 0 200 200">
+            <!-- Radial category dividers -->
+            <line x1="100" y1="6"   x2="100" y2="194" stroke="rgba(196,168,130,0.10)" stroke-width="0.6"/>
+            <line x1="6"   y1="100" x2="194" y2="100" stroke="rgba(196,168,130,0.10)" stroke-width="0.6"/>
+            <line x1="27"  y1="27"  x2="173" y2="173" stroke="rgba(196,168,130,0.08)" stroke-width="0.5"/>
+            <line x1="173" y1="27"  x2="27"  y2="173" stroke="rgba(196,168,130,0.08)" stroke-width="0.5"/>
+            <line x1="56"  y1="8"   x2="144" y2="192" stroke="rgba(196,168,130,0.06)" stroke-width="0.5"/>
+            <line x1="8"   y1="56"  x2="192" y2="144" stroke="rgba(196,168,130,0.06)" stroke-width="0.5"/>
+            <line x1="144" y1="8"   x2="56"  y2="192" stroke="rgba(196,168,130,0.06)" stroke-width="0.5"/>
+            <line x1="8"   y1="144" x2="192" y2="56"  stroke="rgba(196,168,130,0.06)" stroke-width="0.5"/>
+            <!-- Concentric rings: outer nations → inner palace -->
+            <circle cx="100" cy="100" r="91" fill="none" stroke="rgba(196,168,130,0.16)" stroke-width="0.7"/>
+            <circle cx="100" cy="100" r="74" fill="none" stroke="rgba(196,168,130,0.22)" stroke-width="0.7"/>
+            <circle cx="100" cy="100" r="57" fill="none" stroke="rgba(196,168,130,0.30)" stroke-width="0.8"/>
+            <circle cx="100" cy="100" r="40" fill="none" stroke="rgba(196,168,130,0.42)" stroke-width="0.8"/>
+            <circle cx="100" cy="100" r="23" fill="none" stroke="rgba(196,168,130,0.58)" stroke-width="0.9"/>
+            <circle cx="100" cy="100" r="9"  fill="rgba(196,168,130,0.28)" stroke="rgba(196,168,130,0.80)" stroke-width="1.0"/>
+            <!-- Ring labels -->
+            <text x="100" y="4"   text-anchor="middle" fill="rgba(196,168,130,0.45)" font-size="5.5" letter-spacing="1.6">NATIONS</text>
+            <text x="100" y="97"  text-anchor="middle" fill="rgba(196,168,130,0.50)" font-size="4.8" letter-spacing="1.2">PALACE</text>
+            <text x="152" y="57"  text-anchor="middle" fill="rgba(196,168,130,0.32)" font-size="4.5" letter-spacing="0.8">categories</text>
+          </svg>
+          <p class="uwcp-circle-cap">Paris, 1867 — one logic, called universal</p>
+        </div>
 
-    <!-- Categorised prompt chips: four modes of seeing -->
-    <div class="uwcp-prompt-section" id="uwcp-prompts"></div>
+        <p class="uwcp-c-first">
+          Concentric rings of nations. Radial sectors of category.
+          Every object assigned its exact place in a single hierarchy —
+          and that hierarchy declared itself civilisation.
+        </p>
 
-    <!-- Open textarea -->
-    <textarea id="uwcp-body" class="uwcp-textarea"
-              placeholder="Write freely — or choose a mode above."
-              maxlength="2000" rows="4"
-              aria-label="Your impression"></textarea>
+        <p class="uwcp-c-divider">✦</p>
 
-    <!-- Country: quick-select chips + free-text fallback -->
-    <div class="uwcp-section-label">Where are you from?</div>
-    <div class="uwcp-country-chips" id="uwcp-country-chips"></div>
-    <input id="uwcp-country" class="uwcp-field uwcp-country-input"
-           type="text" placeholder="Other country…"
-           maxlength="60" autocomplete="country-name" list="uwcp-country-dl">
-    <datalist id="uwcp-country-dl"></datalist>
+        <p class="uwcp-c-second">
+          This project reads those records through three lenses —
+          the <span class="uwcp-w-official">Official World</span>,
+          the <span class="uwcp-w-staged">Staged World</span>,
+          the <span class="uwcp-w-lived">Lived World</span> —
+          to show what the concentric logic concealed.
+        </p>
 
-    <!-- Perspective: how are you visiting -->
-    <div class="uwcp-section-label">I am visiting as</div>
-    <div class="uwcp-perspective-chips" id="uwcp-perspective-chips"></div>
+        <p class="uwcp-c-open">
+          But this archive also makes choices.
+          It too selects, names, and frames what matters.
+          Every record here is someone's decision about what counts.
+        </p>
 
-    <!-- Name + Submit -->
-    <div class="uwcp-bottom">
-      <input id="uwcp-name" class="uwcp-field uwcp-name-input"
-             type="text" placeholder="Name · optional" maxlength="80" autocomplete="off">
-      <button id="uwcp-submit" class="uwcp-submit" disabled>Record</button>
-    </div>
-    <div id="uwcp-msg" class="uwcp-msg" aria-live="polite"></div>
+        <p class="uwcp-c-question">
+          <em>You are looking at a construction, too.<br>
+          What does it choose not to show you?</em>
+        </p>
+      </div>
+
+      <!-- Right col: form -->
+      <div class="uwcp-col-right">
+
+        <!-- Categorised prompt chips -->
+        <div class="uwcp-prompt-section" id="uwcp-prompts"></div>
+
+        <!-- Open textarea -->
+        <textarea id="uwcp-body" class="uwcp-textarea"
+                  placeholder="What does this exhibition choose not to show? Name it."
+                  maxlength="2000" rows="3"
+                  aria-label="Your impression"></textarea>
+
+        <!-- Country -->
+        <div class="uwcp-section-label">Your vantage point — where are you?</div>
+        <div class="uwcp-country-chips" id="uwcp-country-chips"></div>
+        <input id="uwcp-country" class="uwcp-field uwcp-country-input"
+               type="text" placeholder="Other country…"
+               maxlength="60" autocomplete="country-name" list="uwcp-country-dl">
+        <datalist id="uwcp-country-dl"></datalist>
+
+        <!-- Perspective -->
+        <div class="uwcp-section-label">You are looking through the lens of</div>
+        <div class="uwcp-perspective-chips" id="uwcp-perspective-chips"></div>
+        <input id="uwcp-perspective-other" class="uwcp-field uwcp-persp-other"
+               type="text" placeholder="or describe your own vantage point…"
+               maxlength="80" autocomplete="off">
+
+        <!-- Submit -->
+        <div class="uwcp-bottom">
+          <button id="uwcp-submit" class="uwcp-submit" disabled>Leave a mark ↗</button>
+        </div>
+        <div id="uwcp-msg" class="uwcp-msg" aria-live="polite"></div>
+
+      </div><!-- /.uwcp-col-right -->
+    </div><!-- /.uwcp-modal-body -->
 
   </aside>
 
@@ -172,6 +263,7 @@
   <script src="./vendor/three.min.js"></script>
   <script src="./initial.data.js"></script>
   <script src="./initial.embeddings.js"></script>
+  <script src="./assets/js/audio-map.js"></script>
   <script src="./assets/js/initial-local.js"></script>
   <script src="./assets/js/unfinished-world.js"></script>
   <script src="./assets/js/ambient.js"></script>

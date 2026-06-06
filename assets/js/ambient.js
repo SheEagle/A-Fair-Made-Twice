@@ -155,12 +155,12 @@ new MutationObserver(() => {
 }).observe(document.body, { attributes: true, attributeFilter: ["data-world"] });
 
 // Exhibit open/close: watch #image-panel class
-const imagePanel = document.getElementById("image-panel");
-if (imagePanel) {
+const _ambientImagePanel = document.getElementById("image-panel");
+if (_ambientImagePanel) {
   new MutationObserver(() => {
-    if (imagePanel.classList.contains("on")) _onExhibitOpen();
+    if (_ambientImagePanel.classList.contains("on")) _onExhibitOpen();
     else _onExhibitClose();
-  }).observe(imagePanel, { attributes: true, attributeFilter: ["class"] });
+  }).observe(_ambientImagePanel, { attributes: true, attributeFilter: ["class"] });
 }
 
 // Also hook unfinished-world custom events

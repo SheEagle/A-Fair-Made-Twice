@@ -1,0 +1,127 @@
+{
+  "official": {
+    "classification": {
+      "voice_id": "JBFqnCBsd6RMkjVDRZzb",
+      "stability": 0.64,
+      "similarity_boost": 0.78,
+      "style": 0.12,
+      "use_speaker_boost": true
+    },
+    "ceremony": {
+      "voice_id": "JBFqnCBsd6RMkjVDRZzb",
+      "stability": 0.76,
+      "similarity_boost": 0.82,
+      "style": 0.18,
+      "use_speaker_boost": true
+    },
+    "technical": {
+      "voice_id": "JBFqnCBsd6RMkjVDRZzb",
+      "stability": 0.70,
+      "similarity_boost": 0.76,
+      "style": 0.08,
+      "use_speaker_boost": true
+    },
+    "silence": {
+      "voice_id": "JBFqnCBsd6RMkjVDRZzb",
+      "stability": 0.82,
+      "similarity_boost": 0.70,
+      "style": 0.05,
+      "use_speaker_boost": false
+    }
+  },
+  "staged": {
+    "analysis": {
+      "voice_id": "JBFqnCBsd6RMkjVDRZzb",
+      "stability": 0.58,
+      "similarity_boost": 0.82,
+      "style": 0.20,
+      "use_speaker_boost": true
+    },
+    "display": {
+      "voice_id": "JBFqnCBsd6RMkjVDRZzb",
+      "stability": 0.62,
+      "similarity_boost": 0.78,
+      "style": 0.24,
+      "use_speaker_boost": true
+    },
+    "comparison": {
+      "voice_id": "JBFqnCBsd6RMkjVDRZzb",
+      "stability": 0.54,
+      "similarity_boost": 0.78,
+      "style": 0.28,
+      "use_speaker_boost": true
+    },
+    "critique": {
+      "voice_id": "JBFqnCBsd6RMkjVDRZzb",
+      "stability": 0.50,
+      "similarity_boost": 0.84,
+      "style": 0.34,
+      "use_speaker_boost": true
+    },
+    "absence": {
+      "voice_id": "JBFqnCBsd6RMkjVDRZzb",
+      "stability": 0.84,
+      "similarity_boost": 0.70,
+      "style": 0.08,
+      "use_speaker_boost": false
+    }
+  },
+  "lived": {
+    "wonder": {
+      "voice_id": "JBFqnCBsd6RMkjVDRZzb",
+      "stability": 0.42,
+      "similarity_boost": 0.80,
+      "style": 0.52,
+      "use_speaker_boost": true
+    },
+    "awe": {
+      "voice_id": "JBFqnCBsd6RMkjVDRZzb",
+      "stability": 0.66,
+      "similarity_boost": 0.82,
+      "style": 0.36,
+      "use_speaker_boost": true
+    },
+    "delight": {
+      "voice_id": "JBFqnCBsd6RMkjVDRZzb",
+      "stability": 0.38,
+      "similarity_boost": 0.78,
+      "style": 0.60,
+      "use_speaker_boost": true
+    },
+    "melancholy": {
+      "voice_id": "JBFqnCBsd6RMkjVDRZzb",
+      "stability": 0.74,
+      "similarity_boost": 0.82,
+      "style": 0.24,
+      "use_speaker_boost": true
+    },
+    "unease": {
+      "voice_id": "JBFqnCBsd6RMkjVDRZzb",
+      "stability": 0.48,
+      "similarity_boost": 0.82,
+      "style": 0.42,
+      "use_speaker_boost": true
+    },
+    "fatigue": {
+      "voice_id": "JBFqnCBsd6RMkjVDRZzb",
+      "stability": 0.78,
+      "similarity_boost": 0.74,
+      "style": 0.18,
+      "use_speaker_boost": false
+    },
+    "absence": {
+      "voice_id": "JBFqnCBsd6RMkjVDRZzb",
+      "stability": 0.88,
+      "similarity_boost": 0.66,
+      "style": 0.08,
+      "use_speaker_boost": false
+    },
+    "neutral": {
+      "voice_id": "JBFqnCBsd6RMkjVDRZzb",
+      "stability": 0.60,
+      "similarity_boost": 0.76,
+      "style": 0.22,
+      "use_speaker_boost": true
+    }
+  }
+}

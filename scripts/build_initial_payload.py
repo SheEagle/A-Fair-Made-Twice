@@ -64,6 +64,71 @@ HUE_BY_MEDIUM_KEYWORD = {
     "stereograph": 300,
 }
 
+SOURCE_METADATA = {
+    "Awards_Winners-fr": {
+        "title": "Catalogue officiel des exposants récompensés par le Jury international",
+        "author": "Exposition universelle de 1867 à Paris. Jury international",
+        "publicationDate": "1867",
+        "language": "French",
+        "shortTitle": "Awards Winners",
+    },
+    "Catalogue_BritishSection-en": {
+        "title": "Catalogue of the British Section: containing a list of the exhibitors of the United Kingdom and its colonies, and the objects which they exhibit: in English, French, German, and Italian: with statistical introductions and an appendix in which many of the objects exhibited are more fully described",
+        "author": "Exposition universelle de 1867 à Paris. Section britannique; Spottiswoode & Co.",
+        "publicationDate": "1867",
+        "language": "English, French, German, and Italian",
+        "shortTitle": "Catalogue of the British Section",
+    },
+    "Catalogue_General-fr": {
+        "title": "Exposition Universelle de 1867 à Paris. Catalogue général, publié par la Commission impériale",
+        "author": "Exposition universelle de 1867 à Paris. Commission impériale",
+        "publicationDate": "1867",
+        "language": "French",
+        "shortTitle": "Catalogue général",
+    },
+    "Industry_Machinery-en": {
+        "title": "Report on Machinery and Processes of the Industrial Arts and Apparatus of the Exact Sciences",
+        "author": "Frederick A. P. Barnard (Frederick Augustus Porter), 1809-1889",
+        "publicationDate": "1869",
+        "publisher": "New York: Van Nostrand",
+        "language": "English",
+        "shortTitle": "Report on Machinery and Processes",
+    },
+    "Report_IndustrialAnalysis-en": {
+        "title": "Reports on the Paris Universal Exhibition, 1867",
+        "author": "Great Britain. Royal Commission for the Paris Exhibition (1867)",
+        "publicationDate": "1868",
+        "publisher": "London: Printed by G. E. Eyre and W. Spottiswoode for H. M. Stationery Office",
+        "language": "English",
+        "shortTitle": "Industrial Analysis Report",
+    },
+    "Industry_Silk-en": {
+        "title": "Report to the Department of State on Silk and Silk Manufactures",
+        "author": "Elliot C. Cowdin (Elliot Christopher Cowdin)",
+        "publicationDate": "1868",
+        "language": "English",
+        "shortTitle": "Report on Silk and Silk Manufactures",
+    },
+    "Recollections-en": {
+        "title": "Recollections of the Paris Exhibition of 1867",
+        "author": "Eugene Rimmel",
+        "publicationDate": "1868",
+        "shortTitle": "Recollections of the Paris Exhibition",
+    },
+    "Curiosities Exhibition-fr": {
+        "title": "Les curiosités de l'Exposition universelle de 1867: suivi d'un indicateur pratique des moyens de transport, des prix d'entrée, etc.: avec six plans",
+        "author": "Hippolyte Gautier; Ch. (Charles) Delagrave; Adrien Desprez; Simon Bouillon; Gustave Lejeal",
+        "publicationDate": "1867",
+        "shortTitle": "Les curiosités de l'Exposition universelle de 1867",
+    },
+    "Notes and Sketches-en": {
+        "title": "Notes and Sketches of the Paris Exhibition",
+        "author": "George Augustus Sala",
+        "publicationDate": "1868",
+        "shortTitle": "Notes and Sketches of the Paris Exhibition",
+    },
+}
+
 
 def read_jsonl(path: Path) -> list[dict[str, Any]]:
     records: list[dict[str, Any]] = []
@@ -142,13 +207,69 @@ def medium_hue(medium: str) -> int:
     return 10 + (digest[0] % 320)
 
 
-def field_items(field_records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def provenance_key(exhibit_id: str, discourse: str, record: dict[str, Any]) -> tuple[str, str, str, str, str]:
+    return (
+        str(exhibit_id),
+        str(discourse),
+        str(record.get("field") or ""),
+        str(record.get("value") or ""),
+        str(record.get("evidence") or ""),
+    )
+
+
+def source_title(document_name: str) -> str:
+    name = str(document_name or "").replace("\\", "/").split("/")[-1]
+    metadata = SOURCE_METADATA.get(name)
+    if metadata:
+        return str(metadata["title"])
+    return name.replace("_", " ").replace("-", " ").strip() or "Unknown source"
+
+
+def source_metadata(document_name: str) -> dict[str, Any]:
+    name = str(document_name or "").replace("\\", "/").split("/")[-1]
+    metadata = SOURCE_METADATA.get(name, {})
+    return {
+        "documentName": document_name,
+        "sourceTitle": metadata.get("title") or source_title(document_name),
+        "shortTitle": metadata.get("shortTitle") or source_title(document_name),
+        "author": metadata.get("author"),
+        "publicationDate": metadata.get("publicationDate"),
+    }
+
+
+def build_provenance_lookup(extraction_rows: list[dict[str, Any]]) -> dict[tuple[str, str, str, str, str], list[dict[str, Any]]]:
+    lookup: dict[tuple[str, str, str, str, str], list[dict[str, Any]]] = {}
+    for row in extraction_rows:
+        exhibit_id = str(row.get("exhibit_id") or "")
+        discourse = str(row.get("source_type") or "")
+        for field in row.get("fields") or []:
+            key = provenance_key(exhibit_id, discourse, field)
+            source = {
+                **source_metadata(row.get("document_name") or ""),
+                "chunkId": row.get("chunk_id"),
+                "sourceType": row.get("source_type"),
+                "query": row.get("query"),
+                "matchLevel": row.get("match_level"),
+            }
+            bucket = lookup.setdefault(key, [])
+            if source not in bucket:
+                bucket.append(source)
+    return lookup
+
+
+def field_items(
+    exhibit_id: str,
+    discourse: str,
+    field_records: list[dict[str, Any]],
+    provenance_lookup: dict[tuple[str, str, str, str, str], list[dict[str, Any]]],
+) -> list[dict[str, Any]]:
     return [
         {
             "key": record.get("field") or "Field",
             "val": record.get("value") or "",
             "evidence": record.get("evidence") or "",
             "confidence": record.get("confidence"),
+            "sources": provenance_lookup.get(provenance_key(exhibit_id, discourse, record), [])[:3],
         }
         for record in field_records
         if record.get("value")
@@ -174,6 +295,8 @@ def main() -> None:
 
     profiles = read_jsonl(outputs_path / "exhibit_profiles.jsonl")
     umap_rows = read_jsonl(outputs_path / "umap_coordinates.jsonl")
+    extraction_rows = read_jsonl(outputs_path / "extraction_results.jsonl")
+    provenance_lookup = build_provenance_lookup(extraction_rows)
 
     embeddings_by_world: dict[str, dict[str, dict[str, list[float] | None]]] = {
         "official": {},
@@ -268,9 +391,19 @@ def main() -> None:
                 if view == "overall":
                     continue
                 entry = view_bundle.get(view) or {}
-                exhibit_record["narratives"][world][field_key] = field_items(entry.get("fields") or [])
+                exhibit_record["narratives"][world][field_key] = field_items(
+                    exhibit_id,
+                    discourse,
+                    entry.get("fields") or [],
+                    provenance_lookup,
+                )
             overall_entry = view_bundle.get("overall") or {}
-            exhibit_record["narratives"][world]["overall"] = field_items(overall_entry.get("fields") or [])
+            exhibit_record["narratives"][world]["overall"] = field_items(
+                exhibit_id,
+                discourse,
+                overall_entry.get("fields") or [],
+                provenance_lookup,
+            )
 
             for view, field_key in VIEW_TO_FIELD.items():
                 if view == "overall":

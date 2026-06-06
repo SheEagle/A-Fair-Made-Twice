@@ -22,44 +22,53 @@
 const UW_API = "http://localhost:3800/api";
 
 /* ── Prompt categories ─────────────────────────────────────────────────
-   Each category has a visual type that drives the bubble's appearance.
-   Chips within a category share that type.
+   Each category drives bubble appearance. Chips pre-fill a natural starter.
    ─────────────────────────────────────────────────────────────────────── */
 const PROMPT_CATS = [
   {
     type:  "observe",
     label: "Observe",
     chips: [
-      { chip: "I see",    start: "I see "    },
-      { chip: "I notice", start: "I notice " },
+      { chip: "What I notice",    start: "What I notice: "          },
+      { chip: "On second look,",  start: "On second look, "         },
     ],
   },
   {
     type:  "imagine",
     label: "Imagine",
     chips: [
-      { chip: "I imagine",  start: "I imagine " },
-      { chip: "In 1867,",   start: "In 1867, "  },
+      { chip: "I picture",        start: "I picture "               },
+      { chip: "In 1867,",         start: "In 1867, "                },
+      { chip: "Behind this:",     start: "Behind this object: "     },
     ],
   },
   {
     type:  "connect",
     label: "Connect",
     chips: [
-      { chip: "It reminds me of",  start: "It reminds me of "   },
-      { chip: "Across 160 years,", start: "Across 160 years, " },
+      { chip: "Still today:",     start: "Still relevant today: "   },
+      { chip: "A century later,", start: "A century later, "        },
     ],
   },
   {
     type:  "question",
     label: "Question",
     chips: [
-      { chip: "What's missing",   start: "What this doesn't show is " },
-      { chip: "The bias here",    start: "The bias here is "           },
-      { chip: "Who is absent",    start: "Who is absent from this is " },
+      { chip: "Missing:",         start: "Missing from this: "      },
+      { chip: "Unrecorded:",      start: "Left unrecorded here: "   },
+      { chip: "What this cost:",  start: "What this cost someone: " },
     ],
   },
 ];
+
+/* Default textarea placeholder when no chip is active ─────────────────── */
+const PLACEHOLDERS = {
+  free:     "What does this exhibition choose not to show? Name it.",
+  observe:  "What else do you see here — beyond what the catalogue names?",
+  imagine:  "Whose hands or lives does this object carry — unrecorded?",
+  connect:  "What does this still mean today, 160 years on?",
+  question: "What is absent from this room — and why?",
+};
 
 /* ── Common countries for quick-select ────────────────────────────────
    Ordered to reflect the 1867 Exposition's prominent participating nations
@@ -111,10 +120,45 @@ let activePerspective = "";
 let hasRealComments = false;
 
 /* ── DOM refs ───────────────────────────────────────────────────────── */
-const bubbleLayer  = document.getElementById("bubble-layer");
-const imagePanel   = document.getElementById("image-panel");
-const commentPanel = document.getElementById("uw-comment-panel");
-const essaySlot    = document.getElementById("image-panel-essay");
+const bubbleLayer   = document.getElementById("bubble-layer");
+const imagePanel    = document.getElementById("image-panel");
+const commentPanel  = document.getElementById("uw-comment-panel");
+const modalBackdrop = document.getElementById("uw-modal-backdrop");
+const inviteBar     = document.getElementById("uw-mark-invite");
+const essaySlot     = document.getElementById("image-panel-essay");
+
+/* ── Invite bar: show when exhibit selected, opens modal on click ────── */
+function _showInvite() {
+  if (!inviteBar) return;
+  inviteBar.removeAttribute("aria-hidden");
+  /* Double rAF ensures the browser commits the opacity:0 initial state
+     before adding .on, so the CSS transition fires correctly */
+  requestAnimationFrame(() => requestAnimationFrame(() => inviteBar.classList.add("on")));
+}
+function _hideInvite() {
+  if (!inviteBar) return;
+  inviteBar.classList.remove("on");
+  inviteBar.setAttribute("aria-hidden", "true");
+}
+
+document.getElementById("uwmi-btn")?.addEventListener("click", () => {
+  if (currentExhibit) {
+    _hideInvite();
+    _buildPanel(currentExhibit);
+  }
+});
+
+/* ── Modal close: dismiss modal, restore invite bar ─────────────────── */
+function _closeModal() {
+  _hidePanel();
+  if (currentExhibit) _showInvite();
+}
+
+document.getElementById("uw-modal-close")?.addEventListener("click", _closeModal);
+modalBackdrop?.addEventListener("click", _closeModal);
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && commentPanel?.classList.contains("on")) _closeModal();
+});
 
 /* ── Build country datalist ────────────────────────────────────────── */
 const dl = document.getElementById("uwcp-country-dl");
@@ -129,8 +173,8 @@ if (dl) ALL_COUNTRIES.forEach(c => {
 document.addEventListener("uwExhibitSelect", ev => {
   currentExhibit = ev.detail.exhibit;
   _clearOrbit();
-  _buildPanel(currentExhibit);
-  // Capture exhibit at call-time so rapid re-clicks don't double-spawn
+  _hidePanel();      // close any open modal from a previous exhibit
+  _showInvite();     // show the floating invite bar
   const captured = currentExhibit;
   setTimeout(() => { if (currentExhibit === captured) _fetchAndOrbit(captured); }, 520);
 });
@@ -139,8 +183,17 @@ document.addEventListener("uwExhibitDeselect", () => {
   currentExhibit = null;
   activeType = "free";
   _clearOrbit();
+  _hideInvite();
   _hidePanel();
 });
+
+// Hide invite bar and modal when leaving Unfinished World
+new MutationObserver(() => {
+  if (document.body.dataset.world !== "unfinished") {
+    _hideInvite();
+    _hidePanel();
+  }
+}).observe(document.body, { attributes: true, attributeFilter: ["data-world"] });
 
 /* ══════════════════════════════════════════════════════════════════════
    PANEL
@@ -162,12 +215,12 @@ function _buildPanel(exhibit) {
   const vt = document.getElementById("uwcp-voice-text");
   if (vt) vt.textContent = "—";
 
-  /* ── Prompt chips: categorised ──────────────────────────────────── */
+  /* ── Prompt chips: category label + selectable starters ─────────── */
   const promptsEl = document.getElementById("uwcp-prompts");
   if (promptsEl) {
     promptsEl.innerHTML = PROMPT_CATS.map(cat => `
       <div class="uwcp-cat">
-        <span class="uwcp-cat-label uwcp-cat-${cat.type}">${cat.label}</span>
+        <span class="uwcp-cat-label uwcp-cat-${cat.type}">${escHtml(cat.label)}</span>
         ${cat.chips.map(ch => `
           <button type="button"
                   class="uwcp-chip uwcp-chip-${cat.type}"
@@ -184,11 +237,13 @@ function _buildPanel(exhibit) {
         promptsEl.querySelectorAll(".uwcp-chip").forEach(b => b.classList.remove("active"));
         if (wasActive) {
           activeType = "free";
-          ta.value   = "";
+          ta.value = "";
+          ta.placeholder = PLACEHOLDERS.free;
         } else {
           btn.classList.add("active");
           activeType = btn.dataset.type;
-          ta.value   = btn.dataset.start;
+          ta.placeholder = PLACEHOLDERS[activeType] || PLACEHOLDERS.free;
+          ta.value = btn.dataset.start;
           ta.setSelectionRange(ta.value.length, ta.value.length);
         }
         ta.focus();
@@ -249,18 +304,26 @@ function _buildPanel(exhibit) {
   const sub = document.getElementById("uwcp-submit");
   const msg = document.getElementById("uwcp-msg");
   const ci  = document.getElementById("uwcp-country");
-  const ni  = document.getElementById("uwcp-name");
-  if (ta)  { ta.value = ""; ta.removeEventListener("input", _validateSubmit); ta.addEventListener("input", _validateSubmit); }
+  const po  = document.getElementById("uwcp-perspective-other");
+  if (ta)  { ta.value = ""; ta.placeholder = PLACEHOLDERS.free; ta.removeEventListener("input", _validateSubmit); ta.addEventListener("input", _validateSubmit); }
   if (sub) { const f = sub.cloneNode(true); sub.replaceWith(f); f.addEventListener("click", () => _submit(exhibit)); }
   if (msg) { msg.textContent = ""; msg.className = "uwcp-msg"; }
   if (ci)  { ci.value = ""; ci.placeholder = "Other country…"; }
-  if (ni)  ni.value = "";
+  if (po)  {
+    po.value = "";
+    po.removeEventListener("input", _onPerspOther);
+    po.addEventListener("input", _onPerspOther);
+  }
   _validateSubmit();
 
-  /* Show panel */
+  /* Show modal */
   commentPanel.setAttribute("aria-hidden", "false");
   commentPanel.classList.add("on");
+  modalBackdrop?.setAttribute("aria-hidden", "false");
+  modalBackdrop?.classList.add("on");
   if (essaySlot) essaySlot.textContent = "";
+  /* Trap focus to first interactive element */
+  setTimeout(() => commentPanel.querySelector("textarea,button,input")?.focus(), 80);
 
   _fetchVoiceCount(String(exhibit.exhibitId || exhibit.id));
 }
@@ -269,6 +332,8 @@ function _hidePanel() {
   if (!commentPanel) return;
   commentPanel.classList.remove("on");
   commentPanel.setAttribute("aria-hidden", "true");
+  modalBackdrop?.classList.remove("on");
+  modalBackdrop?.setAttribute("aria-hidden", "true");
   if (essaySlot) essaySlot.textContent = "";
 }
 
@@ -276,6 +341,19 @@ function _validateSubmit() {
   const ta  = document.getElementById("uwcp-body");
   const btn = document.getElementById("uwcp-submit");
   if (ta && btn) btn.disabled = ta.value.trim().length < 2;
+}
+
+function _onPerspOther() {
+  const po = document.getElementById("uwcp-perspective-other");
+  if (!po) return;
+  const val = po.value.trim();
+  if (val) {
+    /* Clear chip selection when free text is entered */
+    document.querySelectorAll(".uwcp-persp-chip").forEach(b => b.classList.remove("active"));
+    activePerspective = val;
+  } else {
+    activePerspective = "";
+  }
 }
 
 async function _fetchVoiceCount(exhibitId) {
@@ -296,14 +374,15 @@ async function _fetchVoiceCount(exhibitId) {
 
 async function _submit(exhibit) {
   const ta   = document.getElementById("uwcp-body");
-  const ni   = document.getElementById("uwcp-name");
   const ci   = document.getElementById("uwcp-country");
+  const po   = document.getElementById("uwcp-perspective-other");
   const btn  = document.getElementById("uwcp-submit");
   const msg  = document.getElementById("uwcp-msg");
   if (!ta || !ta.value.trim()) return;
   if (btn) btn.disabled = true;
 
-  const country = activeCountry || ci?.value.trim() || "";
+  const country     = activeCountry || ci?.value.trim() || "";
+  const perspective = activePerspective || po?.value.trim() || "";
 
   try {
     const res = await fetch(`${UW_API}/comments`, {
@@ -311,9 +390,9 @@ async function _submit(exhibit) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         exhibitId:   String(exhibit.exhibitId || exhibit.id),
-        username:    ni?.value.trim() || "Anonymous",
+        username:    "Anonymous",
         country,
-        perspective: activePerspective,
+        perspective,
         prompt_type: activeType,
         world:       "visitor",
         content:     ta.value.trim(),
@@ -334,17 +413,21 @@ async function _submit(exhibit) {
     if (msg) {
       msg.textContent = "Recorded. Your impression joins the constellation.";
       msg.className   = "uwcp-msg ok";
-      setTimeout(() => { if (msg) { msg.textContent = ""; msg.className = "uwcp-msg"; } }, 5000);
     }
 
     /* Reset */
     ta.value = "";
+    ta.placeholder = PLACEHOLDERS.free;
     if (ci) { ci.value = ""; ci.placeholder = "Other country…"; }
-    if (ni) ni.value = "";
+    const poEl = document.getElementById("uwcp-perspective-other");
+    if (poEl) poEl.value = "";
     activeType = "free"; activeCountry = ""; activePerspective = "";
     document.querySelectorAll(".uwcp-chip,.uwcp-country-chip,.uwcp-persp-chip")
       .forEach(b => b.classList.remove("active"));
     _validateSubmit();
+
+    /* Auto-close modal immediately after confirmation */
+    setTimeout(() => _closeModal(), 800);
 
     /* New bubble orbits immediately */
     _spawnBubble(comment, exhibit.color || "#c4a882", false, true);

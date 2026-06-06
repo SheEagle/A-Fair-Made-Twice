@@ -19,16 +19,18 @@ async function initDB() {
   try {
     await client.query(`
       CREATE TABLE IF NOT EXISTS comments (
-        id          SERIAL PRIMARY KEY,
-        exhibit_id  TEXT        NOT NULL,
-        username    TEXT        NOT NULL DEFAULT 'Anonymous',
-        country     TEXT        NOT NULL DEFAULT '',
-        world       TEXT        NOT NULL DEFAULT 'visitor',
-        content     TEXT        NOT NULL,
-        created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        id           SERIAL PRIMARY KEY,
+        exhibit_id   TEXT        NOT NULL,
+        username     TEXT        NOT NULL DEFAULT 'Anonymous',
+        country      TEXT        NOT NULL DEFAULT '',
+        world        TEXT        NOT NULL DEFAULT 'visitor',
+        content      TEXT        NOT NULL,
+        created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
-      -- Safely add country column if table existed without it
-      ALTER TABLE comments ADD COLUMN IF NOT EXISTS country TEXT NOT NULL DEFAULT '';
+      -- Safely add columns if table existed without them
+      ALTER TABLE comments ADD COLUMN IF NOT EXISTS country      TEXT NOT NULL DEFAULT '';
+      ALTER TABLE comments ADD COLUMN IF NOT EXISTS prompt_type  TEXT NOT NULL DEFAULT 'free';
+      ALTER TABLE comments ADD COLUMN IF NOT EXISTS perspective  TEXT NOT NULL DEFAULT '';
       CREATE INDEX IF NOT EXISTS comments_exhibit_id_idx ON comments(exhibit_id);
     `);
     console.log("[db] schema ready");
@@ -52,7 +54,7 @@ app.get("/api/comments", async (req, res) => {
   if (!exhibitId) return res.status(400).json({ error: "exhibitId required" });
   try {
     const { rows } = await pool.query(
-      `SELECT id, username, country, world, content, created_at
+      `SELECT id, username, country, world, prompt_type, perspective, content, created_at
        FROM comments
        WHERE exhibit_id = $1
        ORDER BY created_at DESC
@@ -66,22 +68,25 @@ app.get("/api/comments", async (req, res) => {
   }
 });
 
-// POST /api/comments  { exhibitId, username, country, world, content }
+// POST /api/comments  { exhibitId, username, country, world, prompt_type, perspective, content }
 app.post("/api/comments", async (req, res) => {
-  const { exhibitId, username = "Anonymous", country = "", world = "visitor", content } = req.body;
+  const { exhibitId, username = "Anonymous", country = "", world = "visitor",
+          prompt_type = "free", perspective = "", content } = req.body;
   if (!exhibitId || !content?.trim()) {
     return res.status(400).json({ error: "exhibitId and content required" });
   }
-  const safeUsername = String(username).slice(0, 80) || "Anonymous";
-  const safeCountry  = String(country).slice(0, 80).trim();
-  const safeContent  = String(content).slice(0, 2000).trim();
-  const safeWorld    = ["official", "staged", "lived", "visitor"].includes(world) ? world : "visitor";
+  const safeUsername    = String(username).slice(0, 80) || "Anonymous";
+  const safeCountry     = String(country).slice(0, 80).trim();
+  const safeContent     = String(content).slice(0, 2000).trim();
+  const safeWorld       = ["official", "staged", "lived", "visitor"].includes(world) ? world : "visitor";
+  const safePromptType  = ["observe", "imagine", "connect", "question", "free"].includes(prompt_type) ? prompt_type : "free";
+  const safePerspective = String(perspective).slice(0, 80).trim();
   try {
     const { rows } = await pool.query(
-      `INSERT INTO comments (exhibit_id, username, country, world, content)
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING id, username, country, world, content, created_at`,
-      [String(exhibitId), safeUsername, safeCountry, safeWorld, safeContent]
+      `INSERT INTO comments (exhibit_id, username, country, world, prompt_type, perspective, content)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       RETURNING id, username, country, world, prompt_type, perspective, content, created_at`,
+      [String(exhibitId), safeUsername, safeCountry, safeWorld, safePromptType, safePerspective, safeContent]
     );
     res.status(201).json(rows[0]);
   } catch (err) {
@@ -95,7 +100,7 @@ app.get("/api/recent", async (req, res) => {
   const { limit = 20 } = req.query;
   try {
     const { rows } = await pool.query(
-      `SELECT id, exhibit_id, username, country, world, content, created_at
+      `SELECT id, exhibit_id, username, country, world, prompt_type, perspective, content, created_at
        FROM comments
        ORDER BY created_at DESC
        LIMIT $1`,

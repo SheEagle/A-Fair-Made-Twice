@@ -176,7 +176,7 @@
     const col   = new Float32Array(count * 3);
 
     for (let i = 0; i < count; i++) {
-      const r = 12 + Math.random() * 48;
+      const r = 18 + Math.random() * 80;
       const a = Math.random() * Math.PI * 2;
       const b = Math.acos(2 * Math.random() - 1);
       pos[i*3]   = r * Math.sin(b) * Math.cos(a);
@@ -193,7 +193,7 @@
     geo.setAttribute("color",    new THREE.BufferAttribute(col, 3));
 
     const stars = new THREE.Points(geo, new THREE.PointsMaterial({
-      size: 0.055,
+      size: 0.18,
       vertexColors: true,
       transparent: true,
       opacity: 0.82,
@@ -361,8 +361,10 @@
   function hideImagePanel() {
     if (!els.imagePanel) return;
     stopBubbles();
-    els.imagePanel.classList.remove("on");
+    els.imagePanel.classList.remove("on", "has-model", "show-3d");
     els.imagePanel.setAttribute("aria-hidden", "true");
+    const btn = document.getElementById("view-3d-btn");
+    if (btn) btn.textContent = "View in 3D ⟳";
 
     if (els.imagePanelImg) {
       els.imagePanelImg.removeAttribute("src");
@@ -404,6 +406,10 @@
         els.imagePanelEssay.textContent = essayParts.join("  ·  ");
       }
     }
+
+    // 3D model: mark panel if this exhibit has a GLB
+    const has3D = archiveId === "848";
+    els.imagePanel.classList.toggle("has-model", has3D);
 
     els.imagePanelImg.alt = `${exhibit.name} stereo view`;
     els.imagePanelImg.onerror = () => hideImagePanel();
@@ -777,11 +783,11 @@
   //  - 中央固定为展品图像
   //  - similar exhibit 独占右侧专栏
   //  - 信息泡泡围绕中央图像，但避开右侧专栏
-  //  这样保留“围绕展品”的感觉，同时避免泡泡和 similar 卡片互相压住。
+  //  这样保留"围绕展品"的感觉，同时避免泡泡和 similar 卡片互相压住。
 
-  const BUBBLE_W    = 238;
-  const BUBBLE_H    = 82;    // 注释标签高度（含更多内边距）
-  const BUBBLE_GAP  = 22;
+  const BUBBLE_W    = 252;
+  const BUBBLE_H    = 108;   // 注释标签高度（含正背面内容）
+  const BUBBLE_GAP  = 36;
   const CARD_W      = 234;
   const CARD_H      = 92;
   const CARD_GAP    = 28;
@@ -817,14 +823,14 @@
       BUBBLE_W / 2 + 58,
       m.simLeft - BUBBLE_W / 2 - 56
     );
-    const topY = m.centerY - m.imageH / 2 - BUBBLE_H / 2 - 42;
-    const bottomY = m.centerY + m.imageH / 2 + BUBBLE_H / 2 + 42;
-    const topX = clamp(m.centerX + 92, BUBBLE_W / 2 + 22, m.simLeft - BUBBLE_W / 2 - 70);
+    const topY    = clamp(m.centerY - m.imageH / 2 - BUBBLE_H / 2 - 42, BUBBLE_H / 2 + 16, m.centerY - m.imageH / 2 - BUBBLE_H / 2 - 4);
+    const bottomY  = clamp(m.centerY + m.imageH / 2 + BUBBLE_H / 2 + 42, m.centerY + m.imageH / 2 + BUBBLE_H / 2 + 4, innerHeight - BUBBLE_H / 2 - 16);
+    const topX    = clamp(m.centerX + 92, BUBBLE_W / 2 + 22, m.simLeft - BUBBLE_W / 2 - 70);
     const bottomX = clamp(m.centerX + 40, BUBBLE_W / 2 + 22, m.simLeft - BUBBLE_W / 2 - 90);
 
     const leftCount = Math.max(0, n - 2);
     const leftTotalH = leftCount * BUBBLE_H + Math.max(0, leftCount - 1) * BUBBLE_GAP;
-    const leftStartY = m.centerY - leftTotalH / 2 + BUBBLE_H / 2;
+    const leftStartY = Math.max(BUBBLE_H / 2 + 16, m.centerY - leftTotalH / 2 + BUBBLE_H / 2);
 
     const slots = [];
     if (n === 1) {
@@ -857,6 +863,71 @@
     });
   }
 
+  // ─── 展品语音播放 ──────────────────────────────────────────────────────────
+  let _audioEl  = null;   // current playing <audio>
+  let _audioFadeTimer = null;
+
+  function playExhibitAudio(exhibitId, world) {
+    // Only official / staged / lived have narration audio
+    if (!world || world === "unfinished") { stopExhibitAudio(); return; }
+    if (typeof AUDIO_MAP === "undefined") return;
+
+    const key  = `${exhibitId}_${world}`;
+    const file = AUDIO_MAP[key];
+    if (!file) { stopExhibitAudio(); return; }
+
+    // Already playing this file — do nothing
+    if (_audioEl && _audioEl.dataset.key === key && !_audioEl.paused) return;
+
+    stopExhibitAudio(true);   // fade out previous, then play new
+
+    const audio = new Audio(`./assets/audio/${encodeURIComponent(file)}`);
+    audio.dataset.key = key;
+    audio.volume = 0;
+    _audioEl = audio;
+
+    audio.addEventListener("canplaythrough", () => {
+      if (_audioEl !== audio) return;   // superseded
+      audio.play().catch(() => {});
+      _fadeVolume(audio, 0, 0.72, 1200);
+    }, { once: true });
+
+    audio.addEventListener("ended", () => {
+      if (_audioEl === audio) _audioEl = null;
+    });
+  }
+
+  function stopExhibitAudio(soft = false) {
+    clearTimeout(_audioFadeTimer);
+    const prev = _audioEl;
+    _audioEl = null;
+    if (!prev) return;
+    if (soft) {
+      _fadeVolume(prev, prev.volume, 0, 600, () => { prev.pause(); prev.src = ""; });
+    } else {
+      prev.pause();
+      prev.src = "";
+    }
+  }
+
+  function _fadeVolume(audio, from, to, ms, onDone) {
+    const steps = 30;
+    const dt    = ms / steps;
+    const dv    = (to - from) / steps;
+    let   step  = 0;
+    audio.volume = Math.max(0, Math.min(1, from));
+    function tick() {
+      step++;
+      audio.volume = Math.max(0, Math.min(1, from + dv * step));
+      if (step < steps) {
+        _audioFadeTimer = setTimeout(tick, dt);
+      } else if (onDone) {
+        onDone();
+      }
+    }
+    _audioFadeTimer = setTimeout(tick, dt);
+  }
+
   // ─── 选中展品 ─────────────────────────────────────────────────────────────
   function selectExhibit(index) {
     state.selectedIndex = index;
@@ -867,6 +938,8 @@
     const world   = state.currentWorld;
     const vk      = currentViewKey();
     updateImagePanel(ex, world, vk);
+
+    playExhibitAudio(ex.exhibitId || ex.id, world);
 
     // Unfinished world: skip narrative bubbles; hand off to unfinished-world.js via event
     if (world === "unfinished") {
@@ -879,10 +952,79 @@
         el.className = `kw-bubble ${WORLD_CONFIG[world].className}`;
         el.dataset.kind  = "bubble";
         el.dataset.index = String(i);
-        el.innerHTML = `
-          <span class="bubble-field">${escapeHtml(item.key || state.currentView)}</span>
-          <span class="bubble-value">${escapeHtml(item.val || item.value || item.text || "")}</span>
-        `;
+        const evidence    = item.evidence || "";
+        const src         = item.sources && item.sources[0];
+        const shortTitle  = src ? (src.shortTitle  || src.sourceTitle || "") : "";
+        const author      = src ? (src.author      || "") : "";
+        const pubDate     = src ? (src.publicationDate || "") : "";
+        const hasBack = !!(evidence || shortTitle);
+
+        // Build card using DOM API
+        const inner = document.createElement("div");
+        inner.className = "kw-bubble-inner";
+
+        // Front face: field label + value + flip hint
+        const front = document.createElement("div");
+        front.className = "kw-bubble-front";
+
+        const fieldEl = document.createElement("span");
+        fieldEl.className = "bubble-field";
+        fieldEl.textContent = item.key || state.currentView;
+        front.appendChild(fieldEl);
+
+        const valEl = document.createElement("span");
+        valEl.className = "bubble-value";
+        valEl.textContent = item.val || item.value || item.text || "";
+        front.appendChild(valEl);
+
+        if (hasBack) {
+          const hint = document.createElement("span");
+          hint.className = "bubble-flip-hint";
+          hint.textContent = "tap for source ↺";
+          front.appendChild(hint);
+        }
+
+        inner.appendChild(front);
+
+        // Back face: evidence + title + author + date
+        if (hasBack) {
+          const back = document.createElement("div");
+          back.className = "kw-bubble-back";
+
+          if (evidence) {
+            const quote = document.createElement("blockquote");
+            quote.className = "bubble-evidence";
+            quote.textContent = "“" + evidence + "”";
+            back.appendChild(quote);
+          }
+
+          const meta = document.createElement("div");
+          meta.className = "bubble-meta";
+          if (shortTitle) {
+            const t = document.createElement("span");
+            t.className = "bubble-meta-title";
+            t.textContent = shortTitle;
+            meta.appendChild(t);
+          }
+          if (author) {
+            const a = document.createElement("span");
+            a.className = "bubble-meta-author";
+            a.textContent = author;
+            meta.appendChild(a);
+          }
+          if (pubDate) {
+            const d = document.createElement("span");
+            d.className = "bubble-meta-date";
+            d.textContent = pubDate;
+            meta.appendChild(d);
+          }
+          back.appendChild(meta);
+
+          inner.appendChild(back);
+          el.addEventListener("click", ev => { ev.stopPropagation(); el.classList.toggle("flipped"); });
+        }
+
+        el.appendChild(inner);
         els.labels.appendChild(el);
         state.labels.push(el);
         requestAnimationFrame(() => el.classList.add("shown"));
@@ -900,7 +1042,7 @@
       card.dataset.index       = String(i);
       card.dataset.targetIndex = String(ti);
       card.innerHTML = `
-        <div class="sim-card-label">Adjacent work</div>
+        <div class="sim-card-label">Similar exhibit</div>
         <div class="sim-card-name">${escapeHtml(tgt.name)}</div>
         <div class="sim-card-reason">${escapeHtml(getSimilarReason(ex, ti))}</div>
       `;
@@ -926,6 +1068,7 @@
     els.tip.style.opacity = "0";
     document.body.style.cursor = "default";
     document.dispatchEvent(new CustomEvent("uwExhibitDeselect"));
+    stopExhibitAudio(true);   // fade out on deselect
   }
 
   // ─── 世界连接桥 ───────────────────────────────────────────────────────────
@@ -986,6 +1129,54 @@
       els.worldGhost.textContent = ghostWords[state.currentWorld] || "";
     }
 
+    // 字卡闪现：进入世界时全屏砸下大字 ~1.6s（大屏装置感）
+    (function fireWorldTitleFlash() {
+      const labels = {
+        official:   "Official",
+        staged:     "Staged",
+        lived:      "Lived",
+        unfinished: "Unfinished",
+      };
+      const text = labels[state.currentWorld];
+      if (!text) return;
+      let el = document.getElementById("world-title-flash");
+      if (!el) {
+        el = document.createElement("div");
+        el.id = "world-title-flash";
+        document.body.appendChild(el);
+      }
+      el.textContent = text;
+      // restart animation
+      el.classList.remove("firing");
+      // force reflow so the next class add re-triggers keyframes
+      void el.offsetWidth;
+      el.classList.add("firing");
+    })();
+
+    // 幽灵引文层：thesis 节拍漂浮在背景里
+    (function ensureGhostQuoteLayer() {
+      if (document.getElementById("ghost-quote-layer")) return;
+      const quotes = [
+        "Made once in 1867.",
+        "Made again, here.",
+        "Every exhibition is a choice.",
+        "Who is named.  Who is not.",
+        "An order of the world — and this one.",
+      ];
+      const layer = document.createElement("div");
+      layer.id = "ghost-quote-layer";
+      layer.setAttribute("aria-hidden", "true");
+      // 3 staggered tracks, randomized per visit so it doesn't read identically twice
+      const shuffled = quotes.slice().sort(() => Math.random() - 0.5);
+      for (let i = 0; i < 3; i++) {
+        const q = document.createElement("div");
+        q.className = `ghost-quote gq-${i + 1}`;
+        q.textContent = shuffled[i % shuffled.length];
+        layer.appendChild(q);
+      }
+      document.body.appendChild(layer);
+    })();
+
     els.intro.classList.add("hidden");
     els.worldBar.classList.add("on");
     els.viewBar.classList.add("on");
@@ -1043,7 +1234,7 @@
       const density = mesh.userData.density ?? getDensity(ex, state.currentWorld, currentViewKey());
 
       // 密度决定基础尺寸：24px（稀疏）→ 78px（核心）
-      const baseSize = Math.round(36 + density * 72);   // 36–108 px (was 24–78)
+      const baseSize = Math.round(36 + density * 72);   // 36-108px
       const hitSize  = isSel ? Math.min(Math.round(baseSize * 1.28), 148)
                      : isHov ? Math.round(baseSize * 1.18)
                      : baseSize;
@@ -1162,6 +1353,12 @@
     });
     els.deselectHint.addEventListener("click", ev => { ev.stopPropagation(); deselectExhibit(); });
 
+    // ── UI 面板阻断 pointerdown，防止 canvas setPointerCapture 触发 deselect ──
+    ["image-panel", "object-panel", "uw-comment-panel"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener("pointerdown", ev => ev.stopPropagation());
+    });
+
     // ── 显示模式切换 ────────────────────────────────────────────────────────
     document.querySelectorAll(".mt").forEach(btn => {
       btn.addEventListener("click", ev => {
@@ -1194,7 +1391,16 @@
       state.dragging = false;
       renderer.domElement.releasePointerCapture(ev.pointerId);
       document.body.style.cursor = "default";
-      if (!state.dragMoved && state.selectedIndex >= 0) deselectExhibit();
+      if (!state.dragMoved && state.selectedIndex >= 0) {
+        const x = ev.clientX, y = ev.clientY;
+        const onUI = ["image-panel","object-panel","uw-comment-panel","model-viewer-overlay"].some(id => {
+          const el = document.getElementById(id);
+          if (!el || !el.classList.contains("on")) return false;
+          const r = el.getBoundingClientRect();
+          return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+        });
+        if (!onUI) deselectExhibit();
+      }
     });
     renderer.domElement.addEventListener("wheel", ev => {
       ev.preventDefault();
@@ -1380,6 +1586,7 @@
   })();
 
 })();
+
 
 
 
