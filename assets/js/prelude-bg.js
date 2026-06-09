@@ -17,14 +17,12 @@ function draw() {
     bx.fillStyle = '#020205';
     bx.fillRect(0, 0, bg.width, bg.height);
 
-    // 渲染星云氛围
     const grd = bx.createRadialGradient(bg.width/2, bg.height/2, 0, bg.width/2, bg.height/2, bg.width/2);
     grd.addColorStop(0, 'rgba(200, 160, 100, 0.05)');
     grd.addColorStop(1, 'transparent');
     bx.fillStyle = grd;
     bx.fillRect(0, 0, bg.width, bg.height);
 
-    // 渲染繁星
     stars.forEach(s => {
         bx.globalAlpha = s.a;
         bx.fillStyle = '#fff';

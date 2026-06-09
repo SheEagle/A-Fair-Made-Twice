@@ -33,7 +33,6 @@ function goTo(index) {
     }
 }
 
-// 绑定入口：点击世界卡片带参数跳转
 document.querySelectorAll('.w-panel').forEach(p => {
     p.addEventListener('click', () => {
         const world = p.dataset.world;
@@ -43,5 +42,4 @@ document.querySelectorAll('.w-panel').forEach(p => {
 
 document.getElementById('skip-btn').addEventListener('click', () => goTo(3));
 
-// 启动
 goTo(0);

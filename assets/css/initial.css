@@ -6,7 +6,6 @@
 /*  padding: 0;*/
 /*}*/
 
-/*!* ─── 设计令牌 ─────────────────────────────────────────────────────────────── *!*/
 
 /*:root {*/
 /*  --c-official: #a8c4ff;*/
@@ -45,7 +44,6 @@
 /*  --ease-world:    cubic-bezier(0.4, 0, 0.2, 1);*/
 /*}*/
 
-/*!* ─── 三个世界的变量覆盖 ─────────────────────────────────────────────────── *!*/
 
 /*body[data-world="official"] {*/
 /*  --world-accent:  rgba(143, 183, 255, 0.22);*/
@@ -77,7 +75,6 @@
 /*  --world-glow:    rgba(255, 142, 168, 0.26);*/
 /*}*/
 
-/*!* ─── 基础层 ─────────────────────────────────────────────────────────────── *!*/
 
 /*html, body {*/
 /*  width: 100%;*/
@@ -94,7 +91,6 @@
 /*    color 0.6s var(--ease-world);*/
 /*}*/
 
-/*!* 背景：天穹层 *!*/
 /*body::before {*/
 /*  content: "";*/
 /*  position: fixed;*/
@@ -127,7 +123,6 @@
 /*  filter: sepia(0.26) saturate(0.88) brightness(0.80) contrast(1.14);*/
 /*}*/
 
-/*!* 前景：细格栅 + 暗角 + 噪点纹理感 *!*/
 /*body::after {*/
 /*  content: "";*/
 /*  position: fixed;*/
@@ -141,7 +136,6 @@
 /*  transition: background 0.9s var(--ease-world);*/
 /*}*/
 
-/*!* ─── 策展铭牌：左上角 ───────────────────────────────────────────────────── *!*/
 
 /*#expo-ornament {*/
 /*  position: fixed;*/
@@ -156,7 +150,6 @@
 /*  transition: opacity 0.6s ease;*/
 /*}*/
 
-/*!* 装饰性细线框，博物馆铭牌感 *!*/
 /*#expo-ornament::before {*/
 /*  content: "";*/
 /*  position: absolute;*/
@@ -238,7 +231,6 @@
 /*body[data-world="staged"]   .orn-arc { border-color: rgba(215, 168, 110, 0.22); }*/
 /*body[data-world="lived"]    .orn-arc { border-color: rgba(255, 142, 168, 0.22); }*/
 
-/*!* ─── 底部飘带 ───────────────────────────────────────────────────────────── *!*/
 
 /*#expo-ribbon--disabled {*/
 /*  position: fixed;*/
@@ -276,7 +268,6 @@
 /*  color: rgba(255, 185, 205, 0.78);*/
 /*}*/
 
-/*!* ─── 渲染宿主 ────────────────────────────────────────────────────────────── *!*/
 
 /*#renderer-host {*/
 /*  position: fixed;*/
@@ -291,7 +282,6 @@
 /*  cursor: grabbing;*/
 /*}*/
 
-/*!* ─── 展品点位 ────────────────────────────────────────────────────────────── *!*/
 
 /*#point-layer {*/
 /*  position: fixed;*/
@@ -301,7 +291,6 @@
 /*  overflow: hidden;*/
 /*}*/
 
-/*!* 每个点用一个隐形的宽 hit-area，实际绘制由 Canvas 完成 *!*/
 /*.exhibit-point {*/
 /*  position: absolute;*/
 /*  transform: translate(-50%, -50%);*/
@@ -322,7 +311,6 @@
 /*  pointer-events: none;*/
 /*}*/
 
-/*!* 内部 SVG 容器——承载多形态绘制 *!*/
 /*.exhibit-point svg {*/
 /*  position: absolute;*/
 /*  left: 50%;*/
@@ -332,7 +320,6 @@
 /*  pointer-events: none;*/
 /*}*/
 
-/*!* ── 核心形：实心菱形（默认） ──────────────────────────── *!*/
 /*.ep-core {*/
 /*  transition:*/
 /*    transform 0.30s cubic-bezier(0.19,1,0.22,1),*/
@@ -343,7 +330,6 @@
 /*.exhibit-point.hovered  .ep-core { transform: scale(1.35); }*/
 /*.exhibit-point.selected .ep-core { transform: scale(1.60); }*/
 
-/*!* ── 呼吸光晕（永远轻微脉动） ──────────────────────────── *!*/
 /*.ep-halo {*/
 /*  animation: halo-pulse 3.4s ease-in-out infinite;*/
 /*  transform-origin: center;*/
@@ -356,7 +342,6 @@
 /*.exhibit-point.hovered  .ep-halo { animation-duration: 1.8s; }*/
 /*.exhibit-point.selected .ep-halo { animation: none; opacity: 0; }*/
 
-/*!* ── 外环（悬停时展开） ──────────────────────────────────── *!*/
 /*.ep-ring {*/
 /*  opacity: 0;*/
 /*  transform: scale(0.6);*/
@@ -371,7 +356,6 @@
 /*  transform: scale(1);*/
 /*}*/
 
-/*!* ── 选中：准星十字 ──────────────────────────────────────── *!*/
 /*.ep-crosshair {*/
 /*  opacity: 0;*/
 /*  transition: opacity 0.28s ease;*/
@@ -380,7 +364,6 @@
 /*  opacity: 1;*/
 /*}*/
 
-/*!* ── 选中：扩散脉冲环（CSS动画，叠加多层） ──────────────── *!*/
 /*.ep-pulse {*/
 /*  opacity: 0;*/
 /*  transform-origin: center;*/
@@ -400,7 +383,6 @@
 /*  100% { transform: scale(3.2); opacity: 0; }*/
 /*}*/
 
-/*!* ── 相似点：虚线外框闪烁 ───────────────────────────────── *!*/
 /*.ep-similar-ring {*/
 /*  opacity: 0;*/
 /*  stroke-dasharray: 3 5;*/
@@ -417,14 +399,10 @@
 /*  to   { transform: rotate(360deg); }*/
 /*}*/
 
-/*!* ── 密度级别（由 JS 写入 data-density） ────────────────── *!*/
-/*!* density 0–3：形状从菱形→圆形→多角→星形 *!*/
-/*.exhibit-point[data-density="0"] .ep-shape { !* 菱形 默认 *! }*/
 /*.exhibit-point[data-density="1"] .ep-shape { filter: url(#soften); }*/
 /*.exhibit-point[data-density="2"] .ep-shape { filter: url(#glow-med); }*/
 /*.exhibit-point[data-density="3"] .ep-shape { filter: url(#glow-hi); }*/
 
-/*!* ─── 连接器画布 ──────────────────────────────────────────────────────────── *!*/
 
 /*#connector-canvas {*/
 /*  position: fixed;*/
@@ -441,7 +419,6 @@
 /*  overflow: visible;*/
 /*}*/
 
-/*!* ─── 入场幕 ──────────────────────────────────────────────────────────────── *!*/
 
 /*#intro {*/
 /*  position: fixed;*/
@@ -471,7 +448,6 @@
 /*  padding: 56px 24px;*/
 /*}*/
 
-/*!* ─── 字体族分配 ─────────────────────────────────────────────────────────── *!*/
 
 /*.gate-eye, .gate-note, .prologue-link, .ve-lbl, .ve-note, .ve-doc,*/
 /*.wb, .vb, .db, #deselect-hint, .tip-sub, .panel-kicker, .panel-sub,*/
@@ -479,7 +455,6 @@
 /*  font-family: var(--mono);*/
 /*}*/
 
-/*!* ─── 入场幕元素 ──────────────────────────────────────────────────────────── *!*/
 
 /*.gate-eye {*/
 /*  font-size: var(--fs-micro);*/
@@ -499,7 +474,6 @@
 /*  text-align: center;*/
 /*  letter-spacing: 0.04em;*/
 /*  animation: fadeUp 1.2s var(--ease-out-expo) 0.1s both;*/
-/*  !* 细腻的发光 *!*/
 /*  text-shadow: 0 0 60px rgba(255, 232, 190, 0.14);*/
 /*}*/
 
@@ -511,7 +485,6 @@
 /*  animation: fadeUp 1.2s var(--ease-out-expo) 0.2s both;*/
 /*}*/
 
-/*!* 装饰分割线 *!*/
 /*.gate-divider {*/
 /*  display: flex;*/
 /*  align-items: center;*/
@@ -538,7 +511,6 @@
 /*  to   { opacity: 1; transform: translateY(0); }*/
 /*}*/
 
-/*!* 世界选择卡片网格 *!*/
 /*.view-grid {*/
 /*  display: grid;*/
 /*  grid-template-columns: repeat(3, minmax(220px, 320px));*/
@@ -547,7 +519,6 @@
 /*  animation: fadeUp 1.2s var(--ease-out-expo) 0.32s both;*/
 /*}*/
 
-/*!* 世界入口卡 *!*/
 /*.ve {*/
 /*  display: flex;*/
 /*  flex-direction: column;*/
@@ -569,7 +540,6 @@
 /*  overflow: hidden;*/
 /*}*/
 
-/*!* 卡片内的柔光晕 *!*/
 /*.ve::before {*/
 /*  content: "";*/
 /*  position: absolute;*/
@@ -655,7 +625,6 @@
 /*  font-family: var(--mono);*/
 /*}*/
 
-/*!* ─── 导航栏 ──────────────────────────────────────────────────────────────── *!*/
 
 /*#world-bar, #view-bar, #disc-bar {*/
 /*  position: fixed;*/
@@ -711,7 +680,6 @@
 /*.wb.active { color: #fff; background: var(--world-accent); }*/
 /*.vb.active, .db.active { color: #fff; background: rgba(255,255,255,0.09); }*/
 
-/*!* ─── 取消选择提示 ────────────────────────────────────────────────────────── *!*/
 
 /*#deselect-hint {*/
 /*  position: fixed;*/
@@ -735,7 +703,6 @@
 /*  pointer-events: all;*/
 /*}*/
 
-/*!* ─── 悬浮提示 ────────────────────────────────────────────────────────────── *!*/
 
 /*#tip {*/
 /*  position: fixed;*/
@@ -767,7 +734,6 @@
 /*  margin-top: 3px;*/
 /*}*/
 
-/*!* ─── 关键词气泡 ──────────────────────────────────────────────────────────── *!*/
 
 /*.kw-bubble {*/
 /*  position: absolute;*/
@@ -834,7 +800,6 @@
 /*.kw-bubble.staged   .bubble-value { color: rgba(255, 215, 158, 0.94); }*/
 /*.kw-bubble.lived    .bubble-value { color: rgba(255, 185, 202, 0.94); }*/
 
-/*!* ─── 相似展品卡 ──────────────────────────────────────────────────────────── *!*/
 
 /*.sim-card {*/
 /*  position: absolute;*/
@@ -895,7 +860,6 @@
 /*  font-family: var(--mono);*/
 /*}*/
 
-/*!* ─── 展品详情面板 ────────────────────────────────────────────────────────── *!*/
 
 /*#object-panel {*/
 /*  position: fixed;*/
@@ -917,7 +881,6 @@
 /*    transform 0.42s var(--ease-world);*/
 /*  transform: translateY(12px);*/
 /*  backdrop-filter: blur(20px);*/
-/*  !* 左侧装饰线 *!*/
 /*  position: fixed;*/
 /*}*/
 
@@ -997,7 +960,6 @@
 /*  font-family: var(--mono);*/
 /*}*/
 
-/*!* ─── 错误提示 ────────────────────────────────────────────────────────────── *!*/
 
 /*.loading-error {*/
 /*  position: fixed;*/
@@ -1014,7 +976,6 @@
 /*  line-height: 1.65;*/
 /*}*/
 
-/*!* ─── 响应式 ──────────────────────────────────────────────────────────────── *!*/
 
 /*@media (max-width: 900px) {*/
 /*  .view-grid {*/
@@ -1046,7 +1007,6 @@
   padding: 0;
 }
 
-/* ─── 设计令牌 ─────────────────────────────────────────────────────────────── */
 
 :root {
   --c-official:    #6aaaf0;
@@ -1086,7 +1046,6 @@
   --ease-world:    cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ─── 三个世界的变量覆盖 ─────────────────────────────────────────────────── */
 
 body[data-world="official"] {
   --world-accent:  rgba(74, 144, 232, 0.26);
@@ -1118,7 +1077,6 @@ body[data-world="lived"] {
   --world-glow:    rgba(232, 48, 106, 0.36);
 }
 
-/* ─── 基础层 ─────────────────────────────────────────────────────────────── */
 
 html, body {
   width: 100%;
@@ -1144,7 +1102,6 @@ body {
   pointer-events: none;
 }
 
-/* 背景：天穹层 */
 body::before {
   content: "";
   position: fixed;
@@ -1184,7 +1141,6 @@ body[data-world=""]::before {
   filter: sepia(0.26) saturate(0.88) brightness(0.80) contrast(1.14);
 }
 
-/* 极光层 — 仅在世界激活时出现 */
 body[data-world]::after {
   animation: aurora-drift 18s ease-in-out infinite;
 }
@@ -1197,7 +1153,6 @@ body[data-world]::after {
   100% { background-position: 0%   0%,   0px 0px,   0px 0px; opacity: 1; }
 }
 
-/* 前景：细格栅 + 暗角 + 噪点纹理感 */
 body::after {
   content: "";
   position: fixed;
@@ -1211,7 +1166,6 @@ body::after {
   transition: background 0.9s var(--ease-world);
 }
 
-/* ─── 策展铭牌：左上角主标题 ────────────────────────────────────────────────── */
 
 #expo-ornament {
   display: none;
@@ -1260,7 +1214,6 @@ body[data-world="lived"]    .orn-small { color: rgba(255, 142, 168, 0.50); }
 
 .orn-arc { display: none; }
 
-/* ─── 幽灵世界背景字 ─────────────────────────────────────────────────────────── */
 
 /* ─── World title-card flash — cinematic on world entry ─────────────────── */
 /* A full-screen italic word that slams in for ~1.6s on world change, then
@@ -1422,7 +1375,6 @@ body[data-world="official"] .orn-arc { border-color: rgba(143, 183, 255, 0.22); 
 body[data-world="staged"]   .orn-arc { border-color: rgba(215, 168, 110, 0.22); }
 body[data-world="lived"]    .orn-arc { border-color: rgba(255, 142, 168, 0.22); }
 
-/* ─── 状态诗句：底部中央浮文 ─────────────────────────────────────────────── */
 
 #expo-ribbon {
   position: fixed;
@@ -1454,7 +1406,6 @@ body[data-world="lived"] #expo-ribbon {
   text-shadow: 0 0 50px rgba(240,80,128,0.15);
 }
 
-/* ─── 渲染宿主 ────────────────────────────────────────────────────────────── */
 
 #renderer-host {
   position: fixed;
@@ -1469,7 +1420,6 @@ body[data-world="lived"] #expo-ribbon {
   cursor: grabbing;
 }
 
-/* ─── 展品点位 ────────────────────────────────────────────────────────────── */
 
 #point-layer {
   position: fixed;
@@ -1479,7 +1429,6 @@ body[data-world="lived"] #expo-ribbon {
   overflow: hidden;
 }
 
-/* 每个点用一个隐形的宽 hit-area，实际绘制由 Canvas 完成 */
 .exhibit-point {
   position: absolute;
   transform: translate(-50%, -50%);
@@ -1500,7 +1449,6 @@ body[data-world="lived"] #expo-ribbon {
   pointer-events: none;
 }
 
-/* 内部 SVG 容器——承载多形态绘制 */
 .exhibit-point svg {
   position: absolute;
   left: 50%;
@@ -1510,7 +1458,6 @@ body[data-world="lived"] #expo-ribbon {
   pointer-events: none;
 }
 
-/* ── 核心形：实心菱形（默认） ──────────────────────────── */
 .ep-core {
   transition:
     transform 0.30s cubic-bezier(0.19,1,0.22,1),
@@ -1521,7 +1468,6 @@ body[data-world="lived"] #expo-ribbon {
 .exhibit-point.hovered  .ep-core { transform: scale(1.35); }
 .exhibit-point.selected .ep-core { transform: scale(1.60); }
 
-/* ── 呼吸光晕（永远轻微脉动） ──────────────────────────── */
 .ep-halo {
   animation: halo-pulse 3.4s ease-in-out infinite;
   transform-origin: center;
@@ -1534,7 +1480,6 @@ body[data-world="lived"] #expo-ribbon {
 .exhibit-point.hovered  .ep-halo { animation-duration: 1.6s; }
 .exhibit-point.selected .ep-halo { animation: none; opacity: 0; }
 
-/* ── 外环（悬停时展开） ──────────────────────────────────── */
 .ep-ring {
   opacity: 0;
   transform: scale(0.55);
@@ -1549,7 +1494,6 @@ body[data-world="lived"] #expo-ribbon {
   transform: scale(1);
 }
 
-/* ── 选中：准星十字 ──────────────────────────────────────── */
 .ep-crosshair {
   opacity: 0;
   transition: opacity 0.30s ease;
@@ -1558,7 +1502,6 @@ body[data-world="lived"] #expo-ribbon {
   opacity: 0.90;
 }
 
-/* ── 选中：脉冲扩散 ──────────────────────────────────────── */
 .ep-pulse {
   opacity: 0;
   transform-origin: center;
@@ -1574,7 +1517,6 @@ body[data-world="lived"] #expo-ribbon {
   100% { transform: scale(3.8);  opacity: 0; }
 }
 
-/* ── 相似点：虚线外框闪烁 ───────────────────────────────── */
 .ep-similar-ring {
   opacity: 0;
   stroke-dasharray: 3 5;
@@ -1591,14 +1533,11 @@ body[data-world="lived"] #expo-ribbon {
   to   { transform: rotate(360deg); }
 }
 
-/* ── 密度级别（由 JS 写入 data-density） ────────────────── */
-/* density 0–3：形状从菱形→圆形→多角→星形 */
 .exhibit-point[data-density="0"] .ep-shape { /* 菱形 默认 */ }
 .exhibit-point[data-density="1"] .ep-shape { filter: url(#soften); }
 .exhibit-point[data-density="2"] .ep-shape { filter: url(#glow-med); }
 .exhibit-point[data-density="3"] .ep-shape { filter: url(#glow-hi); }
 
-/* ─── 连接器画布 ──────────────────────────────────────────────────────────── */
 
 #connector-canvas {
   position: fixed;
@@ -1615,7 +1554,6 @@ body[data-world="lived"] #expo-ribbon {
   overflow: visible;
 }
 
-/* ─── 入场幕 ──────────────────────────────────────────────────────────────── */
 
 #intro {
   position: fixed;
@@ -1641,7 +1579,6 @@ body[data-world="lived"] #expo-ribbon {
   gap: 0;
 }
 
-/* ─── 字体族分配 ─────────────────────────────────────────────────────────── */
 
 .gate-eye, .gate-note, .prologue-link, .ve-lbl, .ve-note, .ve-doc,
 .wb, .vb, .db, #deselect-hint, .tip-sub, .panel-kicker, .panel-sub,
@@ -1649,7 +1586,6 @@ body[data-world="lived"] #expo-ribbon {
   font-family: var(--mono);
 }
 
-/* ─── 入场幕顶部标题区 ────────────────────────────────────────────────────── */
 
 .gate-eye {
   font-size: clamp(14px, 1.05vw, 19px);
@@ -1686,7 +1622,6 @@ body[data-world="lived"] #expo-ribbon {
   margin-bottom: 0;
 }
 
-/* 装饰分割线 */
 .gate-divider {
   display: flex;
   align-items: center;
@@ -1713,7 +1648,6 @@ body[data-world="lived"] #expo-ribbon {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ─── 三幅并立：世界入口三联画 ────────────────────────────────────────────── */
 
 .view-grid {
   width: 100%;
@@ -1722,10 +1656,8 @@ body[data-world="lived"] #expo-ribbon {
   gap: 0;
   margin-top: 36px;
   flex-shrink: 0;
-  /* 不整组动画，改为各列错落 */
 }
 
-/* 世界入口列 — 无边框、无圆角、固定高度大气柱 */
 .ve {
   flex: 1;
   height: 100%;
@@ -1746,15 +1678,12 @@ body[data-world="lived"] #expo-ribbon {
   transition: background 0.6s ease;
 }
 
-/* Official World — 从左侧平移入场，精准利落 */
 .ve:nth-child(1) {
   animation: veOfficial 1.3s var(--ease-out-expo) 0.28s both;
 }
-/* Staged World — 从上方落入，带轻微过冲 */
 .ve:nth-child(2) {
   animation: veStaged 1.5s var(--ease-out-expo) 0.44s both;
 }
-/* Lived World — 从右侧飘入，带细微旋转 */
 .ve:nth-child(3) {
   animation: veLived 1.4s var(--ease-out-expo) 0.60s both;
 }
@@ -1775,7 +1704,6 @@ body[data-world="lived"] #expo-ribbon {
   to   { opacity: 1; transform: translateX(0)    rotate(0deg); }
 }
 
-/* 悬停：世界色光柱从底部冲起 */
 .ve::before {
   content: "";
   position: absolute;
@@ -1797,7 +1725,6 @@ body[data-world="lived"] #expo-ribbon {
   opacity: 0.55;
 }
 
-/* 竖分隔线（相邻列之间） */
 .ve + .ve::before {
   content: "";
   position: absolute;
@@ -1807,7 +1734,6 @@ body[data-world="lived"] #expo-ribbon {
   pointer-events: none;
 }
 
-/* 大气辉光 — 每列世界色的大径向光晕 */
 .ve::after {
   content: "";
   position: absolute;
@@ -1822,7 +1748,6 @@ body[data-world="lived"] #expo-ribbon {
 
 .ve:hover::after { opacity: 0.092; }
 
-/* 悬停：底部轻微光带 */
 .ve:hover {
   background: linear-gradient(180deg, transparent 40%, rgba(255,255,255,0.018) 100%);
 }
@@ -1841,11 +1766,9 @@ body[data-world="lived"] #expo-ribbon {
   opacity: 0.30;
   transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.19, 1, 0.22, 1),
               box-shadow 0.4s ease;
-  /* 轨道光圈：始终缓慢旋转 */
   animation: ring-orbit-idle 12s linear infinite;
 }
 
-/* 外层轨道扫光 — conic-gradient 旋转 */
 .ve-ring::after {
   content: "";
   position: absolute;
@@ -1941,9 +1864,7 @@ body[data-world="lived"] #expo-ribbon {
   text-transform: none;
 }
 
-/* ─── 各世界 hover 差异化效果 ────────────────────────────────────────────── */
 
-/* ── Official：横向光梁从左扫入 · 圆环减速（秩序感） · 蓝色焦聚字光 ── */
 .ve[data-world="official"]::before {
   top: 50%; left: 0; bottom: auto;
   width: 0; height: 2px;
@@ -1968,7 +1889,6 @@ body[data-world="lived"] #expo-ribbon {
   animation-duration: 9s;
 }
 
-/* ── Staged：聚光从顶部垂落 · 圆环急速旋转（戏剧张力） · 宽幅金色光晕 ── */
 .ve[data-world="staged"]::before {
   top: 0; left: 50%; bottom: auto;
   width: 2px; height: 0;
@@ -1996,7 +1916,6 @@ body[data-world="lived"] #expo-ribbon {
   animation-duration: 1.0s;
 }
 
-/* ── Lived：宽柔底部暖晕 · 圆环脉冲（不旋转，像心跳） · 玫瑰漫射字光 ── */
 .ve[data-world="lived"]::before {
   top: auto; left: 50%; bottom: 0;
   width: 4px; height: 0;
@@ -2034,9 +1953,7 @@ body[data-world="lived"] #expo-ribbon {
   50%       { opacity: 0.64; transform: scale(1.06); }
 }
 
-/* ─── 导航栏 ──────────────────────────────────────────────────────────────── */
 
-/* ─── 世界选择条（顶部居中，大小对比排版） ─────────────────────────────────── */
 
 #world-bar {
   position: fixed;
@@ -2057,7 +1974,6 @@ body[data-world="lived"] #expo-ribbon {
   pointer-events: all;
 }
 
-/* 非活跃世界：极小 mono，作为衬托 */
 .wb {
   border: none;
   background: none;
@@ -2078,7 +1994,6 @@ body[data-world="lived"] #expo-ribbon {
 
 .wb:hover { color: rgba(255, 255, 255, 0.72); }
 
-/* 活跃世界：大 fell 斜体，色彩鲜明 — 压场标题 */
 .wb.active {
   font-family: var(--fell);
   font-style: italic;
@@ -2092,7 +2007,6 @@ body[data-world="lived"] #expo-ribbon {
 .wb[data-world="lived"].active       { color: rgba(255, 175, 200, 0.96); }
 .wb[data-world="unfinished"].active  { color: rgba(210, 185, 148, 0.96); }
 
-/* 活跃下方细线 */
 .wb.active::after {
   content: "";
   display: block;
@@ -2103,7 +2017,6 @@ body[data-world="lived"] #expo-ribbon {
   opacity: 0.35;
 }
 
-/* ─── 视角切换条（底部居中） ────────────────────────────────────────────────── */
 
 #view-bar {
   position: fixed;
@@ -2146,7 +2059,6 @@ body[data-world="lived"] #expo-ribbon {
   border-bottom-color: var(--world-key, rgba(255, 232, 190, 0.55));
 }
 
-/* ─── 显示模式切换（底部右侧，无胶囊） ──────────────────────────────────────── */
 
 #mode-toggle {
   position: fixed;
@@ -2186,7 +2098,6 @@ body[data-world="lived"] #expo-ribbon {
   border-bottom-color: var(--world-key, rgba(255, 232, 190, 0.55));
 }
 
-/* ── Dots 模式：隐藏缩略图，还原 SVG ──────────────────────────────────────── */
 body.point-mode-dots .point-thumb {
   opacity: 0 !important;
   pointer-events: none;
@@ -2196,11 +2107,9 @@ body.point-mode-dots .exhibit-point.img-loaded svg {
   transition: none;
 }
 
-/* ── Images 模式：正常行为（默认） ────────────────────────────────────────── */
 body.point-mode-images .point-thumb.loaded { opacity: 1; }
 body.point-mode-images .exhibit-point.img-loaded svg { opacity: 0; }
 
-/* ─── 取消选择提示 ────────────────────────────────────────────────────────── */
 
 #deselect-hint {
   position: fixed;
@@ -2224,7 +2133,6 @@ body.point-mode-images .exhibit-point.img-loaded svg { opacity: 0; }
   pointer-events: all;
 }
 
-/* ─── 悬浮提示（含缩略图） ─────────────────────────────────────────────────── */
 
 #tip {
   position: fixed;
@@ -2283,15 +2191,12 @@ body.point-mode-images .exhibit-point.img-loaded svg { opacity: 0; }
   margin-top: 4px;
 }
 
-/* ─── 点位缩略图（替代 SVG 点） ────────────────────────────────────────────── */
 
-/* SVG 尺寸跟随按钮（原固定 44×44，改为撑满容器） */
 .exhibit-point svg {
   width: 100% !important;
   height: 100% !important;
 }
 
-/* 图像加载后 SVG 渐隐 */
 .exhibit-point.img-loaded svg {
   opacity: 0;
   transition: opacity 0.55s ease;
@@ -2311,7 +2216,6 @@ body.point-mode-images .exhibit-point.img-loaded svg { opacity: 0; }
 
 .point-thumb.loaded { opacity: 1; }
 
-/* 三个世界的形态 */
 body[data-world="official"] .point-thumb {
   border-radius: 1px;
 }
@@ -2333,7 +2237,6 @@ body[data-world="lived"] .point-thumb.loaded {
   filter: drop-shadow(0 0 8px rgba(240,80,128,0.45));
 }
 
-/* ─── 关键词气泡（博物馆注释标签风格） ───────────────────────────────────── */
 
 .kw-bubble {
   position: absolute;
@@ -2363,7 +2266,6 @@ body[data-world="lived"] .point-thumb.loaded {
 .kw-bubble.staged   { --bubble-accent: rgba(240, 168, 48,  0.50); }
 .kw-bubble.lived    { --bubble-accent: rgba(240, 80,  128, 0.50); }
 
-/* 翻转容器 */
 .kw-bubble-inner {
   position: relative;
   width: 100%;
@@ -2375,7 +2277,6 @@ body[data-world="lived"] .point-thumb.loaded {
   transform: rotateY(180deg);
 }
 
-/* 正面 & 背面公共样式 */
 .kw-bubble-front,
 .kw-bubble-back {
   position: absolute;
@@ -2396,13 +2297,11 @@ body[data-world="lived"] .point-thumb.loaded {
   justify-content: space-between;
 }
 
-/* 正面布局 */
 .kw-bubble-front {
   display: flex;
   flex-direction: column;
 }
 
-/* 正面内容 */
 .bubble-field {
   display: block;
   font-size: 8px;
@@ -2431,7 +2330,6 @@ body[data-world="lived"] .point-thumb.loaded {
 .kw-bubble.staged   .bubble-value { color: rgba(255, 224, 170, 0.96); }
 .kw-bubble.lived    .bubble-value { color: rgba(255, 200, 214, 0.96); }
 
-/* 背面内容 */
 .bubble-evidence {
   font-family: var(--serif);
   font-style: italic;
@@ -2491,7 +2389,6 @@ body[data-world="lived"] .point-thumb.loaded {
   display: block;
 }
 
-/* ─── 相似展品卡（策展·邻近作品风格） ──────────────────────────────────── */
 
 .sim-card {
   position: absolute;
@@ -2552,7 +2449,6 @@ body[data-world="lived"] .point-thumb.loaded {
   font-family: var(--mono);
 }
 
-/* ─── 展品详情面板：图像卡（博物馆展墙风格） ──────────────────────────── */
 
 #image-panel {
   position: fixed;
@@ -2619,7 +2515,6 @@ body[data-world="lived"] #image-panel {
   --world-glow: rgba(232, 48, 106, 0.22);
 }
 
-/* 顶部信息区 */
 .image-panel-header {
   padding: 14px 18px 0;
 }
@@ -2637,7 +2532,6 @@ body[data-world="official"] .image-panel-kicker { color: rgba(106, 170, 240, 0.5
 body[data-world="staged"]   .image-panel-kicker { color: rgba(240, 168, 48,  0.56); }
 body[data-world="lived"]    .image-panel-kicker { color: rgba(240, 80,  128, 0.56); }
 
-/* 展品名称 */
 .image-panel-title {
   font-family: 'Source Serif 4', var(--serif);
   font-style: italic;
@@ -2649,7 +2543,6 @@ body[data-world="lived"]    .image-panel-kicker { color: rgba(240, 80,  128, 0.5
   margin-bottom: 14px;
 }
 
-/* 细分割线 */
 .image-panel-rule {
   width: 100%;
   height: 1px;
@@ -2657,7 +2550,6 @@ body[data-world="lived"]    .image-panel-kicker { color: rgba(240, 80,  128, 0.5
   margin-bottom: 0;
 }
 
-/* 图像区 */
 .image-frame {
   width: 100%;
   aspect-ratio: 1.38 / 1;
@@ -2668,7 +2560,6 @@ body[data-world="lived"]    .image-panel-kicker { color: rgba(240, 80,  128, 0.5
   position: relative;
 }
 
-/* 扫描线：面板开启时从上到下扫一遍 */
 .image-frame::after {
   content: "";
   position: absolute;
@@ -2712,7 +2603,6 @@ body[data-world="lived"]    .image-panel-kicker { color: rgba(240, 80,  128, 0.5
   transform: scale(1.0);
 }
 
-/* 底部信息区 */
 .image-panel-footer {
   padding: 13px 20px 18px;
 }
@@ -2725,12 +2615,10 @@ body[data-world="lived"]    .image-panel-kicker { color: rgba(240, 80,  128, 0.5
   line-height: 1.6;
 }
 
-/* 隐藏图片下方的策展描述文字 */
 .image-panel-essay {
   display: none;
 }
 
-/* ─── 3D 模型内嵌切换 ────────────────────────────────────────────────────── */
 #view-3d-btn {
   display: none;
   margin-top: 10px;
@@ -2758,12 +2646,10 @@ body[data-world="lived"]    .image-panel-kicker { color: rgba(240, 80,  128, 0.5
   color: rgba(255, 251, 245, 0.9);
 }
 
-/* 切换图片 vs 3D */
 #image-panel:not(.show-3d) #inline-model-viewer { display: none !important; }
 #image-panel.show-3d #image-panel-img           { display: none; }
 #image-panel.show-3d #inline-model-viewer       { display: block !important; }
 
-/* ─── 面板气泡粒子层 ──────────────────────────────────────────────────────── */
 
 #bubble-layer {
   position: fixed;
@@ -2792,7 +2678,6 @@ body[data-world="lived"]    .image-panel-kicker { color: rgba(240, 80,  128, 0.5
   100% { opacity: 0;    transform: translate(var(--dx), var(--dy)) scale(0.55); }
 }
 
-/* ─── 展品详情辅助面板（底部左侧，备用） ────────────────────────────────── */
 
 #object-panel {
   position: fixed;
@@ -2872,7 +2757,6 @@ body[data-world="lived"]    .image-panel-kicker { color: rgba(240, 80,  128, 0.5
   font-family: var(--mono);
 }
 
-/* ─── 错误提示 ────────────────────────────────────────────────────────────── */
 
 .loading-error {
   position: fixed;
@@ -2889,7 +2773,6 @@ body[data-world="lived"]    .image-panel-kicker { color: rgba(240, 80,  128, 0.5
   line-height: 1.65;
 }
 
-/* ─── 响应式 ──────────────────────────────────────────────────────────────── */
 
 @media (max-width: 900px) {
   .view-grid {

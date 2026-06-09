@@ -12,7 +12,6 @@
     perception: "seen"
   };
 
-  // ─── 世界配置：宇宙收紧，三个世界清晰可辨但不至于太空 ───────────────────
   const WORLD_CONFIG = {
     official: {
       label: "The Official World",
@@ -109,7 +108,6 @@
     camTargetFov:    60
   };
 
-  // ─── 工具函数 ──────────────────────────────────────────────────────────────
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
   function wrap360(v) {
@@ -154,7 +152,6 @@
 
   resizeConnector();
 
-  // ─── Three.js 场景 ─────────────────────────────────────────────────────────
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
   renderer.setSize(innerWidth, innerHeight);
@@ -168,7 +165,6 @@
   const bridgeGroup = new THREE.Group();
   scene.add(bridgeGroup);
 
-  // ─── 星空：适配收紧后的宇宙 ───────────────────────────────────────────────
   function makeStars() {
     const count = 2200;
     const geo   = new THREE.BufferGeometry();
@@ -206,7 +202,6 @@
 
   const stars = makeStars();
 
-  // ─── 位置变换：带抗重叠微抖 ───────────────────────────────────────────────
   function orbitTransform(world, p, i) {
     const cfg = WORLD_CONFIG[world];
     const c = Math.cos(cfg.orbit), s = Math.sin(cfg.orbit);
@@ -215,7 +210,6 @@
     let y = (p?.[1] ?? 0) * cfg.scale[1];
     let z = (p?.[2] ?? 0) * cfg.scale[2];
 
-    // 黄金角抖动，均匀分布，不重叠
     const jx = Math.sin(i * 2.399) * 0.38;
     const jy = Math.cos(i * 1.618) * 0.30;
     const jz = Math.sin(i * 3.141) * 0.38;
@@ -301,7 +295,6 @@
       || `${WORLD_CONFIG[state.currentWorld].label} · ${state.currentView}`;
   }
 
-  // ─── 网格 & 点位层 ─────────────────────────────────────────────────────────
   function getArchiveId(exhibit) {
     const raw = exhibit?.archiveId ?? exhibit?.rawMetadata?.archive_id ?? "";
     return String(raw).trim();
@@ -313,7 +306,6 @@
     return `./Restored/${archiveId.padStart(4, "0")}_c_l.png`;
   }
 
-  /* ── 气泡粒子 ──────────────────────────────────────────────────────────── */
   let _bubbleTimer = null;
 
   function _spawnBubble() {
@@ -387,14 +379,11 @@
       return;
     }
 
-    // 展品名称
     if (els.imagePanelTitle) els.imagePanelTitle.textContent = exhibit.name;
 
-    // 档案标注（微型 mono）
     els.imagePanelCaption.textContent =
       `archive ${archiveId.padStart(4, "0")}  ·  ${(exhibit.country || exhibit.location || "").toUpperCase()}`;
 
-    // 策展文字（非 unfinished world）或留空由 unfinished-world.js 注入
     if (els.imagePanelEssay) {
       const w = world || state.currentWorld || "official";
       if (w === "unfinished") {
@@ -424,7 +413,6 @@
   function makeMeshes() {
     EXHIBITS.forEach((ex, i) => {
       const baseColor = new THREE.Color(ex.color || "#ffffff");
-      // 极小的隐形球体，仅用于位置插值和投影计算
       const mesh = new THREE.Mesh(
         new THREE.SphereGeometry(0.001, 4, 4),
         new THREE.MeshBasicMaterial({ color: baseColor, transparent: true, opacity: 0 })
@@ -436,7 +424,6 @@
       );
       mesh.userData = { index: i, baseColor };
 
-      // 保留 halo 结构以防其他地方引用
       const halo = new THREE.Mesh(
         new THREE.SphereGeometry(0.001, 4, 4),
         new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false })
@@ -449,16 +436,10 @@
     });
   }
 
-  // ─── 形状生成器：基于世界类型和展品索引 ────────────────────────────────────
   //
-  //  三种世界 × 四种密度级别 = 丰富形态
-  //  official → 菱形/正方形（档案、方正、制度）
-  //  staged   → 六边形/圆形（剧场、舞台、完满）
-  //  lived    → 不规则星形/泪珠（感知、身体、流动）
 
   function getShapeType(world, exhibitIndex, density) {
     const tier = density < 0.35 ? 0 : density < 0.60 ? 1 : density < 0.82 ? 2 : 3;
-    // 每个展品有固定的形态偏好（基于索引）
     const bias = exhibitIndex % 3; // 0/1/2
     if (world === "official") return ["diamond", "square", "cross", "compass"][tier];
     if (world === "staged")   return ["hexagon", "circle", "double-ring", "star6"][tier];
@@ -466,30 +447,24 @@
     return "circle";
   }
 
-  // 生成 SVG path/shape 字符串
   function buildPointSVG(world, index, density, colorHex) {
     const shape = getShapeType(world, index, density);
     const tier  = density < 0.35 ? 0 : density < 0.60 ? 1 : density < 0.82 ? 2 : 3;
 
-    // 基础尺寸随密度增大
     const baseR = 4 + density * 5; // 4–9px
 
-    // 颜色
     const fill   = colorHex;
     const stroke = colorHex;
 
-    // 脉冲环（3层，用于选中态动画）
     const pulseRings = `
       <circle class="ep-pulse" cx="0" cy="0" r="${baseR * 1.2}" fill="none" stroke="${stroke}" stroke-width="1" opacity="0"/>
       <circle class="ep-pulse" cx="0" cy="0" r="${baseR * 1.2}" fill="none" stroke="${stroke}" stroke-width="0.8" opacity="0"/>
       <circle class="ep-pulse" cx="0" cy="0" r="${baseR * 1.2}" fill="none" stroke="${stroke}" stroke-width="0.6" opacity="0"/>
     `;
 
-    // 相似点虚线环
     const simRing = `<circle class="ep-similar-ring" cx="0" cy="0" r="${baseR * 2.2}"
       fill="none" stroke="${stroke}" stroke-width="1" opacity="0"/>`;
 
-    // 呼吸光晕
     const halo = `<circle class="ep-halo" cx="0" cy="0" r="${baseR * 2.6}"
       fill="${fill}" opacity="0.10"/>`;
 
@@ -497,7 +472,6 @@
     let outerRing = "";
     let crosshair = "";
 
-    // ── 菱形（official，低密度）──
     if (shape === "diamond") {
       const s = baseR;
       coreShape = `<polygon class="ep-core ep-shape" points="0,${-s} ${s},0 0,${s} ${-s},0"
@@ -511,7 +485,6 @@
           fill="none" stroke="${stroke}" stroke-width="0.9" opacity="0"/>`;
     }
 
-    // ── 正方形（official，中密度）──
     else if (shape === "square") {
       const s = baseR * 0.82;
       coreShape = `<rect class="ep-core ep-shape" x="${-s}" y="${-s}" width="${s*2}" height="${s*2}"
@@ -523,7 +496,6 @@
         <line class="ep-crosshair" x1="${-(s*2.4)}" y1="0" x2="${s*2.4}" y2="0" stroke="${stroke}" stroke-width="0.7" opacity="0"/>`;
     }
 
-    // ── 十字（official，高密度）──
     else if (shape === "cross") {
       const s = baseR, t = s * 0.38;
       coreShape = `<path class="ep-core ep-shape" d="
@@ -538,7 +510,6 @@
         <line class="ep-crosshair" x1="${-(s*2.4)}" y1="0" x2="${s*2.4}" y2="0" stroke="${stroke}" stroke-width="0.7" opacity="0"/>`;
     }
 
-    // ── 指南针（official，顶级密度）──
     else if (shape === "compass") {
       const s = baseR;
       coreShape = `
@@ -555,7 +526,6 @@
           fill="none" stroke="${stroke}" stroke-width="0.9" opacity="0"/>`;
     }
 
-    // ── 六边形（staged，低密度）──
     else if (shape === "hexagon") {
       const pts = Array.from({length:6}, (_,k) => {
         const a = k * Math.PI/3 - Math.PI/6;
@@ -572,7 +542,6 @@
         <line class="ep-crosshair" x1="0" y1="${-(baseR*2.4)}" x2="0" y2="${baseR*2.4}" stroke="${stroke}" stroke-width="0.6" opacity="0"/>`;
     }
 
-    // ── 圆形（staged，中密度）──
     else if (shape === "circle") {
       coreShape = `<circle class="ep-core ep-shape" cx="0" cy="0" r="${baseR}" fill="${fill}" opacity="0.88"/>`;
       outerRing = `<circle class="ep-ring" cx="0" cy="0" r="${baseR*1.85}" fill="none" stroke="${stroke}" stroke-width="0.8" opacity="0"/>`;
@@ -582,7 +551,6 @@
         <line class="ep-crosshair" x1="${-(baseR*2.2)}" y1="0" x2="${baseR*2.2}" y2="0" stroke="${stroke}" stroke-width="0.6" opacity="0"/>`;
     }
 
-    // ── 双环（staged，高密度）──
     else if (shape === "double-ring") {
       coreShape = `
         <circle class="ep-core ep-shape" cx="0" cy="0" r="${baseR*0.52}" fill="${fill}" opacity="0.96"/>
@@ -594,7 +562,6 @@
         <line class="ep-crosshair" x1="${-(baseR*2.4)}" y1="0" x2="${baseR*2.4}" y2="0" stroke="${stroke}" stroke-width="0.6" opacity="0"/>`;
     }
 
-    // ── 六角星（staged，顶级密度）──
     else if (shape === "star6") {
       const starPts = Array.from({length:12}, (_,k) => {
         const r = k%2===0 ? baseR : baseR*0.46;
@@ -609,7 +576,6 @@
         <line class="ep-crosshair" x1="${-(baseR*2.4)}" y1="0" x2="${baseR*2.4}" y2="0" stroke="${stroke}" stroke-width="0.6" opacity="0"/>`;
     }
 
-    // ── 泪珠（lived，低密度）──
     else if (shape === "teardrop") {
       const s = baseR;
       coreShape = `<path class="ep-core ep-shape" d="
@@ -625,7 +591,6 @@
         <line class="ep-crosshair" x1="0" y1="${-(s*2.4)}" x2="0" y2="${s*2.4}" stroke="${stroke}" stroke-width="0.6" opacity="0"/>`;
     }
 
-    // ── 椭圆（lived，中密度）──
     else if (shape === "oval") {
       const rx = baseR * 1.3, ry = baseR * 0.76;
       coreShape = `<ellipse class="ep-core ep-shape" cx="0" cy="0" rx="${rx}" ry="${ry}"
@@ -638,7 +603,6 @@
         <line class="ep-crosshair" x1="${-(rx*2.2)}" y1="0" x2="${rx*2.2}" y2="0" stroke="${stroke}" stroke-width="0.6" opacity="0"/>`;
     }
 
-    // ── 五角星（lived，高密度）──
     else if (shape === "star5") {
       const starPts = Array.from({length:10}, (_,k) => {
         const r = k%2===0 ? baseR : baseR*0.42;
@@ -653,7 +617,6 @@
         <line class="ep-crosshair" x1="${-(baseR*2.4)}" y1="0" x2="${baseR*2.4}" y2="0" stroke="${stroke}" stroke-width="0.6" opacity="0"/>`;
     }
 
-    // ── 簇（lived，顶级密度）——多个小圆聚合 ──
     else if (shape === "cluster") {
       const s = baseR * 0.55;
       const offsets = [[0,-baseR*0.9],[baseR*0.78,baseR*0.48],[-baseR*0.78,baseR*0.48]];
@@ -667,7 +630,6 @@
         <line class="ep-crosshair" x1="${-(baseR*2.4)}" y1="0" x2="${baseR*2.4}" y2="0" stroke="${stroke}" stroke-width="0.6" opacity="0"/>`;
     }
 
-    // 默认回退
     else {
       coreShape = `<circle class="ep-core ep-shape" cx="0" cy="0" r="${baseR}" fill="${fill}" opacity="0.88"/>`;
       outerRing = `<circle class="ep-ring" cx="0" cy="0" r="${baseR*1.85}" fill="none" stroke="${stroke}" stroke-width="0.8" opacity="0"/>`;
@@ -693,7 +655,6 @@
     </svg>`;
   }
 
-  // 缓存当前世界的颜色（hex）
   function colorToHex(c) {
     const r = Math.round(c.r*255).toString(16).padStart(2,"0");
     const g = Math.round(c.g*255).toString(16).padStart(2,"0");
@@ -707,7 +668,6 @@
       pt.type = "button";
       pt.className = "exhibit-point hidden";
       pt.setAttribute("aria-label", ex.name);
-      // SVG 将在 applyLayout 后首次 updatePointLayer 时注入；图像覆盖在 SVG 之上
       pt.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="-22 -22 44 44"></svg>`;
       const thumb = document.createElement("img");
       thumb.className = "point-thumb";
@@ -755,7 +715,6 @@
     });
   }
 
-  // 当世界或视角变化时，重新注入 SVG（形态会变）——保留 .point-thumb
   function rebuildPointSVGs() {
     if (!state.currentWorld) return;
     EXHIBITS.forEach((ex, i) => {
@@ -763,30 +722,23 @@
       const mesh    = state.meshes[i];
       const density = mesh.userData.density ?? getDensity(ex, state.currentWorld, currentViewKey());
       const color   = colorToHex(mesh.material.color);
-      const thumb   = pt.querySelector(".point-thumb"); // 保存缩略图
+      const thumb   = pt.querySelector(".point-thumb");
       pt.innerHTML  = buildPointSVG(state.currentWorld, i, density, color);
-      if (thumb) pt.appendChild(thumb);                // 还原缩略图
+      if (thumb) pt.appendChild(thumb);
       pt.dataset.density = density < 0.35 ? "0" : density < 0.60 ? "1" : density < 0.82 ? "2" : "3";
     });
   }
 
-  // ─── 标签管理 ──────────────────────────────────────────────────────────────
   function clearLabels() {
     state.labels.forEach(el => el.remove());
     state.labels = [];
     ctx.clearRect(0, 0, innerWidth, innerHeight);
   }
 
-  // ─── 核心：精确无重叠布局 ─────────────────────────────────────────────────
   //
-  //  详情布局：
-  //  - 中央固定为展品图像
-  //  - similar exhibit 独占右侧专栏
-  //  - 信息泡泡围绕中央图像，但避开右侧专栏
-  //  这样保留"围绕展品"的感觉，同时避免泡泡和 similar 卡片互相压住。
 
   const BUBBLE_W    = 252;
-  const BUBBLE_H    = 108;   // 注释标签高度（含正背面内容）
+  const BUBBLE_H    = 108;
   const BUBBLE_GAP  = 36;
   const CARD_W      = 234;
   const CARD_H      = 92;
@@ -807,8 +759,6 @@
   }
 
   function applyElementCenter(el, cx, cy, w, h) {
-    // 上方留出双层导航栏（world-bar 18px + view-bar 60px + 间距 ≈ 100px）
-    // 下方留出 ribbon / view 切换栏（≈ 88px）
     el.style.left = `${clamp(cx, w / 2 + 18, innerWidth - w / 2 - 18)}px`;
     el.style.top  = `${clamp(cy, h / 2 + 100, innerHeight - h / 2 - 88)}px`;
   }
@@ -863,7 +813,6 @@
     });
   }
 
-  // ─── 展品语音播放 ──────────────────────────────────────────────────────────
   let _audioEl  = null;   // current playing <audio>
   let _audioFadeTimer = null;
 
@@ -928,7 +877,6 @@
     _audioFadeTimer = setTimeout(tick, dt);
   }
 
-  // ─── 选中展品 ─────────────────────────────────────────────────────────────
   function selectExhibit(index) {
     state.selectedIndex = index;
     state.hoveredIndex  = index;
@@ -1071,7 +1019,6 @@
     stopExhibitAudio(true);   // fade out on deselect
   }
 
-  // ─── 世界连接桥 ───────────────────────────────────────────────────────────
   function rebuildWorldBridge() {
     while (bridgeGroup.children.length) bridgeGroup.remove(bridgeGroup.children[0]);
 
@@ -1099,7 +1046,6 @@
     });
   }
 
-  // ─── 布局应用 ─────────────────────────────────────────────────────────────
   function applyLayout() {
     if (!state.currentWorld) return;
 
@@ -1123,13 +1069,11 @@
     const viewLabel = state.currentView.charAt(0).toUpperCase() + state.currentView.slice(1);
     if (ribbon) ribbon.textContent = `${WORLD_CONFIG[state.currentWorld].label}  ·  ${viewLabel}`;
 
-    // 幽灵背景文字（世界名第一个词，作为大气水印）
     if (els.worldGhost) {
       const ghostWords = { official: "Official", staged: "Staged", lived: "Lived", unfinished: "Unfinished" };
       els.worldGhost.textContent = ghostWords[state.currentWorld] || "";
     }
 
-    // 字卡闪现：进入世界时全屏砸下大字 ~1.6s（大屏装置感）
     (function fireWorldTitleFlash() {
       const labels = {
         official:   "Official",
@@ -1153,7 +1097,6 @@
       el.classList.add("firing");
     })();
 
-    // 幽灵引文层：thesis 节拍漂浮在背景里
     (function ensureGhostQuoteLayer() {
       if (document.getElementById("ghost-quote-layer")) return;
       const quotes = [
@@ -1182,7 +1125,6 @@
     els.viewBar.classList.add("on");
     if (els.modeToggle) els.modeToggle.classList.add("on");
     rebuildWorldBridge();
-    // 重建点形态 SVG（世界/视角变化时形态随之改变）
     rebuildPointSVGs();
   }
 
@@ -1216,7 +1158,6 @@
     if (state.selectedIndex >= 0) selectExhibit(state.selectedIndex);
   }
 
-  // ─── 点位层更新（缩略图 + 密度尺寸 + SVG 状态驱动） ─────────────────────
   function updatePointLayer() {
     const hasWorld = !!state.currentWorld;
     EXHIBITS.forEach((ex, i) => {
@@ -1233,13 +1174,11 @@
       const isSim  = state.selectedIndex >= 0 && getSimilarIds(EXHIBITS[state.selectedIndex]).includes(i);
       const density = mesh.userData.density ?? getDensity(ex, state.currentWorld, currentViewKey());
 
-      // 密度决定基础尺寸：24px（稀疏）→ 78px（核心）
       const baseSize = Math.round(36 + density * 72);   // 36-108px
       const hitSize  = isSel ? Math.min(Math.round(baseSize * 1.28), 148)
                      : isHov ? Math.round(baseSize * 1.18)
                      : baseSize;
 
-      // 整体透明度
       const baseOpacity = 0.55 + density * 0.36;
       const opacity = state.selectedIndex < 0
         ? baseOpacity
@@ -1259,7 +1198,6 @@
       pt.classList.toggle("hovered",  isHov && !isSel);
       pt.classList.toggle("similar",  isSim && !isSel);
 
-      // ── 点位图像懒加载（图像模式且高密度展品才加载） ────────────────────────
       const thumbEl = pt.querySelector(".point-thumb");
       if (thumbEl && !thumbEl.dataset.attempted && state.pointMode === "images" && density >= 0.46) {
         thumbEl.dataset.attempted = "1";
@@ -1275,7 +1213,6 @@
     });
   }
 
-  // ─── 标签 & 连线更新（核心：无重叠布局） ──────────────────────────────────
   function updateLabels() {
     ctx.clearRect(0, 0, innerWidth, innerHeight);
     if (state.selectedIndex < 0) return;
@@ -1285,11 +1222,9 @@
     const bubbleEls = state.labels.filter(el => el.dataset.kind === "bubble");
     const simEls    = state.labels.filter(el => el.dataset.kind === "similar");
 
-    // 精确布局
     placeBubbles(bubbleEls, origin.x, origin.y);
     placeCards(simEls, origin.x, origin.y);
 
-    // ── 绘制连线：从选中点到气泡/卡片，用优雅曲线 ──────────────────────────
     ctx.save();
     ctx.setLineDash([3, 7]);
     ctx.lineWidth = 1.0;
@@ -1297,12 +1232,10 @@
     bubbleEls.forEach(el => {
       const bx = parseFloat(el.style.left);
       const by = parseFloat(el.style.top);
-      // 气泡右边缘连到 origin
       const ex2 = bx + BUBBLE_W / 2 + 2;
       const ey  = by;
       ctx.beginPath();
       ctx.strokeStyle = colorToCss(color, 0.28);
-      // 柔和贝塞尔曲线
       const mx = (ex2 + origin.x) / 2;
       ctx.moveTo(ex2, ey);
       ctx.quadraticCurveTo(mx, ey, origin.x, origin.y);
@@ -1313,10 +1246,8 @@
       const cx  = parseFloat(el.style.left);
       const cy  = parseFloat(el.style.top);
       const ti  = Number(el.dataset.targetIndex ?? -1);
-      // 卡片左边缘连到目标展品
       const ex2 = cx - CARD_W / 2 - 2;
 
-      // 主线：选中点 → 卡片
       ctx.beginPath();
       ctx.strokeStyle = colorToCss(color, 0.32);
       const mx = (origin.x + ex2) / 2;
@@ -1324,7 +1255,6 @@
       ctx.quadraticCurveTo(mx, origin.y, ex2, cy);
       ctx.stroke();
 
-      // 虚线：目标展品 → 卡片
       if (ti >= 0) {
         const tgt = project(state.meshes[ti].position, camera);
         ctx.beginPath();
@@ -1340,7 +1270,6 @@
     ctx.restore();
   }
 
-  // ─── 事件绑定 ─────────────────────────────────────────────────────────────
   function bindEvents() {
     document.querySelectorAll(".ve").forEach(btn => {
       btn.addEventListener("click", () => setWorld(btn.dataset.world));
@@ -1353,13 +1282,11 @@
     });
     els.deselectHint.addEventListener("click", ev => { ev.stopPropagation(); deselectExhibit(); });
 
-    // ── UI 面板阻断 pointerdown，防止 canvas setPointerCapture 触发 deselect ──
     ["image-panel", "object-panel", "uw-comment-panel"].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.addEventListener("pointerdown", ev => ev.stopPropagation());
     });
 
-    // ── 显示模式切换 ────────────────────────────────────────────────────────
     document.querySelectorAll(".mt").forEach(btn => {
       btn.addEventListener("click", ev => {
         ev.stopPropagation();
@@ -1415,7 +1342,6 @@
     });
   }
 
-  // ─── 动画循环 ─────────────────────────────────────────────────────────────
   function animate() {
     requestAnimationFrame(animate);
     const t = performance.now() * 0.001;
@@ -1453,8 +1379,6 @@
       const isSim  = state.selectedIndex >= 0 && getSimilarIds(EXHIBITS[state.selectedIndex]).includes(i);
       const density = mesh.userData.density ?? 0.3;
 
-      // Three.js mesh 仅维持颜色供 colorToHex 读取，无可见几何体
-      // 视觉效果由 SVG 点层 + CSS 动画承载
     });
 
     updatePointLayer();
@@ -1462,14 +1386,12 @@
     renderer.render(scene, camera);
   }
 
-  // 初始化显示模式
   document.body.classList.add("point-mode-dots");
 
   bindEvents();
   makeMeshes();
   makePointLayer();
 
-  // 点位图像替代环境标签层——不再使用独立的 ambient DOM 层
   state.nameLabelEls = new Array(EXHIBITS.length).fill(null);
 
   const params = new URLSearchParams(window.location.search);
@@ -1484,7 +1406,6 @@
 
   animate();
 
-  // ─── 星空动画：闪烁星星 + 流星 ──────────────────────────────────────────────
   (function initStarField() {
     const canvas = document.getElementById("star-canvas");
     if (!canvas) return;
@@ -1497,16 +1418,15 @@
     resize();
     window.addEventListener("resize", resize);
 
-    // 500 颗背景星 — 3 层：密集小星 / 中型闪烁 / 偶尔明亮
     const STAR_COUNT = 500;
     const stars = Array.from({ length: STAR_COUNT }, () => {
       const tier = Math.random();
       return {
         x:     Math.random(),
         y:     Math.random(),
-        r:     tier < 0.65 ? Math.random() * 0.6 + 0.12           // 小星
-              : tier < 0.92 ? Math.random() * 1.0 + 0.55          // 中型
-              : Math.random() * 1.6 + 1.2,                         // 明亮
+        r:     tier < 0.65 ? Math.random() * 0.6 + 0.12
+              : tier < 0.92 ? Math.random() * 1.0 + 0.55
+              : Math.random() * 1.6 + 1.2,
         base:  tier < 0.65 ? 0.08 + Math.random() * 0.28
               : tier < 0.92 ? 0.20 + Math.random() * 0.45
               : 0.55 + Math.random() * 0.38,
@@ -1515,7 +1435,6 @@
       };
     });
 
-    // 流星队列 — 更频繁、更亮、更长
     const shoots = [];
     let nextShootAt = performance.now() + 1200 + Math.random() * 2500;
 
@@ -1523,21 +1442,20 @@
       shoots.push({
         x:        Math.random() * 0.82 + 0.04,
         y:        Math.random() * 0.42,
-        len:      0.10 + Math.random() * 0.16,        // 更长拖尾
+        len:      0.10 + Math.random() * 0.16,
         spd:      0.00028 + Math.random() * 0.00032,
         angle:    Math.PI / 5 + Math.random() * Math.PI / 7,
         progress: 0,
         alpha:    0.75 + Math.random() * 0.24,
-        width:    1.0 + Math.random() * 1.2           // 粗细随机
+        width:    1.0 + Math.random() * 1.2
       });
-      nextShootAt = now + 2800 + Math.random() * 5500; // 更频繁
+      nextShootAt = now + 2800 + Math.random() * 5500;
     }
 
     function draw(now) {
       const w = canvas.width, h = canvas.height;
       ctx.clearRect(0, 0, w, h);
 
-      // ── 闪烁星星 ──
       stars.forEach(s => {
         const a = s.base * (0.45 + 0.55 * Math.sin(s.phase + now * s.freq));
         ctx.beginPath();
@@ -1546,7 +1464,6 @@
         ctx.fill();
       });
 
-      // ── 流星 ──
       if (now >= nextShootAt) spawnShoot(now);
 
       for (let i = shoots.length - 1; i >= 0; i--) {
@@ -1559,7 +1476,6 @@
         const tailX = (s.x + Math.cos(s.angle) * s.len * tailT) * w;
         const tailY = (s.y + Math.sin(s.angle) * s.len * tailT) * h;
 
-        // 尾部淡出
         const fade = s.progress > 0.78 ? (1 - s.progress) / 0.22 : 1;
         const g = ctx.createLinearGradient(tailX, tailY, headX, headY);
         g.addColorStop(0, "rgba(255,255,255,0)");
@@ -1570,7 +1486,6 @@
         ctx.lineTo(headX, headY);
         ctx.strokeStyle = g;
         ctx.lineWidth = s.width;
-        // 流星光晕
         ctx.shadowBlur = 6;
         ctx.shadowColor = `rgba(255,255,255,${(s.alpha * fade * 0.6).toFixed(3)})`;
         ctx.stroke();
